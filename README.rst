@@ -16,42 +16,8 @@ Created: 8-Oct-2014
 Abstract
 ========
 
-This PEP proposes how the Python Package Index (PyPI [1]_) should be integrated
-with The Update Framework [2]_ (TUF).  TUF was designed to be a flexible
-security add-on to a software updater or package manager.  The framework
-integrates best security practices such as separating role responsibilities,
-adopting the many-man rule for signing packages, keeping signing keys offline,
-and revocation of expired or compromised signing keys.  For example, attackers
-would have to steal multiple signing keys stored independently to compromise
-a role responsible for specifying a repository's available files.  Another role
-responsible for indicating the latest snapshot of the repository may have to be
-similarly compromised, and independent of the first compromised role.
 
-The proposed integration will allow modern package managers such as pip [3]_ to
-be more secure against various types of security attacks on PyPI and protect
-users from such attacks.  Specifically, this PEP describes how PyPI processes
-should be adapted to generate and incorporate TUF metadata (i.e., the minimum
-security model).  The minimum security model supports verification of PyPI
-distributions that are signed with keys stored on PyPI: distributions uploaded
-by developers are signed by PyPI, require no action from developers (other
-than uploading the distribution), and are immediately available for download.  The
-minimum security model also minimizes PyPI administrative responsibilities by
-automating much of the signing process.
 
-This PEP does not prescribe how package managers such as pip should be adapted
-to install or update projects from PyPI with TUF metadata.   Package managers
-interested in adopting TUF on the client side may consult TUF's `library
-documentation`__, which exists for this purpose.  Support for project
-distributions that are signed by developers (maximum security model) is also
-not discussed in this PEP, but is outlined in the appendix as a possible future
-extension and covered in detail in PEP XXX [VD: Link to PEP once it is
-completed].  The PEP XXX extension focuses on the maximum security model, which
-requires more PyPI administrative work (none by clients), but it also proposes 
-an easy-to-use key management solution for developers, how to interface with
-a potential future build farm on PyPI infrastructure, and discusses the
-feasibility of end-to-end signing.
-
-__ https://github.com/theupdateframework/tuf/tree/develop/tuf/client#updaterpy
 
 
 Rationale
@@ -142,37 +108,6 @@ Terms used in this PEP are defined as follows:
   its metadata.  A compromise of t-1 keys is insufficient to compromise the
   role itself.  Saying that a role requires (t, n) keys denotes the threshold
   signature property.
-
-
-Minimum Security Model
-
-
-There are two security models to consider when integrating TUF with PyPI.  The
-one proposed in this PEP is the minimum security model, which supports
-verification of PyPI distributions that are signed with private cryptographic
-keys stored on PyPI.  Distributions uploaded by developers are signed by PyPI
-and immediately available for download.  A possible future extension to this
-PEP, discussed in Appendix B, proposes the maximum security model and allows a
-developer to sign for his/her project.  Developer keys are not stored online:
-therefore, projects are safe from PyPI compromises.
-
-The minimum security model requires no action from a developer and protects
-against malicious CDNs [19]_ and public mirrors.  To support continuous
-delivery of uploaded packages, PyPI signs for projects with an online key.
-This level of security prevents projects from being accidentally or
-deliberately tampered with by a mirror or a CDN because the mirror or CDN will
-not have any of the keys required to sign for projects.  However, it does not
-protect projects from attackers who have compromised PyPI, since attackers can
-manipulate TUF metadata using the keys stored online.   
-
-This PEP proposes that the *bins* role (and its delegated roles) sign for all
-PyPI projects with an online key.  The *targets* role, which only signs with an
-offline key, MUST delegate all PyPI projects to the *bins* role.  This means
-that when a package manager such as pip (i.e., using TUF) downloads a
-distribution from a project on PyPI, it will consult the *bins* role about the
-TUF metadata for the project.  If no bin roles delegated by *bins* specify the
-project's distribution, then the project is considered to be non-existent on
-PyPI.
 
 
 Extension to the Minimum Security Model
@@ -530,8 +465,6 @@ of a package at a specific version, they can be handled by TUF with techniques
 like implicit key revocation and metadata mismatch detection [81].
 
 
-
-
 References
 ==========
 
@@ -585,11 +518,6 @@ project.
 Konstantin Andrianov, Geremy Condra, Vladimir Diaz, Zane Fisher, Justin Samuel,
 Tian Tian, Santiago Torres, John Ward, and Yuyu Zheng for helping us to develop
 TUF.
-
-Vladimir Diaz, Monzur Muhammad and Sai Teja Peddinti for helping us to review
-this PEP.
-
-Zane Fisher for helping us to review and transcribe this PEP.
 
 
 Copyright
