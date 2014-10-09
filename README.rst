@@ -23,8 +23,28 @@ Abstract
 Rationale
 =========
 
+1. A build farm (distribution wheels on supported platforms are generated on
+   PyPI infrastructure for each project) may possibly complicate matters.  PyPI
+   wants to support a build farm in the future.  Unfortunately, if wheels are
+   auto-generated externally, developer signatures for these wheels are
+   unlikely.  However, there might still be a benefit to generating wheels from
+   source distributions that *are* signed by developers (provided that
+   reproducible wheels are possible).  Another possibility is to optionally
+   delegate trust of these wheels to an online role.
 
+2. An easy-to-use key management solution is needed for developers.
+   `miniLock`__ is one likely candidate for management and generation of keys.
+   Although developer signatures can be left as an option, this approach may be
+   insufficient due to the great number of unsigned dependencies that can occur
+   for a signed distribution requested by a client.  Requiring developers to
+   manually sign distributions and manage keys is expected to render key
+   signing an unused feature.
 
+__ https://minilock.io/
+
+3. A two-phase approach, where the minimum security model is implemented first
+   followed by the maximum security model, can simplify matters and give PyPI
+   administrators time to review the feasibility of end-to-end signing.
 
 
 Threat Model
@@ -122,32 +142,6 @@ detail, is available for review to those developers interested in the
 end-to-end signing option.  The maximum security model and end-to-end signing
 are briefly covered in subsections that follow.
 
-There are several reasons for not initially supporting the features discussed
-in this section:
-
-1. A build farm (distribution wheels on supported platforms are generated on
-   PyPI infrastructure for each project) may possibly complicate matters.  PyPI
-   wants to support a build farm in the future.  Unfortunately, if wheels are
-   auto-generated externally, developer signatures for these wheels are
-   unlikely.  However, there might still be a benefit to generating wheels from
-   source distributions that *are* signed by developers (provided that reproducible
-   wheels are possible).  Another possibility is to optionally delegate trust
-   of these wheels to an online role.
-
-2. An easy-to-use key management solution is needed for developers.
-   `miniLock`__ is one likely candidate for management and generation of keys.
-   Although developer signatures can be left as an option, this approach may be
-   insufficient due to the great number of unsigned dependencies that can occur
-   for a signed distribution requested by a client.  Requiring developers to
-   manually sign distributions and manage keys is expected to render key
-   signing an unused feature.
-
-__ https://minilock.io/
-
-3. A two-phase approach, where the minimum security model is implemented first
-   followed by the maximum security model, can simplify matters and give PyPI
-   administrators time to review the feasibility of end-to-end signing.
-
 
 Maximum Security Model
 ----------------------
@@ -155,20 +149,20 @@ Maximum Security Model
 The maximum security model relies on developers signing their projects and
 uploading signed metadata to PyPI.  If the PyPI infrastructure were to be
 compromised, attackers would be unable to serve malicious versions of claimed
-projects without access to the project's developer key.  Figure 3 depicts the
-changes made to figure 2, namely that developer roles are now supported and
-that three new delegated roles exist: *claimed*, *recently-claimed*, and
-*unclaimed*.  The *bins* role has been renamed *unclaimed* and can contain any
-projects that have not been added to *claimed*.  The strength of this model
-(over the minimum security model) is in the offline keys provided by
-developers.  Although the minimum security model supports continuous delivery,
-all of the projects are signed by an online key.  An attacker can corrupt
-packages in the minimum security model, but not in the maximum model without
-also compromising a developer's key.
+projects without access to the project's developer key. he metadata layout in
+the minimum security model  changes made to figure 2, namely that developer
+roles are now supported and that three new delegated roles exist: *claimed*,
+*recently-claimed*, and *unclaimed*.  The *bins* role has been renamed
+*unclaimed* and can contain any projects that have not been added to *claimed*.
+The strength of this model (over the minimum security model) is in the offline
+keys provided by developers.  Although the minimum security model supports
+continuous delivery, all of the projects are signed by an online key.  An
+attacker can corrupt packages in the minimum security model, but not in the
+maximum model without also compromising a developer's key.
 
 .. image:: figure1.png
 
-Figure 3: An overview of the metadata layout in the maximum security model.
+Figure 1: An overview of the metadata layout in the maximum security model.
 The maximum security model supports continuous delivery and survivable key
 compromise.
 
@@ -296,46 +290,66 @@ private cryptographic keys (belonging to any of the PyPI roles) are
 compromised.  The leftmost column lists the roles (or a combination of roles)
 that have been compromised, and the columns to its right show whether the
 compromised roles leaves clients susceptible to malicious updates, a freeze
-attack, or metadata inconsistency attacks.
 
-
-+-----------------+-------------------+----------------+--------------------------------+
-| Role Compromise | Malicious Updates | Freeze Attack  | Metadata Inconsistency Attacks |
-+=================+===================+================+================================+
-|    timetamp     |       NO          |       YES      |       NO                       |
-|                 | snapshot and      | limited by     | snapshot needs to cooperate    |
-|                 | targets or any    | earliest root, |                                |
-|                 | of the bins need  | targets, or    |                                |
-|                 | to cooperate      | bin expiry     |                                |
-|                 |                   | time           |                                |
-+-----------------+-------------------+----------------+--------------------------------+
-|    snapshot     |       NO          |       NO       |       NO                       |
-|                 | timestamp and     | timestamp      | timestamp needs to cooperate   |
-|                 | targets or any of | needs to       |                                |
-|                 | the bins need to  | cooperate      |                                |
-|                 | cooperate         |                |                                |
-+-----------------+-------------------+----------------+--------------------------------+
-|    timestamp    |       NO          |       YES      |       YES                      |
-|    **AND**      | targets or any    | limited by     | limited by earliest root,      |
-|    snapshot     | of the bins need  | earliest root, | targets, or bin metadata       |
-|                 | to cooperate      | targets, or    | expiry time                    |
-|                 |                   | bin metadata   |                                |
-|                 |                   | expiry time    |                                |
-+-----------------+-------------------+----------------+--------------------------------+
-|    targets      |       NO          | NOT APPLICABLE |        NOT APPLICABLE          |
-|    **OR**       | timestamp and     | need timestamp | need timestamp and snapshot    |
-|    bin          | snapshot need to  | and snapshot   |                                |
-|                 | cooperate         |                |                                |
-+-----------------+-------------------+----------------+--------------------------------+
-|   timestamp     |       YES         |       YES      |       YES                      |
-|   **AND**       |                   | limited by     | limited by earliest root,      |
-|   snapshot      |                   | earliest root, | targets, or bin metadata       |
-|   **AND**       |                   | targets, or    | expiry time                    |
-|   bin           |                   | bin metadata   |                                |
-|                 |                   | expiry time    |                                |
-+-----------------+-------------------+----------------+--------------------------------+
-|     root        |       YES         |       YES      |       YES                      |
-+-----------------+-------------------+----------------+--------------------------------+
++-------------------+-------------------+-----------------------+-----------------------+
+| Role Compromise   | Malicious Updates | Freeze Attack         | Metadata Inconsistency|
+|                   |                   |                       | Attacks               |
++===================+===================+=======================+=======================+
+|    timetamp       |       NO          |       YES             |       NO              |
+|                   | snapshot and      | limited by earliest   | snapshot needs to     |
+|                   | targets or any    | root, targets, or bin | cooperate             |
+|                   | of the bins need  | metadata expiry time  |                       |
+|                   | to cooperate      |                       |                       |
+|                   |                   |                       |                       |
++-------------------+-------------------+-----------------------+-----------------------+
+|    snapshot       |       NO          |         NO            |       NO              |
+|                   | timestamp and     | timestamp needs to    | timestamp needs to    |
+|                   | targets or any of | coorperate            | cooperate             |
+|                   | the bins need to  |                       |                       |
+|                   | cooperate         |                       |                       |
++-------------------+-------------------+-----------------------+-----------------------+
+|    timestamp      |       NO          |         YES           |       YES             |
+|    **AND**        | targets or any    | limited by earliest   | limited by earliest   |
+|    snapshot       | of the bins need  | root, targets, or bin | root, targets, or bin |
+|                   | to cooperate      | metadata expiry time  | metadata expiry time  |
+|                   |                   |                       |                       |
+|                   |                   |                       |                       |
++-------------------+-------------------+-----------------------+-----------------------+
+|    targets        |       NO          |     NOT APPLICABLE    |    NOT APPLICABLE     |
+|    **OR**         | timestamp and     | need timestamp and    | need timestamp        |
+|    claimed        | snapshot need to  | snapshot              | and snapshot          |
+|    **OR**         | cooperate         |                       |                       |
+| recently-claimed  |                   |                       |                       |
+|    **OR**         |                   |                       |                       |
+|    unclaimed      |                   |                       |                       |
+|    **OR**         |                   |                       |                       |
+|    project        |                   |                       |                       |
++-------------------+-------------------+-----------------------+-----------------------+
+|   (timestamp      |       YES         |       YES             |       YES             |
+|   **AND**         |                   | limited by earliest   | limited by earliest   |
+|   snapshot)       |                   | root, targets, or bin | root, targets, or bin |
+|   **AND**         |                   | metadata expiry time  | metadata expiry time  |
+|   project         |                   |                       |                       |
+|                   |                   |                       |                       |
++-------------------+-------------------+-----------------------+-----------------------+
+|  (timestamp       |     YES           |        YES            |           YES         |
+|  **AND**          | but only of       | limited by earliest   | limited by earliest   |
+|  snapshot)        | projects not      | root, targets,        | root, targets,        |
+|  **AND**          | delegated by      | claimed,              | claimed,              |
+| (recently-claimed | claimed           | recently-claimed,     | recently-claimed,     |
+| **OR**            |                   | project, or unclaimed | project, or unclaimed |
+| unclaimed)        |                   | metadata expiry time  | metadata expiry time  |
++-------------------+-------------------+-----------------------+-----------------------+
+| (timestamp        |                   |         YES           |           YES         | 
+| **AND**           |                   | limited by earliest   | limited by earliest   |   
+| snapshot)         |                   | root, targets,        | root, targets,        |
+| **AND**           |       YES         | claimed,              | claimed,              |
+| (targets **OR**   |                   | recently-claimed,     | recently-claimed,     |
+| claimed)          |                   | project, or unclaimed | project, or unclaimed |
+|                   |                   | metadata expiry time  | metadata expiry time  |
++-------------------+-------------------+-----------------------+-----------------------+
+|     root          |       YES         |         YES           |           YES         |
++-------------------+-------------------+-----------------------+-----------------------+
 
 Table 1: Attacks possible by compromising certain combinations of role keys.
 In `September 2013`__, it was shown how the latest version (at the time) of pip
