@@ -11,6 +11,7 @@ Status: Draft
 Type: Standards Track
 Content-Type: text/x-rst
 Created: 8-Oct-2014
+Replaces:  458 
 
 
 Abstract
@@ -23,7 +24,12 @@ Abstract
 Rationale
 =========
 
-1. A build farm (distribution wheels on supported platforms are generated on
+
+Minimum Security Model
+Maximum Security Model
+Reason for postponing extension:
+
+a. A build farm (distribution wheels on supported platforms are generated on
    PyPI infrastructure for each project) may possibly complicate matters.  PyPI
    wants to support a build farm in the future.  Unfortunately, if wheels are
    auto-generated externally, developer signatures for these wheels are
@@ -32,7 +38,7 @@ Rationale
    reproducible wheels are possible).  Another possibility is to optionally
    delegate trust of these wheels to an online role.
 
-2. An easy-to-use key management solution is needed for developers.
+b. An easy-to-use key management solution is needed for developers.
    `miniLock`__ is one likely candidate for management and generation of keys.
    Although developer signatures can be left as an option, this approach may be
    insufficient due to the great number of unsigned dependencies that can occur
@@ -42,7 +48,7 @@ Rationale
 
 __ https://minilock.io/
 
-3. A two-phase approach, where the minimum security model is implemented first
+c. A two-phase approach, where the minimum security model is implemented first
    followed by the maximum security model, can simplify matters and give PyPI
    administrators time to review the feasibility of end-to-end signing.
 
@@ -382,31 +388,78 @@ A key compromise means that a threshold of keys (belonging to the metadata
 roles on PyPI), as well as the PyPI infrastructure, have been compromised and
 used to sign new metadata on PyPI.
 
-If a threshold number of *timestamp*, *snapshot*, or *bins* keys have
-been compromised, then PyPI MUST take the following steps:
+If a threshold number of developer keys of a project have been compromised,
+then the project MUST take the following steps:
 
-1. Revoke the *timestamp*, *snapshot* and *targets* role keys from
-   the *root* role.  This is done by replacing the compromised *timestamp*,
-   *snapshot* and *targets* keys with newly issued keys.
+1.  The project metadata and targets MUST be restored to the last known good
+    consistent snapshot where the project was not known to be compromised. This
+    can be done by the developers repackaging and resigning all targets with
+    the new keys.
 
-2. Revoke the *bins* keys from the *targets* role by replacing their keys with
-   newly issued keys.  Sign the new *targets* role metadata and discard the new
-   keys (because, as explained earlier, this increases the security of
-   *targets* metadata).
+2.  The project's metadata MUST have its version numbers incremented, expiry
+    times suitably extended and signatures renewed.
 
-3. All targets of the *bins* roles SHOULD be compared with the last known
-   good consistent snapshot where none of the *timestamp*, *snapshot*, or
-   *bins* keys
-   were known to have been compromised.  Added, updated or deleted targets in
-   the compromised consistent snapshot that do not match the last known good
-   consistent snapshot MAY be restored to their previous versions.  After
-   ensuring the integrity of all *bins* targets, the *bins* metadata
-   MUST be regenerated.
+Whereas PyPI MUST take the following steps:
 
-4. The *bins* metadata MUST have their version numbers incremented, expiry
-   times suitably extended, and signatures renewed.
+1.  Revoke the compromised developer keys from the delegation to the project by
+    the recently-claimed or claimed role. This is done by replacing the
+    compromised developer keys with newly issued developer keys.
 
-5. A new timestamped consistent snapshot MUST be issued.
+2.  A new timestamped consistent snapshot MUST be issued.
+
+If a threshold number of timestamp, snapshot, recently-claimed or
+unclaimed keys have been compromised, then PyPI MUST take the following steps:
+
+1.  Revoke the timestamp, snapshot and targets role keys from the
+    root role. This is done by replacing the compromised timestamp,
+    snapshot and targets keys with newly issued keys.
+
+2.  Revoke the recently-claimed and unclaimed keys from the targets role by
+    replacing their keys with newly issued keys. Sign the new targets role
+    metadata and discard the new keys (because, as we explained earlier, this
+    increases the security of targets metadata).
+
+3.  Clear all targets or delegations in the recently-claimed role and delete
+    all associated delegated targets metadata. Recently registered projects
+    SHOULD register their developer keys again with PyPI.
+
+4.  All targets of the recently-claimed and unclaimed roles SHOULD be compared
+    with the last known good consistent snapshot where none of the timestamp,
+    snapshot, recently-claimed or unclaimed keys were known to have been
+    compromised. Added, updated or deleted targets in the compromised
+    consistent snapshot that do not match the last known good consistent
+    snapshot MAY be restored to their previous versions. After ensuring the
+    integrity of all unclaimed targets, the unclaimed metadata MUST be
+    regenerated.
+
+5.  The recently-claimed and unclaimed metadata MUST have their version numbers
+    incremented, expiry times suitably extended and signatures renewed.
+
+6.  A new timestamped consistent snapshot MUST be issued.
+
+This would preemptively protect all of these roles even though only one of them
+may have been compromised.
+
+If a threshold number of the targets or claimed keys have been compromised,
+then there is little that an attacker could do without the timestamp and
+snapshot keys. In this case, PyPI MUST simply revoke the compromised targets or
+claimed keys by replacing them with new keys in the root and targets roles
+respectively.
+
+If a threshold number of the timestamp, snapshot and claimed keys have been
+compromised, then PyPI MUST take the following steps in addition to the steps
+taken when either the timestamp or snapshot keys are compromised:
+
+Revoke the claimed role keys from the targets role and replace them with newly
+issued keys.  All project targets of the claimed roles SHOULD be compared with
+the last known good consistent snapshot where none of the timestamp, snapshot
+or claimed keys were known to have been compromised.  Added, updated or deleted
+targets in the compromised consistent snapshot that do not match the last known
+good consistent snapshot MAY be restored to their previous versions. After
+ensuring the integrity of all claimed project targets, the claimed metadata
+MUST be regenerated.  The claimed metadata MUST have their version numbers
+incremented, expiry times suitably extended and signatures renewed.
+
 
 Following these steps would preemptively protect all of these roles even though
 only one of them may have been compromised.
