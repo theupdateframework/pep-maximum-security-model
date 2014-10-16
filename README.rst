@@ -17,7 +17,11 @@ Replaces:  458
 Abstract
 ========
 
+This PEP proposes an extension to PEP 458 whereby the minimum security model
+is adapted to also support distributions that may be signed by developers.
 
+This PEP was postponed for several reasons: the build farm, an easy-to-use key
+management solution, and to allow a two-phase implementation.
 
 
 
@@ -81,8 +85,8 @@ interpreted as described in RFC 2119__.
 __ http://www.ietf.org/rfc/rfc2119.txt
 
 This PEP focuses on the application of TUF on PyPI; however, the reader is
-encouraged to read about TUF's design principles [2]_.  It is also RECOMMENDED
-that the reader be familiar with the TUF specification [16]_.
+encouraged to read about TUF's design principles [1]_.  It is also RECOMMENDED
+that the reader be familiar with the TUF specification [2]_.
 
 Terms used in this PEP are defined as follows:
 
@@ -90,15 +94,15 @@ Terms used in this PEP are defined as follows:
   integration.  Projects include Python libraries, frameworks, scripts,
   plugins, applications, collections of data or other resources, and various
   combinations thereof.  Public Python projects are typically registered on the
-  Python Package Index [17]_.
+  Python Package Index [3]_.
 
-* Releases: Releases are uniquely identified snapshots of a project [17]_.
+* Releases: Releases are uniquely identified snapshots of a project [3]_.
 
 * Distributions: Distributions are the packaged files that are used to publish
-  and distribute a release [17]_.
+  and distribute a release [3]_.
 
 * Simple index: The HTML page that contains internal links to the
-  distributions of a project [17]_.
+  distributions of a project [3]_.
 
 * Metadata: Metadata are signed files that describe roles, other metadata, and
   target files.
@@ -111,8 +115,8 @@ Terms used in this PEP are defined as follows:
   time.
 
 * The *snapshot* (*release*) role: In order to prevent confusion due
-  to the different meanings of the term "release" as employed by PEP 426 [17]_
-  and the TUF specification [16]_, the *release* role is renamed as the
+  to the different meanings of the term "release" as employed by PEP 426 [3]_
+  and the TUF specification [2]_, the *release* role is renamed as the
   *snapshot* role.
   
 * Developer: Either the owner or maintainer of a project who is allowed to
@@ -529,40 +533,26 @@ indicates an attack.
 
 As for attacks that serve different versions of metadata, or freeze a version
 of a package at a specific version, they can be handled by TUF with techniques
-like implicit key revocation and metadata mismatch detection [81].
+like implicit key revocation and metadata mismatch detection [1].
 
 
 References
 ==========
 
-.. [1] https://pypi.python.org
-.. [2] https://isis.poly.edu/~jcappos/papers/samuel_tuf_ccs_2010.pdf
-.. [3] http://www.pip-installer.org
-.. [4] https://wiki.python.org/moin/WikiAttack2013
+.. [1] https://isis.poly.edu/~jcappos/papers/samuel_tuf_ccs_2010.pdf
+.. [2] https://github.com/theupdateframework/tuf/blob/develop/docs/tuf-spec.txt
+.. [3] PEP 426, Metadata for Python Software Packages 2.0, Coghlan, Holth,
+        Stufft http://www.python.org/dev/peps/pep-0426/
+.. [4] https://www.python.org/dev/peps/pep-0458/
 .. [5] https://github.com/theupdateframework/pip/wiki/Attacks-on-software-repositories
-.. [6] https://mail.python.org/pipermail/distutils-sig/2013-April/020596.html
-.. [7] https://mail.python.org/pipermail/distutils-sig/2013-May/020701.html
-.. [8] https://mail.python.org/pipermail/distutils-sig/2013-July/022008.html
-.. [9] PEP 381, Mirroring infrastructure for PyPI, Ziadé, Löwis
-       http://www.python.org/dev/peps/pep-0381/
-.. [10] https://mail.python.org/pipermail/distutils-sig/2013-September/022773.html
-.. [11] https://mail.python.org/pipermail/distutils-sig/2013-May/020848.html
-.. [12] PEP 449, Removal of the PyPI Mirror Auto Discovery and Naming Scheme, Stufft
-        http://www.python.org/dev/peps/pep-0449/
-.. [13] https://isis.poly.edu/~jcappos/papers/cappos_mirror_ccs_08.pdf
-.. [14] https://mail.python.org/pipermail/distutils-sig/2013-September/022755.html
-.. [15] https://pypi.python.org/security
-.. [16] https://github.com/theupdateframework/tuf/blob/develop/docs/tuf-spec.txt
-.. [17] PEP 426, Metadata for Python Software Packages 2.0, Coghlan, Holth, Stufft
-        http://www.python.org/dev/peps/pep-0426/
-.. [18] https://en.wikipedia.org/wiki/Continuous_delivery
-.. [19] https://mail.python.org/pipermail/distutils-sig/2013-August/022154.html
-.. [20] https://en.wikipedia.org/wiki/RSA_%28algorithm%29
-.. [21] https://en.wikipedia.org/wiki/Key-recovery_attack
-.. [22] http://csrc.nist.gov/publications/nistpubs/800-57/SP800-57-Part1.pdf
-.. [23] https://www.openssl.org/
-.. [24] https://pypi.python.org/pypi/pycrypto
-.. [25] http://ed25519.cr.yp.to/
+.. [6] https://mail.python.org/pipermail/distutils-sig/2013-September/022773.html
+.. [7] https://isis.poly.edu/~jcappos/papers/cappos_mirror_ccs_08.pdf
+.. [8] https://mail.python.org/pipermail/distutils-sig/2013-September/022755.html
+.. [9] https://pypi.python.org/security
+.. [10] https://mail.python.org/pipermail/distutils-sig/2013-August/022154.html
+.. [11] https://en.wikipedia.org/wiki/RSA_%28algorithm%29
+.. [12] https://pypi.python.org/pypi/pycrypto
+.. [13] http://ed25519.cr.yp.to/
 
 
 Acknowledgements
