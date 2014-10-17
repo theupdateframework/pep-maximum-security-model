@@ -17,21 +17,23 @@ Replaces:  458
 Abstract
 ========
 
-This PEP proposes an extension to PEP 458 whereby the minimum security model
-is adapted to also support distributions that may be signed by developers.
-
-This PEP was postponed for several reasons: the build farm, an easy-to-use key
-management solution, and to allow a two-phase implementation.
-
+Proposed is an extension to PEP 458 [1]_ that adds support for End-to-End
+signing and the maximum security model.  End-to-End signing allows both PyPI
+and developers to sign for the distributions downloaded by clients.  The
+minimum security model provided by PEP 458 supports continuous delivery of
+distributions (because they are signed by online keys), but the minimum model
+does not protect distributions in the event that PyPI is compromised.
 
 
 Rationale
 =========
 
+Minimum Security Model - outline of roles, signing process.
 
-Minimum Security Model
-Maximum Security Model
-Reason for postponing extension:
+Maximum Security Model - benefits, additional roles, signing process.
+
+
+The maximum security model was postponed for several reasons:
 
 a. A build farm (distribution wheels on supported platforms are generated on
    PyPI infrastructure for each project) may possibly complicate matters.  PyPI
@@ -85,8 +87,8 @@ interpreted as described in RFC 2119__.
 __ http://www.ietf.org/rfc/rfc2119.txt
 
 This PEP focuses on the application of TUF on PyPI; however, the reader is
-encouraged to read about TUF's design principles [1]_.  It is also RECOMMENDED
-that the reader be familiar with the TUF specification [2]_.
+encouraged to read about TUF's design principles [2]_.  It is also RECOMMENDED
+that the reader be familiar with the TUF specification [3]_.
 
 Terms used in this PEP are defined as follows:
 
@@ -94,15 +96,15 @@ Terms used in this PEP are defined as follows:
   integration.  Projects include Python libraries, frameworks, scripts,
   plugins, applications, collections of data or other resources, and various
   combinations thereof.  Public Python projects are typically registered on the
-  Python Package Index [3]_.
+  Python Package Index [4]_.
 
-* Releases: Releases are uniquely identified snapshots of a project [3]_.
+* Releases: Releases are uniquely identified snapshots of a project [4]_.
 
 * Distributions: Distributions are the packaged files that are used to publish
-  and distribute a release [3]_.
+  and distribute a release [4]_.
 
 * Simple index: The HTML page that contains internal links to the
-  distributions of a project [3]_.
+  distributions of a project [4]_.
 
 * Metadata: Metadata are signed files that describe roles, other metadata, and
   target files.
@@ -115,8 +117,8 @@ Terms used in this PEP are defined as follows:
   time.
 
 * The *snapshot* (*release*) role: In order to prevent confusion due
-  to the different meanings of the term "release" as employed by PEP 426 [3]_
-  and the TUF specification [2]_, the *release* role is renamed as the
+  to the different meanings of the term "release" as employed by PEP 426 [4]_
+  and the TUF specification [3]_, the *release* role is renamed as the
   *snapshot* role.
   
 * Developer: Either the owner or maintainer of a project who is allowed to
@@ -140,11 +142,11 @@ Terms used in this PEP are defined as follows:
   signature property.
 
 
-Extension to the Minimum Security Model
-=======================================
+Extension to PEP 458 (minimum security model)
+=============================================
 
 The maximum security model and end-to-end signing have been intentionally
-excluded from this PEP.  Although both improve PyPI's ability to survive a
+excluded from PEP 458.  Although both improve PyPI's ability to survive a
 repository compromise and allow developers to sign their distributions, they
 have been postponed for review as a potential future extension to PEP 458.  PEP
 XXX [VD: Link to PEP once it is completed], which discusses the extension in
@@ -185,23 +187,37 @@ downloaded by clients.  PyPI is trusted to make uploaded projects available to
 clients (they sign the metadata for this part of the process), and developers
 can sign the distributions that they upload.
 
-PEP XXX [VD: Link to PEP once it is completed] discusses the tools available to
-developers who sign the distributions that they upload to PyPI.  To summarize
-PEP XXX, developers generate cryptographic keys and sign metadata in some
-automated fashion, where the metadata includes the information required to
-verify the authenticity of the distribution.  The metadata is then uploaded to
-PyPI by the client, where it will be available for download by package managers
-such as pip (i.e., package managers that support TUF metadata).  The entire
-process is transparent to clients (using a package manager that supports TUF)
-who download distributions from PyPI.
+This PEP discusses the tools available to developers who sign the distributions
+that they upload to PyPI.  To summarize, developers generate cryptographic keys
+and sign metadata in some automated fashion, where the metadata includes the
+information required to verify the authenticity of the distribution.  The
+metadata is then uploaded to PyPI by the client, where it will be available for
+download by package managers such as pip (i.e., package managers that support
+TUF metadata).  The entire process is transparent to clients (using a package
+manager that supports TUF) who download distributions from PyPI.
+
+
+Automated Signing of Distributions
+----------------------------------
+
+MiniLock
+
+Ed25519
+
+Distutils
+
+Twine
+
+Separate tool
 
 
 Producing Consistent Snapshots
 ------------------------------
 
-Given a project, PyPI is responsible for updating the *bins* metadata (roles
-delegated by the *bins* role and signed with an online key).  Every project
-MUST upload its release in a single transaction.  The uploaded set of files is
+Given a project, PyPI is responsible for updating, depending on the project,
+either the claimed, recently-claimed or unclaimed metadata as well as
+associated delegated targets metadata. Every project MUST upload its set of
+metadata and targets in a single transaction.  The uploaded set of files is
 called the "project transaction".  How PyPI MAY validate the files in a project
 transaction is discussed in a later section.  For now, the focus is on how PyPI
 will respond to a project transaction.
@@ -214,28 +230,60 @@ filename without a copy of the hash, and digest is the hex digest of the hash.
 __ http://docs.python.org/2/library/hashlib.html#hashlib.hash.hexdigest
 __ https://en.wikipedia.org/wiki/SHA-2
 
-When a project uploads a new transaction, the project transaction process MUST
-add all new targets and relevant delegated *bins* metadata.  (It is shown later
-in this section why the *bins* role will delegate targets to a number of
-delegated *bins* roles.)  Finally, the project transaction process MUST inform
-the snapshot process about new delegated *bins* metadata.
+When an unclaimed project uploads a new transaction, a project transaction
+process MUST add all new targets and relevant delegated unclaimed metadata. (We
+will see later in this section why the unclaimed role will delegate targets to
+a number of delegated unclaimed roles.) Finally, the project transaction
+process MUST inform the consistent snapshot process about new delegated
+unclaimed metadata.
 
-Project transaction processes SHOULD be automated and MUST also be applied
-atomically: either all metadata and targets -- or none of them -- are added.
-The project transaction and snapshot processes SHOULD work concurrently.
-Finally, project transaction processes SHOULD keep in memory the latest *bins*
-metadata so that they will be correctly updated in new consistent snapshots.
+When a recently-claimed project uploads a new a transaction, a project
+transaction process MUST add all new targets and delegated targets metadata for
+the project. If the project is new, then the project transaction process MUST
+also add new recently-claimed metadata with public keys and threshold number
+(which MUST be part of the transaction) for the project. Finally, the project
+transaction process MUST inform the consistent snapshot process about new
+recently-claimed metadata as well as the current set of delegated targets
+metadata for the project.
+
+The process for a claimed project is slightly different. The difference is that
+PyPI administrators will choose to move the project from the recently-claimed
+role to the claimed role. A project transaction process MUST then add new
+recently-claimed and claimed metadata to reflect this migration. As is the case
+for a recently-claimed project, the project transaction process MUST always add
+all new targets and delegated targets metadata for the claimed project.
+Finally, the project transaction process MUST inform the consistent snapshot
+process about new recently-claimed or claimed metadata as well as the current
+set of delegated targets metadata for the project.
+
+Project transaction processes SHOULD be automated, except when PyPI
+administrators move a project from the recently-claimed role to the claimed
+role. Project transaction processes MUST also be applied atomically: either all
+metadata and targets -- or none of them -- are added. The project transaction
+processes and consistent snapshot process SHOULD work concurrently. Finally,
+project transaction processes SHOULD keep in memory the latest claimed,
+recently-claimed and unclaimed metadata so that they will be correctly updated
+in new consistent snapshots.
 
 All project transactions MAY be placed in a single queue and processed
 serially.  Alternatively, the queue MAY be processed concurrently in order of
 appearance, provided that the following rules are observed:
 
-1. No pair of project transaction processes must concurrently work on the same
-   project.
+1.  No pair of project transaction processes must concurrently work on the same
+    project.
 
-2. No pair of project transaction processes must concurrently work on
-   *bins* projects that belong to the same delegated *bins* targets
-   role.
+2.  No pair of project transaction processes must concurrently work on
+    *unclaimed* projects that belong to the same delegated *unclaimed* role.
+
+3.  No pair of project transaction processes must concurrently work on new
+    recently-claimed projects.
+
+4.  No pair of project transaction processes must concurrently work on new
+    claimed projects.
+
+5.  No project transaction process must work on a new claimed project while
+    another project transaction process is working on a new recently-claimed
+    project and vice versa.
 
 These rules MUST be observed so that metadata is not read from or written to
 inconsistently.
@@ -289,17 +337,19 @@ __ https://en.wikipedia.org/wiki/Transaction_log
 Key Compromise Analysis
 =======================
 
-This PEP has covered the minimum security model, the TUF roles that should be
-added to support continuous delivery of distributions, and how to generate and
-sign the metadata of each role.  The remaining sections discuss how PyPI
-SHOULD audit repository metadata, and the methods PyPI can use to detect and
-recover from a PyPI compromise.
+This PEP has covered the maximum security model, the TUF roles that should be
+added to support continuous delivery of distributions, how to generate and sign
+the metadata of each role, support distributions that have been signed by
+developers.  The remaining sections discuss how PyPI SHOULD audit repository
+metadata, and the methods PyPI can use to detect and recover from a PyPI
+compromise.
 
 Table 1 summarizes a few of the attacks possible when a threshold number of
 private cryptographic keys (belonging to any of the PyPI roles) are
 compromised.  The leftmost column lists the roles (or a combination of roles)
 that have been compromised, and the columns to its right show whether the
 compromised roles leaves clients susceptible to malicious updates, a freeze
+attack, or metadata inconsistency attacks.
 
 +-------------------+-------------------+-----------------------+-----------------------+
 | Role Compromise   | Malicious Updates | Freeze Attack         | Metadata Inconsistency|
@@ -308,21 +358,22 @@ compromised roles leaves clients susceptible to malicious updates, a freeze
 |    timetamp       |       NO          |       YES             |       NO              |
 |                   | snapshot and      | limited by earliest   | snapshot needs to     |
 |                   | targets or any    | root, targets, or bin | cooperate             |
-|                   | of the bins need  | metadata expiry time  |                       |
-|                   | to cooperate      |                       |                       |
-|                   |                   |                       |                       |
+|                   | of the delegated  | metadata expiry time  |                       |
+|                   | roles need to     |                       |                       |
+|                   | cooperate         |                       |                       |
 +-------------------+-------------------+-----------------------+-----------------------+
 |    snapshot       |       NO          |         NO            |       NO              |
 |                   | timestamp and     | timestamp needs to    | timestamp needs to    |
 |                   | targets or any of | coorperate            | cooperate             |
-|                   | the bins need to  |                       |                       |
+|                   | the delegated     |                       |                       |
+|                   | roles need to     |                       |                       |
 |                   | cooperate         |                       |                       |
 +-------------------+-------------------+-----------------------+-----------------------+
 |    timestamp      |       NO          |         YES           |       YES             |
 |    **AND**        | targets or any    | limited by earliest   | limited by earliest   |
-|    snapshot       | of the bins need  | root, targets, or bin | root, targets, or bin |
-|                   | to cooperate      | metadata expiry time  | metadata expiry time  |
-|                   |                   |                       |                       |
+|    snapshot       | of the delegated  | root, targets, or bin | root, targets, or bin |
+|                   | roles need to     | metadata expiry time  | metadata expiry time  |
+|                   | cooperate         |                       |                       |
 |                   |                   |                       |                       |
 +-------------------+-------------------+-----------------------+-----------------------+
 |    targets        |       NO          |     NOT APPLICABLE    |    NOT APPLICABLE     |
@@ -364,7 +415,7 @@ compromised roles leaves clients susceptible to malicious updates, a freeze
 Table 1: Attacks possible by compromising certain combinations of role keys.
 In `September 2013`__, it was shown how the latest version (at the time) of pip
 was susceptible to these attacks  and how TUF could protect users against them
-[14]_.
+[8]_.
 
 __ https://mail.python.org/pipermail/distutils-sig/2013-September/022755.html
 
@@ -454,15 +505,19 @@ If a threshold number of the timestamp, snapshot and claimed keys have been
 compromised, then PyPI MUST take the following steps in addition to the steps
 taken when either the timestamp or snapshot keys are compromised:
 
-Revoke the claimed role keys from the targets role and replace them with newly
-issued keys.  All project targets of the claimed roles SHOULD be compared with
-the last known good consistent snapshot where none of the timestamp, snapshot
-or claimed keys were known to have been compromised.  Added, updated or deleted
-targets in the compromised consistent snapshot that do not match the last known
-good consistent snapshot MAY be restored to their previous versions. After
-ensuring the integrity of all claimed project targets, the claimed metadata
-MUST be regenerated.  The claimed metadata MUST have their version numbers
-incremented, expiry times suitably extended and signatures renewed.
+1.  Revoke the claimed role keys from the targets role and replace them with
+    newly issued keys.
+    
+2.  All project targets of the claimed roles SHOULD be compared with the last
+    known good consistent snapshot where none of the timestamp, snapshot or
+    claimed keys were known to have been compromised.  Added, updated or
+    deleted targets in the compromised consistent snapshot that do not match
+    the last known good consistent snapshot MAY be restored to their previous
+    versions.  After ensuring the integrity of all claimed project targets, the
+    claimed metadata MUST be regenerated.
+
+3.  The claimed metadata MUST have their version numbers incremented, expiry
+    times suitably extended and signatures renewed.
 
 
 Following these steps would preemptively protect all of these roles even though
@@ -513,7 +568,10 @@ information must be validated:
 
 3. If the packages themselves may have been tampered with, they can be
    validated using the stored hash information for packages that existed at the
-   time of the last period.
+   time of the last period.  Also new distributions that are signed by
+   developers in the claimed role may be safely retained.  However, any
+   distributions signed by developers in the *recently-claimed* or *unclaimed*
+   role should be discarded.
 
 In order to safely restore snapshots in the event of a compromise, PyPI SHOULD
 maintain a small number of its own mirrors to copy PyPI snapshots according to
@@ -539,11 +597,11 @@ like implicit key revocation and metadata mismatch detection [1].
 References
 ==========
 
-.. [1] https://isis.poly.edu/~jcappos/papers/samuel_tuf_ccs_2010.pdf
-.. [2] https://github.com/theupdateframework/tuf/blob/develop/docs/tuf-spec.txt
-.. [3] PEP 426, Metadata for Python Software Packages 2.0, Coghlan, Holth,
+.. [1] https://www.python.org/dev/peps/pep-0458/
+.. [2] https://isis.poly.edu/~jcappos/papers/samuel_tuf_ccs_2010.pdf
+.. [3] https://github.com/theupdateframework/tuf/blob/develop/docs/tuf-spec.txt
+.. [4] PEP 426, Metadata for Python Software Packages 2.0, Coghlan, Holth,
         Stufft http://www.python.org/dev/peps/pep-0426/
-.. [4] https://www.python.org/dev/peps/pep-0458/
 .. [5] https://github.com/theupdateframework/pip/wiki/Attacks-on-software-repositories
 .. [6] https://mail.python.org/pipermail/distutils-sig/2013-September/022773.html
 .. [7] https://isis.poly.edu/~jcappos/papers/cappos_mirror_ccs_08.pdf
