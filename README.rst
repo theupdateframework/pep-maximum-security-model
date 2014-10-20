@@ -20,43 +20,78 @@ Abstract
 Proposed is an extension to PEP 458 [1]_ that adds support for End-to-End
 signing and the maximum security model.  End-to-End signing allows both PyPI
 and developers to sign for the distributions downloaded by clients.  The
-minimum security model provided by PEP 458 supports continuous delivery of
+minimum security model proposed by PEP 458 supports continuous delivery of
 distributions (because they are signed by online keys), but the minimum model
-does not protect distributions in the event that PyPI is compromised.
+does not protect developer distributions in the event that PyPI is compromised.
+The maximum security model aims to provide survivable key compromise *and*
+retain many of the benefits of PEP 458 (immediate availability of distribution
+that are uploaded to PyPI and an automated release process).
+
+This PEP covers the changes made to PEP 458 and excludes the informational
+parts of the first PEP (e.g., overview of The Update Framework).  It mainly
+focuses on the maximum security model changes and includes modified sections of
+the snapshot process, key compromise analysis, auditing snapshots, and the
+steps that should be taken in the event of a key compromise.  The signing and
+key management process that PyPI MAY follow is outlined, but not strictly
+defined so as to allow the developer tools to decide how best to implement the
+release process and the management of keys and metadata.  That is, the expected
+cryptographic key type and signature of the metadata that MUST be uploaded by
+developers to support End-to-End verification of distributions is delineated.
 
 
 Rationale
 =========
 
-Minimum Security Model - outline of roles, signing process.
+PEP 458 proposes how PyPI should be integrated with The Update Framework.  It
+explains how modern package managers like pip can be made more secure and the
+types of attacks that can be prevented if PyPI were modified on the server side
+to include TUF metadata files.  Package managers can reference the TUF metadata
+available on PyPI to download distrubution more securely.  PEP 458 goes on to
+describe the metadata layout of the PyPI repository and the minimum security
+model. 
 
-Maximum Security Model - benefits, additional roles, signing process.
+The minimum security model supports continuous delivery of projects and uses
+online cryptographic keys to sign the distributions uploaded by projects.  The
+main strength of the minimum security model is the automated and simplified
+release process: developers may upload distributions and then have PyPI sign
+for their distributions.
 
+In the minimum security model much of release process is handled in an
+automated fashion by online roles, but this simplified approach requires that
+cryptographic be stored on PyPI infrastructure.  Cryptographic signing keys
+that are stored online are vulnerable to theft, and thus distributions that are
+signed by these keys can be easily forged if attackers compromised the
+server(s) that rely on these signing keys.  The maximum security model is an
+extension to the minimum model that allows PyPI to survive a repository
+compromise and permit developers to sign for the distributions that they make
+available to PyPI users.
 
-The maximum security model was postponed for several reasons:
+Although the maximum security model provides additional protections while still
+supporting continuous delivery of distributions, it was postponed for several
+reasons:
 
-a. A build farm (distribution wheels on supported platforms are generated on
-   PyPI infrastructure for each project) may possibly complicate matters.  PyPI
-   wants to support a build farm in the future.  Unfortunately, if wheels are
-   auto-generated externally, developer signatures for these wheels are
-   unlikely.  However, there might still be a benefit to generating wheels from
-   source distributions that *are* signed by developers (provided that
-   reproducible wheels are possible).  Another possibility is to optionally
-   delegate trust of these wheels to an online role.
+1.  A build farm (distribution wheels on supported platforms are generated on
+    PyPI infrastructure for each project) may possibly complicate matters.
+    PyPI wants to support a build farm in the future.  Unfortunately, if wheels
+    are auto-generated externally, developer signatures for these wheels are
+    unlikely.  However, there might still be a benefit to generating wheels
+    from source distributions that *are* signed by developers (provided that
+    reproducible wheels are possible).  Another possibility is to optionally
+    delegate trust of these wheels to an online role.
 
-b. An easy-to-use key management solution is needed for developers.
-   `miniLock`__ is one likely candidate for management and generation of keys.
-   Although developer signatures can be left as an option, this approach may be
-   insufficient due to the great number of unsigned dependencies that can occur
-   for a signed distribution requested by a client.  Requiring developers to
-   manually sign distributions and manage keys is expected to render key
-   signing an unused feature.
+2.  An easy-to-use key management solution is needed for developers.
+    `miniLock`__ is one likely candidate for management and generation of keys.
+    Although developer signatures can be left as an option, this approach may
+    be insufficient due to the great number of unsigned dependencies that can
+    occur for a signed distribution requested by a client.  Requiring
+    developers to manually sign distributions and manage keys is expected to
+    render key signing an unused feature.
 
-__ https://minilock.io/
+    __ https://minilock.io/
 
-c. A two-phase approach, where the minimum security model is implemented first
-   followed by the maximum security model, can simplify matters and give PyPI
-   administrators time to review the feasibility of end-to-end signing.
+3.  A two-phase approach, where the minimum security model is implemented first
+    followed by the maximum security model, can simplify matters and give PyPI
+    administrators time to review the feasibility of end-to-end signing.
 
 
 Threat Model
@@ -88,7 +123,8 @@ __ http://www.ietf.org/rfc/rfc2119.txt
 
 This PEP focuses on the application of TUF on PyPI; however, the reader is
 encouraged to read about TUF's design principles [2]_.  It is also RECOMMENDED
-that the reader be familiar with the TUF specification [3]_.
+that the reader be familiar with the TUF specification [3]_, and PEP 458 [1]_
+(which this PEP is extending).
 
 Terms used in this PEP are defined as follows:
 
@@ -116,10 +152,9 @@ Terms used in this PEP are defined as follows:
   complete state of all projects on PyPI as they were at some fixed point in
   time.
 
-* The *snapshot* (*release*) role: In order to prevent confusion due
-  to the different meanings of the term "release" as employed by PEP 426 [4]_
-  and the TUF specification [3]_, the *release* role is renamed as the
-  *snapshot* role.
+* The *snapshot* (*release*) role: In order to prevent confusion due to the
+  different meanings of the term "release" as employed by PEP 426 [1]_ and the
+  TUF specification [3]_, the *release* role is renamed as the *snapshot* role.
   
 * Developer: Either the owner or maintainer of a project who is allowed to
   update the TUF metadata as well as distribution metadata and files for the
@@ -148,11 +183,16 @@ Extension to PEP 458 (minimum security model)
 The maximum security model and end-to-end signing have been intentionally
 excluded from PEP 458.  Although both improve PyPI's ability to survive a
 repository compromise and allow developers to sign their distributions, they
-have been postponed for review as a potential future extension to PEP 458.  PEP
-XXX [VD: Link to PEP once it is completed], which discusses the extension in
-detail, is available for review to those developers interested in the
-end-to-end signing option.  The maximum security model and end-to-end signing
-are briefly covered in subsections that follow.
+have been postponed for review as a potential future extension to PEP 458.
+This PEP is available for review to those developers interested in the
+End-to-End signing option.  The maximum security model and End-to-End signing
+are covered in the subsections that follow.
+
+[VD: Discuss roles in both models and explain disadvanges/advantages?]
+
+Minimum Security Model - outline of roles, signing process.
+
+Maximum Security Model - benefits, additional roles, signing process.
 
 
 Maximum Security Model
@@ -161,16 +201,16 @@ Maximum Security Model
 The maximum security model relies on developers signing their projects and
 uploading signed metadata to PyPI.  If the PyPI infrastructure were to be
 compromised, attackers would be unable to serve malicious versions of claimed
-projects without access to the project's developer key. he metadata layout in
-the minimum security model  changes made to figure 2, namely that developer
-roles are now supported and that three new delegated roles exist: *claimed*,
-*recently-claimed*, and *unclaimed*.  The *bins* role has been renamed
-*unclaimed* and can contain any projects that have not been added to *claimed*.
-The strength of this model (over the minimum security model) is in the offline
-keys provided by developers.  Although the minimum security model supports
-continuous delivery, all of the projects are signed by an online key.  An
-attacker can corrupt packages in the minimum security model, but not in the
-maximum model without also compromising a developer's key.
+projects without access to the project's developer key.  Figure 1 depicts the
+changes made to the metadata layout of the minimum security model, namely
+that developer roles are now supported and that three new delegated roles
+exist: *claimed*, *recently-claimed*, and *unclaimed*.  The *bins* role has
+been renamed *unclaimed* and can contain any projects that have not been added
+to *claimed*.  The strength of this model (over the minimum security model) is
+in the offline keys provided by developers.  Although the minimum security
+model supports continuous delivery, all of the projects are signed by an online
+key.  An attacker can corrupt packages in the minimum security model, but not
+in the maximum model without also compromising a developer's key.
 
 .. image:: figure1.png
 
