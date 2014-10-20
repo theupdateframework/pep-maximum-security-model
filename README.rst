@@ -240,15 +240,86 @@ manager that supports TUF) who download distributions from PyPI.
 Automated Signing of Distributions
 ----------------------------------
 
-MiniLock
+- `Ed25519`_
 
-Ed25519
+__ http://ed25519.cr.yp.to/
 
-Distutils
+Ed25519 is a public-key signature system that uses small cryptographic
+signatures and keys.  A pure-python implementation of the signature scheme is
+available.  pip MUST not depend on external depencies that have to be compiled
+(e.g., compiling C extensions to perform verification of signatures), so
+verifying RSA signatures may be impractical due to speed.  `Verification of
+Ed25519 signatures`_ is fast, even when performed in Python code.
 
-Twine
+__ https://github.com/pyca/ed25519
 
-Separate tool
+
+- `MiniLock`_
+
+Essentially it derives a private key from a password so that users do not have
+to manage cryptographic key files.  Users may view the cryptographic key as
+secondary password: no matter how many computers they have. MiniLock works well
+with a signature scheme like Ed25519, which only needs a very small key.
+
+__ https://github.com/kaepora/miniLock#-minilock
+
+
+- Twine
+
+Third-party tools like `Twine`_ may be modified (if they wish to support
+distributions that include TUF metadata) to sign and upload developer projects
+to PyPI.  Twine is a utility for interacting with PyPI that uses TLS to upload
+distributions and prevent MITM attacks on user names and passwords.
+
+__ https://github.com/pypa/twine
+
+
+- Distutils
+[VD: May Distutils be modified?]
+The upload procedure would need to be modified to sign and upload TUF metadata.
+
+
+- Separate tool provided to the developers
+
+A default PyPI-mediated key management & package signing solution that is
+transparent and does not require a key escrow (sharing or moving encrypted
+private keys.)  Additionally, a developer may also circumvent sharing encrypted
+private keys between multiple machines.
+
+Here is a brief outline of one approach that may be considered:
+
+1.  Register project.
+2.  Enter secondary password.
+3.  Add new identity to user account from machine 2 (a password prompt.)
+4.  Upload project.
+
+Under the hood (the average user is not aware or needs to care):
+
+The "create an identity with only a password" action generates an encrypted
+private key file and uploads the ed25519 public key to PyPI.  An existing
+identity (contains its public key in project metadata or on PyPI) signs (done
+transparently) for new identities.  By default, project metadata has a
+signature threshold of 1.  Other verified identities or maintainers may create
+new releases and satisfy the threshold.
+
+The framework is flexible, though.  A single project key may also be shared
+between machines or maintainers, if manual key management is preferred (e.g.,
+ssh-copy-id.)
+
+TUF's repository and developer tools:
+
+__ https://github.com/theupdateframework/tuf/blob/develop/tuf/README.md
+__ https://github.com/theupdateframework/tuf/blob/develop/tuf/README-developer-tools.md
+
+
+- Cryptographic key files 
+
+The implementation SHOULD encrypt key files with AES-256-CTR-Mode and passwords
+strengthened with PBKDF2-HMAC-SHA256 (100K iterations by default, but may be
+overriden in 'tuf.conf.PBKDF2_ITERATIONS' by the user.) The framework, however,
+can use any Cryptography library (support for PyCA cryptography may be added)
+and the KDF tweaked to your taste.  Tried and tested approaches is the way to
+go.
 
 
 Producing Consistent Snapshots
