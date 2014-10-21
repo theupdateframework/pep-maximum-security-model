@@ -19,22 +19,22 @@ Abstract
 
 Proposed is an extension to PEP 458 [1]_ that adds support for end-to-end
 signing and the maximum security model.  End-to-end signing allows both PyPI
-and developers to sign for the distributions downloaded by clients.  The
-minimum security model proposed by PEP 458 supports continuous delivery of
-distributions (because they are signed by online keys), but the minimum model
-does not protect developer distributions in the event that PyPI is compromised.
-The maximum security model aims to provide survivable key compromise *and*
-retain many of the benefits of PEP 458 (immediate availability of distribution
-that are uploaded to PyPI and an automated release process).
+and developers to sign for the distributions that are downloaded by clients.
+The minimum security model proposed by PEP 458 supports continuous delivery of
+distributions (because they are signed by online keys), but it does not protect
+distributions in the event that PyPI is compromised.  The maximum security
+model aims to provide survivable key compromise and retain many of the benefits
+of PEP 458 (e.g., immediate availability of distributions that are uploaded to
+PyPI).
 
 This PEP covers the changes made to PEP 458 and excludes the informational
 parts of the first PEP (e.g., overview of The Update Framework).  It mainly
 focuses on the maximum security model changes and includes modified sections of
 the snapshot process, key compromise analysis, auditing snapshots, and the
-steps that should be taken in the event of a key compromise.  The signing and
-key management process that PyPI MAY follow is outlined, but not strictly
-defined so as to allow the developer tools to decide how best to implement the
-release process and the management of keys and metadata.  That is, the expected
+steps that should be taken if there is a PyPI compromise.  The signing and key
+management process that PyPI MAY follow is outlined, but not strictly defined
+so as to allow the developer tools to decide how best to implement the release
+process, and the management of keys and metadata.  That is, the expected
 cryptographic key type and signature of the metadata that MUST be uploaded by
 developers to support end-to-end verification of distributions is delineated.
 
@@ -43,10 +43,10 @@ Rationale
 =========
 
 PEP 458 proposes how PyPI should be integrated with The Update Framework.  It
-explains how modern package managers like pip can be made more secure and the
+explains how modern package managers like pip can be made more secure, and the
 types of attacks that can be prevented if PyPI were modified on the server side
-to include TUF metadata files.  Package managers can reference the TUF metadata
-available on PyPI to download distrubution more securely.  PEP 458 goes on to
+to include TUF metadata.  Package managers can reference the TUF metadata
+available on PyPI to download distrubutions more securely.  PEP 458 goes on to
 describe the metadata layout of the PyPI repository and the minimum security
 model. 
 
