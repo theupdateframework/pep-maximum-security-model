@@ -129,11 +129,13 @@ Definitions
 
 The keywords "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
-interpreted as described in RFC 2119__.
+interpreted as described in RFC 2119__.  [LV: if you capitalize the keywords do 
+you also need to put them in quotes?]
 
 __ http://www.ietf.org/rfc/rfc2119.txt
 
-This PEP focuses on the application of TUF on PyPI; however, the reader is
+This PEP focuses on the application of TUF on PyPI [LV: I'm not sure about these two prepositions: "of TUF on PyPI"]; 
+however, the reader is
 encouraged to read about TUF's design principles [2]_.  It is also RECOMMENDED
 that the reader be familiar with the TUF specification [3]_, and PEP 458 [1]_
 (which this PEP is extending).
