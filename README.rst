@@ -240,41 +240,10 @@ manager that supports TUF) who download distributions from PyPI.
 Automated Signing of Distributions
 ----------------------------------
 
-- `Ed25519`_
+- `Distutils`__
 
-__ http://ed25519.cr.yp.to/
+__ https://docs.python.org/2/distutils/index.html#distutils-index
 
-Ed25519 is a public-key signature system that uses small cryptographic
-signatures and keys.  A pure-python implementation of the signature scheme is
-available.  pip MUST not depend on external depencies that have to be compiled
-(e.g., compiling C extensions to perform verification of signatures), so
-verifying RSA signatures may be impractical due to speed.  `Verification of
-Ed25519 signatures`_ is fast, even when performed in Python code.
-
-__ https://github.com/pyca/ed25519
-
-
-- `MiniLock`_
-
-Essentially it derives a private key from a password so that users do not have
-to manage cryptographic key files.  Users may view the cryptographic key as
-secondary password: no matter how many computers they have. MiniLock works well
-with a signature scheme like Ed25519, which only needs a very small key.
-
-__ https://github.com/kaepora/miniLock#-minilock
-
-
-- Twine
-
-Third-party tools like `Twine`_ may be modified (if they wish to support
-distributions that include TUF metadata) to sign and upload developer projects
-to PyPI.  Twine is a utility for interacting with PyPI that uses TLS to upload
-distributions and prevent MITM attacks on user names and passwords.
-
-__ https://github.com/pypa/twine
-
-
-- Distutils
 [VD: May Distutils be modified?]
 The upload procedure would need to be modified to sign and upload TUF metadata.
 
@@ -306,7 +275,7 @@ The framework is flexible, though.  A single project key may also be shared
 between machines or maintainers, if manual key management is preferred (e.g.,
 ssh-copy-id.)
 
-TUF's repository and developer tools:
+TUF's `repository`__ and `developer`__ tools:
 
 __ https://github.com/theupdateframework/tuf/blob/develop/tuf/README.md
 __ https://github.com/theupdateframework/tuf/blob/develop/tuf/README-developer-tools.md
@@ -320,6 +289,40 @@ overriden in 'tuf.conf.PBKDF2_ITERATIONS' by the user.) The framework, however,
 can use any Cryptography library (support for PyCA cryptography may be added)
 and the KDF tweaked to your taste.  Tried and tested approaches is the way to
 go.
+
+
+- Cryptographic signature scheme: `Ed25519`__
+
+__ http://ed25519.cr.yp.to/
+
+Ed25519 is a public-key signature system that uses small cryptographic
+signatures and keys.  A pure-python implementation of the signature scheme is
+available.  pip MUST not depend on external depencies that have to be compiled
+(e.g., compiling C extensions to perform verification of signatures), so
+verifying RSA signatures may be impractical due to speed.  `Verification of
+Ed25519 signatures`__ is fast, even when performed in Python code.
+
+__ https://github.com/pyca/ed25519
+
+
+- Key management: `MiniLock`__
+
+Essentially it derives a private key from a password so that users do not have
+to manage cryptographic key files.  Users may view the cryptographic key as
+secondary password: no matter how many computers they have. MiniLock works well
+with a signature scheme like Ed25519, which only needs a very small key.
+
+__ https://github.com/kaepora/miniLock#-minilock
+
+
+- Third-party upload tool: Twine
+
+Third-party tools like `Twine`__ may be modified (if they wish to support
+distributions that include TUF metadata) to sign and upload developer projects
+to PyPI.  Twine is a utility for interacting with PyPI that uses TLS to upload
+distributions and prevent MITM attacks on user names and passwords.
+
+__ https://github.com/pypa/twine
 
 
 Producing Consistent Snapshots
