@@ -17,7 +17,7 @@ Replaces:  458
 Abstract
 ========
 
-Proposed is an extension to PEP 458 [1]_ that adds support for end-to-end
+Proposed is an extension to PEP 458 that adds support for end-to-end
 signing and the maximum security model.  End-to-end signing allows both PyPI
 and developers to sign for the distributions that are downloaded by clients.
 The minimum security model proposed by PEP 458 supports continuous delivery of
@@ -42,13 +42,16 @@ developers to support end-to-end verification of distributions is delineated.
 Rationale
 =========
 
-PEP 458 proposes how PyPI should be integrated with The Update Framework.  It
-explains how modern package managers like pip can be made more secure, and the
-types of attacks that can be prevented if PyPI were modified on the server side
-to include TUF metadata.  Package managers can reference the TUF metadata
-available on PyPI to download distrubutions more securely.  PEP 458 goes on to
-describe the metadata layout of the PyPI repository and the minimum security
-model. 
+PEP 458 [1]_ proposes how PyPI should be integrated with The Update Framework
+(TUF) [2]_.  It explains how modern package managers like pip can be made more
+secure, and the types of attacks that can be prevented if PyPI were modified on
+the server side to include TUF metadata.  Package managers can reference the
+TUF metadata available on PyPI to download distributions more securely.  PEP
+458 goes on to describe the metadata layout of the PyPI repository and the
+minimum security model.  Although the minimum security model protects against
+many of the attacks prevented by TUF, like mix-and-match and extrananeous
+dependencies attacks, it can be improved to also support end-to-end signing
+and protect distributions even if PyPI is compromised.
 
 The minimum security model supports continuous delivery of projects and uses
 online cryptographic keys to sign the distributions uploaded by projects.  The
@@ -58,13 +61,13 @@ for their distributions.
 
 In the minimum security model much of release process is handled in an
 automated fashion by online roles, but this simplified approach requires that
-cryptographic be stored on PyPI infrastructure.  Cryptographic signing keys
-that are stored online are vulnerable to theft, and thus distributions that are
-signed by these keys can be easily forged if attackers compromised the
-server(s) that rely on these signing keys.  The maximum security model is an
-extension to the minimum model that allows PyPI to survive a repository
-compromise and permit developers to sign for the distributions that they make
-available to PyPI users.
+cryptographic signing keys be stored on PyPI infrastructure.  Unfortunately,
+cryptographic keys that are stored online are vulnerable to theft, and thus
+distributions that are signed by these keys can be easily forged if attackers
+compromised the server(s) that rely on these signing keys.  The maximum
+security model is an extension to the minimum model that allows PyPI to survive
+a repository compromise and permit developers to sign for the distributions
+that they make available to PyPI users.
 
 Although the maximum security model provides additional protections while still
 supporting continuous delivery of distributions, it was postponed for several
