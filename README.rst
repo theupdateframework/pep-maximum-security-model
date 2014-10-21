@@ -48,14 +48,14 @@ Rationale
 
 PEP 458 [1]_ proposes how PyPI should be integrated with The Update Framework
 (TUF) [2]_.  It explains how modern package managers like pip can be made more
-secure, and the types of attacks that can be prevented if PyPI were modified on
-the server side to include TUF metadata.  Package managers can reference the
+secure as well as the types of attacks that can be prevented if PyPI were modified on
+the server side to include TUF metadata. [LV: verb tenses are off in the prior sentence. Either (1) can be prevented 
+if PyPI is modified OR (2) could be prevented if PyPI were modified] Package managers can reference the
 TUF metadata available on PyPI to download distributions more securely.  PEP
-458 goes on to describe the metadata layout of the PyPI repository and the
-minimum security model.  Although the minimum security model protects against
-many of the attacks prevented by TUF, like mix-and-match and extrananeous
-dependencies attacks, it can be improved to also support end-to-end signing
-and protect distributions even if PyPI is compromised.
+458 describes the metadata layout of the PyPI repository and the minimum security model.  
+Although the minimum security model protects against many of the attacks prevented by TUF, 
+such as mix-and-match and extrananeous dependencies attacks, it can be improved to also 
+support end-to-end signing and to protect distributions even if PyPI is compromised.
 
 The minimum security model supports continuous delivery of projects and uses
 online cryptographic keys to sign the distributions uploaded by projects.  The
@@ -63,19 +63,19 @@ main strength of the minimum security model is the automated and simplified
 release process: developers may upload distributions and then have PyPI sign
 for their distributions.
 
-In the minimum security model much of release process is handled in an
+In this minimum security model, much of the release process is handled in an
 automated fashion by online roles, but this simplified approach requires that
-cryptographic signing keys be stored on PyPI infrastructure.  Unfortunately,
+cryptographic signing keys be stored on the PyPI infrastructure.  Unfortunately,
 cryptographic keys that are stored online are vulnerable to theft, and thus
 distributions that are signed by these keys can be easily forged if attackers
-compromised the server(s) that rely on these signing keys.  The maximum
+compromise the server(s) that rely on these signing keys.  The maximum
 security model is an extension to the minimum model that allows PyPI to survive
-a repository compromise and permit developers to sign for the distributions
+a repository compromise and permits developers to sign for the distributions
 that they make available to PyPI users.
 
 Although the maximum security model provides additional protections while still
 supporting continuous delivery of distributions, it was postponed for several
-reasons:
+reasons: {LV: I would reorder this sentence to put the main point first. Also, is the point that it was postponed or that it is separate from PEP 458?]: "The maximum security model provides .... delivery of distributions. However, for the following reasons, it is [___?__] as a separate PEP:
 
 1.  A build farm (distribution wheels on supported platforms are generated on
     PyPI infrastructure for each project) may possibly complicate matters.
