@@ -75,29 +75,34 @@ that they make available to PyPI users.
 
 Although the maximum security model provides additional protections while still
 supporting continuous delivery of distributions, it was postponed for several
-reasons: {LV: I would reorder this sentence to put the main point first. Also, is the point that it was postponed or that it is separate from PEP 458?]: "The maximum security model provides .... delivery of distributions. However, for the following reasons, it is [___?__] as a separate PEP:
+reasons: {LV: I would reorder this sentence to put the main point first. Also, 
+is the point that it was postponed or that it is separate from PEP 458?]: "The 
+maximum security model provides .... delivery of distributions. However, for the 
+following reasons, it is [___?__] as a separate PEP:
 
 1.  A build farm (distribution wheels on supported platforms are generated on
     PyPI infrastructure for each project) may possibly complicate matters.
     PyPI wants to support a build farm in the future.  Unfortunately, if wheels
     are auto-generated externally, developer signatures for these wheels are
     unlikely.  However, there might still be a benefit to generating wheels
-    from source distributions that *are* signed by developers (provided that
+    from source distributions that *are* [LV: why is 'are' in italics?] signed by developers 
+    (provided that
     reproducible wheels are possible).  Another possibility is to optionally
     delegate trust of these wheels to an online role.
 
 2.  An easy-to-use key management solution is needed for developers.
     `miniLock`__ is one likely candidate for management and generation of keys.
-    Although developer signatures can be left as an option, this approach may
+    Although developer signatures can remain an option, this approach may
     be insufficient due to the great number of unsigned dependencies that can
-    occur for a signed distribution requested by a client.  Requiring
-    developers to manually sign distributions and manage keys is expected to
-    render key signing an unused feature.
+    occur [LV: would 'accumulate' be a better word than 'occur'?] for a signed 
+    distribution requested by a client.  Requiring developers to manually sign distributions 
+    and manage keys is expected to render key signing an unused feature.
 
     __ https://minilock.io/
 
 3.  A two-phase approach, where the minimum security model is implemented first
-    followed by the maximum security model, can simplify matters and give PyPI
+    followed [LV: replace "first followed by" with "before"] by the maximum security model, can [LV: I'd 
+    say either may or will, rather than 'can']  simplify matters and give PyPI
     administrators time to review the feasibility of end-to-end signing.
 
 
@@ -108,15 +113,15 @@ The threat model assumes the following:
 
 * Offline keys are safe and securely stored.
 
-* Attackers can compromise at least one of PyPI's trusted keys stored online,
+* Attackers can compromise at least one of PyPI's trusted keys that are stored online,
   and may do so at once or over a period of time.
 
 * Attackers can respond to client requests.
 
-An attacker is considered successful if they can cause a client to install (or
+Attackers are considered successful if they can cause a client to install (or
 leave installed) something other than the most up-to-date version of the
-software the client is updating. If the attacker is preventing the installation
-of updates, they want clients to not realize there is anything wrong.
+software the client is updating. When an attacker is preventing the installation
+of updates, the attacker's goal is that clients *not* realize that anything is wrong. 
 
 
 Definitions
