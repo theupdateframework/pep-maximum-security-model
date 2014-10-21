@@ -17,8 +17,8 @@ Replaces:  458
 Abstract
 ========
 
-Proposed is an extension to PEP 458 [1]_ that adds support for End-to-End
-signing and the maximum security model.  End-to-End signing allows both PyPI
+Proposed is an extension to PEP 458 [1]_ that adds support for end-to-end
+signing and the maximum security model.  End-to-end signing allows both PyPI
 and developers to sign for the distributions downloaded by clients.  The
 minimum security model proposed by PEP 458 supports continuous delivery of
 distributions (because they are signed by online keys), but the minimum model
@@ -36,7 +36,7 @@ key management process that PyPI MAY follow is outlined, but not strictly
 defined so as to allow the developer tools to decide how best to implement the
 release process and the management of keys and metadata.  That is, the expected
 cryptographic key type and signature of the metadata that MUST be uploaded by
-developers to support End-to-End verification of distributions is delineated.
+developers to support end-to-end verification of distributions is delineated.
 
 
 Rationale
@@ -185,7 +185,7 @@ excluded from PEP 458.  Although both improve PyPI's ability to survive a
 repository compromise and allow developers to sign their distributions, they
 have been postponed for review as a potential future extension to PEP 458.
 This PEP is available for review to those developers interested in the
-End-to-End signing option.  The maximum security model and End-to-End signing
+end-to-end signing option.  The maximum security model and end-to-end signing
 are covered in the subsections that follow.
 
 [VD: Discuss roles in both models and explain disadvanges/advantages?]
@@ -222,7 +222,7 @@ compromise.
 End-to-End Signing
 ------------------
 
-End-to-End signing allows both PyPI and developers to sign for the metadata
+End-to-end signing allows both PyPI and developers to sign for the metadata
 downloaded by clients.  PyPI is trusted to make uploaded projects available to
 clients (they sign the metadata for this part of the process), and developers
 can sign the distributions that they upload.
