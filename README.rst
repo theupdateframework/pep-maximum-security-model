@@ -138,7 +138,9 @@ encouraged to read about TUF's design principles [2]_.  It is also RECOMMENDED
 that the reader be familiar with the TUF specification [3]_, and PEP 458 [1]_
 (which this PEP is extending).
 
-Terms used in this PEP are defined as follows:
+Terms used in this PEP are defined as follows: [LV: is there an organizing strategy for the definitions? clearly, it isn't 
+alphabetical. Will the order be recognizable to readers? If not, maybe just make it alphabetical. I obviously don't see an order,
+but I may not represent the expected readers]
 
 * Projects: Projects are software components that are made available for
   integration.  Projects include Python libraries, frameworks, scripts,
@@ -149,33 +151,35 @@ Terms used in this PEP are defined as follows:
 * Releases: Releases are uniquely identified snapshots of a project [4]_.
 
 * Distributions: Distributions are the packaged files that are used to publish
-  and distribute a release [4]_.
+  and distribute a release [4]_. [LV:I think this defn could be clearer. I'm not sure 
+  if its just the writing, but "packaged files" is part of the problem. How about something 
+  like this: A collection of files that constitute a software release, packaged together, are distributions.] 
 
 * Simple index: The HTML page that contains internal links to the
   distributions of a project [4]_.
 
 * Metadata: Metadata are signed files that describe roles, other metadata, and
-  target files.
+  target files. [LV: do you need to define 'signed files'?]
 
-* Repository: A repository is a source of named metadata and target files.
+* Repository: A repository is a source [LV: a resource comprised] of named metadata and target files.
   Clients request metadata and target files stored on a repository.
 
 * Consistent snapshot: A set of TUF metadata and PyPI targets that capture the
-  complete state of all projects on PyPI as they were at some fixed point in
+  complete state of all projects on PyPI as they were [LV: change 'were' to 'existed'?] at some fixed point in
   time.
 
 * The *snapshot* (*release*) role: In order to prevent confusion due to the
-  different meanings of the term "release" as employed by PEP 426 [1]_ and the
-  TUF specification [3]_, the *release* role is renamed as the *snapshot* role.
+  different meanings of the term "release" as employed by [LV: replace 'as employed by' with 'used in' PEP 426 [1]_ and the
+  TUF specification [3]_, the *release* role is renamed to the *snapshot* role.
   
 * Developer: Either the owner or maintainer of a project who is allowed to
-  update the TUF metadata as well as distribution metadata and files for the
-  project.
+  update TUF metadata as well as distribution metadata and files for a given
+  project. 
 
 * Online key: A private cryptographic key that MUST be stored on the PyPI
-  server infrastructure.  This is usually to allow automated signing with the
-  key.  However, an attacker who compromises the PyPI infrastructure will be
-  able to read these keys.
+  server infrastructure.  This usually allows automated signing with the
+  key.  An attacker who compromises the PyPI infrastructure will be
+  able to [LV: do you want to add 'immediately' here, to align with the offline key defn?] read these keys.
 
 * Offline key: A private cryptographic key that MUST be stored independent of
   the PyPI server infrastructure.  This prevents automated signing with the
@@ -186,7 +190,7 @@ Terms used in this PEP are defined as follows:
   compromises by specifying that at least t out of n keys are REQUIRED to sign
   its metadata.  A compromise of t-1 keys is insufficient to compromise the
   role itself.  Saying that a role requires (t, n) keys denotes the threshold
-  signature property.
+  signature property. [LV: do you need to define 'role' as well?]
 
 
 Extension to PEP 458 (minimum security model)
