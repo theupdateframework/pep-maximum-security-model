@@ -17,18 +17,18 @@ Replaces:  458
 Abstract
 ========
 
-Proposed is an extension to PEP 458 that adds support for end-to-end
-signing and the maximum security model.  End-to-end signing allows both PyPI
-and developers to sign for the distributions that are downloaded by clients.
-The minimum security model proposed by PEP 458 supports continuous delivery of
-distributions (because they are signed by online keys), but that model does not 
-protect distributions in the event that PyPI is compromised.  The maximum security
-model retains many of the benefits of PEP 458 (e.g., immediate availability of 
-distributions that are uploaded to PyPI) and [LV: additionally] aims to ensure that 
-a system survives a key compromise.
+Proposed is an extension to PEP 458 that adds support for end-to-end signing
+and the maximum security model.  End-to-end signing allows both PyPI and
+developers to sign for the distributions that are downloaded by clients.  The
+minimum security model proposed by PEP 458 supports continuous delivery of
+distributions (because they are signed by online keys), but that model does not
+protect distributions in the event that PyPI is compromised.  The maximum
+security model retains many of the benefits of PEP 458 (e.g., immediate
+availability of distributions that are uploaded to PyPI) and additionally aims
+to ensure that PyPI survive a key compromise.
 
 This PEP covers the changes made to PEP 458 and excludes the informational
-parts [LV: aspects or elements] of the first PEP (e.g., overview of The Update Framework) to primarily
+elements of the first PEP (e.g., overview of The Update Framework) to primarily
 focus on changes to the maximum security model. These changes include modifications 
 to the the snapshot process, key compromise analysis, auditing snapshots, and the
 steps that should be taken in the event of a PyPI compromise.  The signing and key
@@ -85,8 +85,7 @@ following reasons, it is [___?__] as a separate PEP:
     PyPI wants to support a build farm in the future.  Unfortunately, if wheels
     are auto-generated externally, developer signatures for these wheels are
     unlikely.  However, there might still be a benefit to generating wheels
-    from source distributions that *are* [LV: why is 'are' in italics?] signed by developers 
-    (provided that
+    from source distributions that are signed by developers (provided that
     reproducible wheels are possible).  Another possibility is to optionally
     delegate trust of these wheels to an online role.
 
@@ -100,9 +99,8 @@ following reasons, it is [___?__] as a separate PEP:
 
     __ https://minilock.io/
 
-3.  A two-phase approach, where the minimum security model is implemented first
-    followed [LV: replace "first followed by" with "before"] by the maximum security model, can [LV: I'd 
-    say either may or will, rather than 'can']  simplify matters and give PyPI
+3.  A two-phase approach, where the minimum security model is implemented
+    before the maximum security model, will simplify matters and give PyPI
     administrators time to review the feasibility of end-to-end signing.
 
 
