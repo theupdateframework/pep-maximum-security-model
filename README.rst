@@ -48,14 +48,14 @@ Rationale
 
 PEP 458 [1]_ proposes how PyPI should be integrated with The Update Framework
 (TUF) [2]_.  It explains how modern package managers like pip can be made more
-secure as well as the types of attacks that can be prevented if PyPI were modified on
-the server side to include TUF metadata. [LV: verb tenses are off in the prior sentence. Either (1) can be prevented 
-if PyPI is modified OR (2) could be prevented if PyPI were modified] Package managers can reference the
-TUF metadata available on PyPI to download distributions more securely.  PEP
-458 describes the metadata layout of the PyPI repository and the minimum security model.  
-Although the minimum security model protects against many of the attacks prevented by TUF, 
-such as mix-and-match and extrananeous dependencies attacks, it can be improved to also 
-support end-to-end signing and to protect distributions even if PyPI is compromised.
+secure as well as the types of attacks that could be prevented if PyPI were
+modified on the server side to include TUF metadata.  Package managers can
+reference the TUF metadata available on PyPI to download distributions more
+securely.  PEP 458 describes the metadata layout of the PyPI repository and the
+minimum security model.  Although the minimum security model protects against
+many of the attacks prevented by TUF, such as mix-and-match and extrananeous
+dependencies attacks, it can be improved to also support end-to-end signing and
+to protect distributions even if PyPI is compromised.
 
 The minimum security model supports continuous delivery of projects and uses
 online cryptographic keys to sign the distributions uploaded by projects.  The
@@ -127,20 +127,16 @@ Definitions
 
 The keywords "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
-interpreted as described in RFC 2119__.  [LV: if you capitalize the keywords do 
-you also need to put them in quotes?]
+interpreted as described in RFC 2119__.
 
 __ http://www.ietf.org/rfc/rfc2119.txt
 
-This PEP focuses on the application of TUF on PyPI [LV: I'm not sure about these two prepositions: "of TUF on PyPI"]; 
-however, the reader is
+This PEP focuses on integrating TUF with PyPI; however, the reader is
 encouraged to read about TUF's design principles [2]_.  It is also RECOMMENDED
 that the reader be familiar with the TUF specification [3]_, and PEP 458 [1]_
 (which this PEP is extending).
 
-Terms used in this PEP are defined as follows: [LV: is there an organizing strategy for the definitions? clearly, it isn't 
-alphabetical. Will the order be recognizable to readers? If not, maybe just make it alphabetical. I obviously don't see an order,
-but I may not represent the expected readers]
+Terms used in this PEP are defined as follows:
 
 * Projects: Projects are software components that are made available for
   integration.  Projects include Python libraries, frameworks, scripts,
@@ -151,35 +147,38 @@ but I may not represent the expected readers]
 * Releases: Releases are uniquely identified snapshots of a project [4]_.
 
 * Distributions: Distributions are the packaged files that are used to publish
-  and distribute a release [4]_. [LV:I think this defn could be clearer. I'm not sure 
-  if its just the writing, but "packaged files" is part of the problem. How about something 
-  like this: A collection of files that constitute a software release, packaged together, are distributions.] 
 
 * Simple index: The HTML page that contains internal links to the
   distributions of a project [4]_.
 
-* Metadata: Metadata are signed files that describe roles, other metadata, and
-  target files. [LV: do you need to define 'signed files'?]
+* Roles: There is one *root* role in PyPI.  There are multiple roles whose
+  responsibilities are delegated to them directly or indirectly by the *root*
+  role. The term top-level role refers to the *root* role and any role
+  delegated by the *root* role. Each role has a single metadata file that it is
+  trusted to provide.
 
-* Repository: A repository is a source [LV: a resource comprised] of named metadata and target files.
-  Clients request metadata and target files stored on a repository.
+* Metadata: Metadata are files that describe roles, other metadata, and target
+  files.
+
+* Repository: A repository is a resource comprised of named metadata and target
+  files.  Clients request metadata and target files stored on a repository.
 
 * Consistent snapshot: A set of TUF metadata and PyPI targets that capture the
-  complete state of all projects on PyPI as they were [LV: change 'were' to 'existed'?] at some fixed point in
+  complete state of all projects on PyPI as they existed at some fixed point in
   time.
 
 * The *snapshot* (*release*) role: In order to prevent confusion due to the
-  different meanings of the term "release" as employed by [LV: replace 'as employed by' with 'used in' PEP 426 [1]_ and the
-  TUF specification [3]_, the *release* role is renamed to the *snapshot* role.
+  different meanings of the term "release" used in PEP 426 [1]_ and the TUF
+  specification [3]_, the *release* role is renamed to the *snapshot* role.
   
 * Developer: Either the owner or maintainer of a project who is allowed to
   update TUF metadata as well as distribution metadata and files for a given
   project. 
 
 * Online key: A private cryptographic key that MUST be stored on the PyPI
-  server infrastructure.  This usually allows automated signing with the
-  key.  An attacker who compromises the PyPI infrastructure will be
-  able to [LV: do you want to add 'immediately' here, to align with the offline key defn?] read these keys.
+  server infrastructure.  This usually allows automated signing with the key.
+  An attacker who compromises the PyPI infrastructure will be able to
+  immediately read these keys.
 
 * Offline key: A private cryptographic key that MUST be stored independent of
   the PyPI server infrastructure.  This prevents automated signing with the
@@ -190,7 +189,7 @@ but I may not represent the expected readers]
   compromises by specifying that at least t out of n keys are REQUIRED to sign
   its metadata.  A compromise of t-1 keys is insufficient to compromise the
   role itself.  Saying that a role requires (t, n) keys denotes the threshold
-  signature property. [LV: do you need to define 'role' as well?]
+  signature property.
 
 
 Extension to PEP 458 (minimum security model)
@@ -221,19 +220,18 @@ Maximum Security Model
 
 The maximum security model relies on developers signing their projects and
 uploading signed metadata to PyPI.  If the PyPI infrastructure were to be
-compromised, attackers would then be unable to serve malicious versions of claimed
-projects [LV: is 'claimed projects' a common term? I think it this should be written more clearly. 
-Maybe something like this: versions of projects they have hijacked.]  
-without having access to that project's developer key.  Figure 1 depicts the
-changes made to the metadata layout of the minimum security model, namely
-that developer roles are now supported and that three new delegated roles
-exist: *claimed*, *recently-claimed*, and *unclaimed*.  The *bins* role has
-been renamed *unclaimed* and can contain any projects that have not been added
-to *claimed*.  Offline keys provided by developers ensure the strength of this model (over the minimum security model).  
-Although the minimum security model supports continuous delivery [LV: of projects], using this model, all projects are 
-signed by an online
-key.  That is, an attacker is able to corrupt packages in the minimum security model, but not
-in the maximum model, without also compromising a developer's key.
+compromised, attackers would then be unable to serve malicious versions of
+*claimed* without having access to that project's developer key.  Figure 1
+depicts the changes made to the metadata layout of the minimum security model,
+namely that developer roles are now supported and that three new delegated
+roles exist: *claimed*, *recently-claimed*, and *unclaimed*.  The *bins* role
+has been renamed *unclaimed* and can contain any projects that have not been
+added to *claimed*.  Offline keys provided by developers ensure the strength of
+this model (over the minimum security model).  Although the minimum security
+model supports continuous delivery [LV: of projects], using this model, all
+projects are signed by an online key.  That is, an attacker is able to corrupt
+packages in the minimum security model, but not in the maximum model, without
+also compromising a developer's key.
 
 .. image:: figure1.png
 
@@ -247,8 +245,9 @@ End-to-End Signing
 
 End-to-end signing allows both PyPI and developers to sign for the metadata
 downloaded by clients.  PyPI is trusted to make uploaded projects available to
-clients (they [LV: who is they? PyPI or clients?] sign the metadata for this part of the process), and developers
-can [LV: change 'can' to 'also'?] sign the distributions that they upload.
+clients (they [LV: who is they? PyPI or clients?] sign the metadata for this
+part of the process), and developers also sign the distributions that they
+upload.
 
 This PEP discusses the tools available to developers who sign the distributions
 that they upload to PyPI.  To summarize, developers generate cryptographic keys
@@ -388,10 +387,10 @@ unclaimed metadata.
 When a recently-claimed project uploads a new a transaction, a project
 transaction process MUST add all new targets and delegated targets metadata for
 the project. If the project is new, then the project transaction process MUST
-also add new recently-claimed metadata with [LV: the ?] public keys and threshold number
-(which MUST be part of the transaction) for the project. Finally, the project
-transaction process MUST inform the consistent snapshot process about new
-recently-claimed metadata as well as the current set of delegated targets
+also add new recently-claimed metadata with the public keys and threshold
+number (which MUST be part of the transaction) for the project. Finally, the
+project transaction process MUST inform the consistent snapshot process about
+new recently-claimed metadata as well as the current set of delegated targets
 metadata for the project.
 
 The process [LV: would it be helpful to name the process?] for a claimed project is slightly 
@@ -434,8 +433,8 @@ appearance, provided that the following rules are observed:
     another project transaction process is working on a new recently-claimed
     project and vice versa.
 
-These rules MUST be observed so [LV: change 'so' to 'to ensure'] that metadata is not read from 
-or written to inconsistently.
+These rules MUST be observed to ensure that metadata is not read from or
+written to inconsistently.
 
 
 Snapshot Process
@@ -736,13 +735,13 @@ another to detect accidental or malicious failures.
 Another approach is to generate the cryptographic hash of *snapshot*
 periodically and tweet it.  Perhaps a user comes forward with the actual
 metadata and the repository maintainers can verify the metadata's cryptographic
-hash. [LV: how about this version: "For example, upon receiving the tweet, a user comes forward with the actual
-metadata and the repository maintainers are then able to verify the metadata's cryptographic
-hash.]  Alternatively, PyPI may periodically archive its own versions of
-*snapshot* rather than rely on externally provided metadata.  In this case,
-PyPI SHOULD take the cryptographic hash of every package on the repository and
-store this data on an offline device. If any package hash has changed, this
-indicates an attack [LV: has occured].
+hash. [LV: how about this version: "For example, upon receiving the tweet, a
+user comes forward with the actual metadata and the repository maintainers are
+then able to verify the metadata's cryptographic hash.]  Alternatively, PyPI
+may periodically archive its own versions of *snapshot* rather than rely on
+externally provided metadata.  In this case, PyPI SHOULD take the cryptographic
+hash of every package on the repository and store this data on an offline
+device. If any package hash has changed, this indicates an attack has occured.
 
 Attacks that serve different versions of metadata or that freeze a version
 of a package at a specific version can be handled by TUF with techniques
