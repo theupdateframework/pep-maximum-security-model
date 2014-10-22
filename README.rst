@@ -199,11 +199,11 @@ Extension to PEP 458 (minimum security model)
 The maximum security model and end-to-end signing have been intentionally
 excluded from PEP 458.  Both improve PyPI's ability to survive a
 repository compromise and allow developers to sign their distributions. However 
-[LV: from here to where I inserted a comment], confusion! See comment at end of paragr.] they
+[LV: from here to where I inserted a comment, confusion! See comment at end of paragr.] they
 have been postponed for review as a potential future extension to PEP 458.
 This PEP is available for review to those developers interested in the
 end-to-end signing option. [LV: I don't know what this is trying to say. Postponed, 
-but here it is? Which PEP is "this PEP"? We can chat about this... Maybe you want to rephrase this? 
+but here it is? Which PEP is "this PEP" 458 or the one I'm reading? We can chat about this... Maybe you want to rephrase this? 
 Something like: X & Y are being reviewed as an extension to PEP 458 because (why?). Here, the proposed extension PEP 
 is made available to those developers interested in the
 end-to-end signing option.]  The maximum security model and end-to-end signing
@@ -340,7 +340,9 @@ __ https://github.com/pyca/ed25519
 
 Essentially it [LV: what is 'it'?] derives a private key from a password so that users do not have
 to manage cryptographic key files.  Users may view the cryptographic key as a
-secondary password: no matter how many computers they have. [LV: is there some relationship between the secondary password and the number of computers a user has? In any case, that : most likely needs to go, but the relationship between the phrases needs clarification] MiniLock works well
+secondary password: no matter how many computers they have. [LV: is there some relationship between 
+the secondary password and the number of computers a user has? In any case, that : most likely needs to go, 
+but the relationship between the phrases needs clarification] MiniLock works well
 with a signature scheme like Ed25519, which only needs a very small key.
 
 __ https://github.com/kaepora/miniLock#-minilock
@@ -359,12 +361,13 @@ __ https://github.com/pypa/twine
 Producing Consistent Snapshots
 ------------------------------
 
-Given a project, PyPI is responsible for updating, depending on the project,
-either the claimed, recently-claimed or unclaimed metadata as well as
-associated delegated targets metadata. Every project MUST upload its set of
+PyPI is responsible for updating, depending on the project,
+either the claimed, recently-claimed, or unclaimed metadata as well as
+associated delegated targets [LV: should this be targets' ? if yes, then later instances should also be changed. 
+if not, this is the only comment made about this potential edit] metadata. Every project MUST upload its set of
 metadata and targets in a single transaction.  The uploaded set of files is
-called the "project transaction".  How PyPI MAY validate the files in a project
-transaction is discussed in a later section.  For now, the focus is on how PyPI
+called the "project transaction."  How PyPI MAY validate files in a project
+transaction is discussed in a later section.  The focus of this section is on how PyPI
 will respond to a project transaction.
 
 Every metadata and target file MUST include in its filename the `hex digest`__
@@ -377,7 +380,7 @@ __ https://en.wikipedia.org/wiki/SHA-2
 
 When an unclaimed project uploads a new transaction, a project transaction
 process MUST add all new targets and relevant delegated unclaimed metadata. (We
-will see later in this section why the unclaimed role will delegate targets to
+describe later in this section why the unclaimed role will delegate targets to
 a number of delegated unclaimed roles.) Finally, the project transaction
 process MUST inform the consistent snapshot process about new delegated
 unclaimed metadata.
@@ -385,14 +388,14 @@ unclaimed metadata.
 When a recently-claimed project uploads a new a transaction, a project
 transaction process MUST add all new targets and delegated targets metadata for
 the project. If the project is new, then the project transaction process MUST
-also add new recently-claimed metadata with public keys and threshold number
+also add new recently-claimed metadata with [LV: the ?] public keys and threshold number
 (which MUST be part of the transaction) for the project. Finally, the project
 transaction process MUST inform the consistent snapshot process about new
 recently-claimed metadata as well as the current set of delegated targets
 metadata for the project.
 
-The process for a claimed project is slightly different. The difference is that
-PyPI administrators will choose to move the project from the recently-claimed
+The process [LV: would it be helpful to name the process?] for a claimed project is slightly 
+different in that PyPI administrators will choose to move the project from the recently-claimed
 role to the claimed role. A project transaction process MUST then add new
 recently-claimed and claimed metadata to reflect this migration. As is the case
 for a recently-claimed project, the project transaction process MUST always add
@@ -403,11 +406,12 @@ set of delegated targets metadata for the project.
 
 Project transaction processes SHOULD be automated, except when PyPI
 administrators move a project from the recently-claimed role to the claimed
-role. Project transaction processes MUST also be applied atomically: either all
+role. Project transaction processes MUST also be applied atomically: [LV: is this the right word? 
+My guess is automatically] either all
 metadata and targets -- or none of them -- are added. The project transaction
 processes and consistent snapshot process SHOULD work concurrently. Finally,
 project transaction processes SHOULD keep in memory the latest claimed,
-recently-claimed and unclaimed metadata so that they will be correctly updated
+recently-claimed, and unclaimed metadata so that they will be correctly updated
 in new consistent snapshots.
 
 All project transactions MAY be placed in a single queue and processed
@@ -430,8 +434,8 @@ appearance, provided that the following rules are observed:
     another project transaction process is working on a new recently-claimed
     project and vice versa.
 
-These rules MUST be observed so that metadata is not read from or written to
-inconsistently.
+These rules MUST be observed so [LV: change 'so' to 'to ensure'] that metadata is not read from 
+or written to inconsistently.
 
 
 Snapshot Process
@@ -439,7 +443,7 @@ Snapshot Process
 
 The snapshot process is fairly simple and SHOULD be automated.  The snapshot
 process MUST keep in memory the latest working set of *root*, *targets*, and
-delegated roles.  Every minute or so, the snapshot process will sign for this
+delegated roles.  Every minute or so the snapshot process will sign for this
 latest working set.  (Recall that project transaction processes continuously
 inform the snapshot process about the latest delegated metadata in a
 concurrency-safe manner.  The snapshot process will actually sign for a copy of
@@ -454,18 +458,20 @@ the latest snapshot.
 A few implementation notes are now in order.  So far, we have seen only that
 new metadata and targets are added, but not that old metadata and targets are
 removed.  Practical constraints are such that eventually PyPI will run out of
-disk space to produce a new consistent snapshot.  In that case, PyPI MAY then
+disk space to produce a new consistent snapshot.  If that happens, PyPI MAY then
 use something like a "mark-and-sweep" algorithm to delete sufficiently old
-consistent snapshots: in order to preserve the latest consistent snapshot, PyPI
-would walk objects beginning from the root (*timestamp*) of the latest
-consistent snapshot, mark all visited objects, and delete all unmarked objects.
+consistent snapshots. Specifically, in order to preserve the latest consistent snapshot, PyPI
+would walk objects -- beginning from the root (*timestamp*) -- of the latest
+consistent snapshot, mark all visited objects, and delete all unmarked objects. [LV: I added dashes in the prior sentence]
 The last few consistent snapshots may be preserved in a similar fashion.
 Deleting a consistent snapshot will cause clients to see nothing except HTTP
-404 responses to any request for a file within that consistent snapshot.
+404 responses to any request for a file within that consistent snapshot. [LV: "file within a consistent snapshot"
+seems like a confusing way to say X. Not sure what X is...]
 Clients SHOULD then retry (as before) their requests with the latest consistent
 snapshot.
 
-All clients, such as pip using the TUF protocol, MUST be modified to download
+All clients, such as pip using the TUF protocol, [LV: is the example client pip or pip using the TUF protocol? this is relevant to 
+deciding if a comma is missing] MUST be modified to download
 every metadata and target file (except for *timestamp* metadata) by including,
 in the request for the file, the cryptographic hash of the file in the
 filename.  Following the filename convention recommended earlier, a request for
@@ -484,17 +490,17 @@ Key Compromise Analysis
 
 This PEP has covered the maximum security model, the TUF roles that should be
 added to support continuous delivery of distributions, how to generate and sign
-the metadata of each role, support distributions that have been signed by
+the metadata of each role, [LV: and how to] support distributions that have been signed by
 developers.  The remaining sections discuss how PyPI SHOULD audit repository
-metadata, and the methods PyPI can use to detect and recover from a PyPI
+metadata and the methods PyPI can use to detect and recover from a PyPI
 compromise.
 
 Table 1 summarizes a few of the attacks possible when a threshold number of
 private cryptographic keys (belonging to any of the PyPI roles) are
 compromised.  The leftmost column lists the roles (or a combination of roles)
-that have been compromised, and the columns to its right show whether the
-compromised roles leaves clients susceptible to malicious updates, a freeze
-attack, or metadata inconsistency attacks.
+that have been compromised, and the columns to the right show whether the
+compromised roles leaves clients susceptible to malicious updates, freeze
+attacks, or metadata inconsistency attacks.
 
 +-------------------+-------------------+-----------------------+-----------------------+
 | Role Compromise   | Malicious Updates | Freeze Attack         | Metadata Inconsistency|
@@ -557,9 +563,9 @@ attack, or metadata inconsistency attacks.
 |     root          |       YES         |         YES           |           YES         |
 +-------------------+-------------------+-----------------------+-----------------------+
 
-Table 1: Attacks possible by compromising certain combinations of role keys.
+Table 1: Attacks that are possible by compromising certain combinations of role keys.
 In `September 2013`__, it was shown how the latest version (at the time) of pip
-was susceptible to these attacks  and how TUF could protect users against them
+was susceptible to these attacks and how TUF could protect users against them
 [8]_.
 
 __ https://mail.python.org/pipermail/distutils-sig/2013-September/022755.html
@@ -589,30 +595,31 @@ roles on PyPI), as well as the PyPI infrastructure, have been compromised and
 used to sign new metadata on PyPI.
 
 If a threshold number of developer keys of a project have been compromised,
-then the project MUST take the following steps:
+the project MUST take the following steps:
 
 1.  The project metadata and targets MUST be restored to the last known good
     consistent snapshot where the project was not known to be compromised. This
-    can be done by the developers repackaging and resigning all targets with
+    can be done by developers repackaging and resigning all targets with
     the new keys.
 
 2.  The project's metadata MUST have its version numbers incremented, expiry
-    times suitably extended and signatures renewed.
+    times suitably extended, and signatures renewed.
 
 Whereas PyPI MUST take the following steps:
 
 1.  Revoke the compromised developer keys from the delegation to the project by
-    the recently-claimed or claimed role. This is done by replacing the
+    the recently-claimed or claimed role. [LV: does the prior sentence really make sense? It seems off to me.]
+    This is done by replacing the
     compromised developer keys with newly issued developer keys.
 
 2.  A new timestamped consistent snapshot MUST be issued.
 
-If a threshold number of timestamp, snapshot, recently-claimed or
+If a threshold number of timestamp, snapshot, recently-claimed, or
 unclaimed keys have been compromised, then PyPI MUST take the following steps:
 
-1.  Revoke the timestamp, snapshot and targets role keys from the
+1.  Revoke the timestamp, snapshot, and targets role keys from the
     root role. This is done by replacing the compromised timestamp,
-    snapshot and targets keys with newly issued keys.
+    snapshot, and targets keys with newly issued keys.
 
 2.  Revoke the recently-claimed and unclaimed keys from the targets role by
     replacing their keys with newly issued keys. Sign the new targets role
@@ -625,15 +632,15 @@ unclaimed keys have been compromised, then PyPI MUST take the following steps:
 
 4.  All targets of the recently-claimed and unclaimed roles SHOULD be compared
     with the last known good consistent snapshot where none of the timestamp,
-    snapshot, recently-claimed or unclaimed keys were known to have been
-    compromised. Added, updated or deleted targets in the compromised
+    snapshot, recently-claimed, or unclaimed keys were known to have been
+    compromised. Added, updated, or deleted targets in the compromised
     consistent snapshot that do not match the last known good consistent
     snapshot MAY be restored to their previous versions. After ensuring the
     integrity of all unclaimed targets, the unclaimed metadata MUST be
     regenerated.
 
 5.  The recently-claimed and unclaimed metadata MUST have their version numbers
-    incremented, expiry times suitably extended and signatures renewed.
+    incremented, expiry times suitably extended, and signatures renewed.
 
 6.  A new timestamped consistent snapshot MUST be issued.
 
@@ -641,12 +648,12 @@ This would preemptively protect all of these roles even though only one of them
 may have been compromised.
 
 If a threshold number of the targets or claimed keys have been compromised,
-then there is little that an attacker could do without the timestamp and
+then there is little that an attacker would be able do without the timestamp and
 snapshot keys. In this case, PyPI MUST simply revoke the compromised targets or
-claimed keys by replacing them with new keys in the root and targets roles
+claimed keys by replacing them with new keys in the root and targets roles,
 respectively.
 
-If a threshold number of the timestamp, snapshot and claimed keys have been
+If a threshold number of the timestamp, snapshot, and claimed keys have been
 compromised, then PyPI MUST take the following steps in addition to the steps
 taken when either the timestamp or snapshot keys are compromised:
 
@@ -654,15 +661,15 @@ taken when either the timestamp or snapshot keys are compromised:
     newly issued keys.
     
 2.  All project targets of the claimed roles SHOULD be compared with the last
-    known good consistent snapshot where none of the timestamp, snapshot or
-    claimed keys were known to have been compromised.  Added, updated or
+    known good consistent snapshot where none of the timestamp, snapshot, or
+    claimed keys were known to have been compromised.  Added, updated, or
     deleted targets in the compromised consistent snapshot that do not match
     the last known good consistent snapshot MAY be restored to their previous
     versions.  After ensuring the integrity of all claimed project targets, the
     claimed metadata MUST be regenerated.
 
 3.  The claimed metadata MUST have their version numbers incremented, expiry
-    times suitably extended and signatures renewed.
+    times suitably extended, and signatures renewed.
 
 
 Following these steps would preemptively protect all of these roles even though
@@ -675,15 +682,15 @@ the steps taken when the *targets* role has been compromised.  All of the
 It is also RECOMMENDED that PyPI sufficiently document compromises with
 security bulletins.  These security bulletins will be most informative when
 users of pip-with-TUF are unable to install or update a project because the
-keys for the *timestamp*, *snapshot* or *root* roles are no longer valid.  They
+keys for the *timestamp*, *snapshot*, or *root* roles are no longer valid.  Users
 could then visit the PyPI web site to consult security bulletins that would
-help to explain why they are no longer able to install or update, and then take
+help to explain why users are no longer able to install or update, and then take
 action accordingly.  When a threshold number of *root* keys have not been
 revoked due to a compromise, then new *root* metadata may be safely updated
 because a threshold number of existing *root* keys will be used to sign for the
 integrity of the new *root* metadata.  TUF clients will be able to verify the
 integrity of the new *root* metadata with a threshold number of previously
-known *root* keys.  This will be the common case.  Otherwise, in the worst
+known *root* keys.  This will be the common case.  In the worst
 case, where a threshold number of *root* keys have been revoked due to a
 compromise, an end-user may choose to update new *root* metadata with
 `out-of-band`__ mechanisms.
@@ -696,27 +703,28 @@ Auditing Snapshots
 
 If a malicious party compromises PyPI, they can sign arbitrary files with any
 of the online keys.  The roles with offline keys (i.e., *root* and *targets*)
-are still protected.  To safely recover from a repository compromise, snapshots
-should be audited to ensure files are only restored to trusted versions.
+are still protected. To safely recover from a repository compromise, snapshots
+should be audited to ensure that files are only restored to trusted versions.
 
 When a repository compromise has been detected, the integrity of three types of
 information must be validated:
 
 1. If the online keys of the repository have been compromised, they can be
-   revoked by having the *targets* role sign new metadata delegating to a new
+   revoked by having the *targets* role sign new metadata, delegated to a new
    key.
 
-2. If the role metadata on the repository has been changed, this would impact
+2. If the role metadata on the repository has been changed, this will impact
    the metadata that is signed by online keys.  Any role information created
    since the last period should be discarded. As a result, developers of new
    projects will need to re-register their projects.
 
 3. If the packages themselves may have been tampered with, they can be
    validated using the stored hash information for packages that existed at the
-   time of the last period.  Also new distributions that are signed by
+   time of the last period [LV: "the time of the last period" seems to include some redundant info. 
+   not clear what's going on.]  Also, new distributions that are signed by
    developers in the claimed role may be safely retained.  However, any
    distributions signed by developers in the *recently-claimed* or *unclaimed*
-   role should be discarded.
+   roles should be discarded.
 
 In order to safely restore snapshots in the event of a compromise, PyPI SHOULD
 maintain a small number of its own mirrors to copy PyPI snapshots according to
@@ -728,15 +736,17 @@ another to detect accidental or malicious failures.
 Another approach is to generate the cryptographic hash of *snapshot*
 periodically and tweet it.  Perhaps a user comes forward with the actual
 metadata and the repository maintainers can verify the metadata's cryptographic
-hash.  Alternatively, PyPI may periodically archive its own versions of
+hash. [LV: how about this version: "For example, upon receiving the tweet, a user comes forward with the actual
+metadata and the repository maintainers are then able to verify the metadata's cryptographic
+hash.]  Alternatively, PyPI may periodically archive its own versions of
 *snapshot* rather than rely on externally provided metadata.  In this case,
 PyPI SHOULD take the cryptographic hash of every package on the repository and
 store this data on an offline device. If any package hash has changed, this
-indicates an attack.
+indicates an attack [LV: has occured].
 
-As for attacks that serve different versions of metadata, or freeze a version
-of a package at a specific version, they can be handled by TUF with techniques
-like implicit key revocation and metadata mismatch detection [1].
+Attacks that serve different versions of metadata or that freeze a version
+of a package at a specific version can be handled by TUF with techniques
+such as implicit key revocation and metadata mismatch detection [1].
 
 
 References
