@@ -197,12 +197,17 @@ Extension to PEP 458 (minimum security model)
 =============================================
 
 The maximum security model and end-to-end signing have been intentionally
-excluded from PEP 458.  Although both improve PyPI's ability to survive a
-repository compromise and allow developers to sign their distributions, they
+excluded from PEP 458.  Both improve PyPI's ability to survive a
+repository compromise and allow developers to sign their distributions. However 
+[LV: from here to where I inserted a comment], confusion! See comment at end of paragr.] they
 have been postponed for review as a potential future extension to PEP 458.
 This PEP is available for review to those developers interested in the
-end-to-end signing option.  The maximum security model and end-to-end signing
-are covered in the subsections that follow.
+end-to-end signing option. [LV: I don't know what this is trying to say. Postponed, 
+but here it is? Which PEP is "this PEP"? We can chat about this... Maybe you want to rephrase this? 
+Something like: X & Y are being reviewed as an extension to PEP 458 because (why?). Here, the proposed extension PEP 
+is made available to those developers interested in the
+end-to-end signing option.]  The maximum security model and end-to-end signing
+are covered in the subsections that follow.  
 
 [VD: Discuss roles in both models and explain disadvanges/advantages?]
 
@@ -216,17 +221,19 @@ Maximum Security Model
 
 The maximum security model relies on developers signing their projects and
 uploading signed metadata to PyPI.  If the PyPI infrastructure were to be
-compromised, attackers would be unable to serve malicious versions of claimed
-projects without access to the project's developer key.  Figure 1 depicts the
+compromised, attackers would then be unable to serve malicious versions of claimed
+projects [LV: is 'claimed projects' a common term? I think it this should be written more clearly. 
+Maybe something like this: versions of projects they have hijacked.]  
+without having access to that project's developer key.  Figure 1 depicts the
 changes made to the metadata layout of the minimum security model, namely
 that developer roles are now supported and that three new delegated roles
 exist: *claimed*, *recently-claimed*, and *unclaimed*.  The *bins* role has
 been renamed *unclaimed* and can contain any projects that have not been added
-to *claimed*.  The strength of this model (over the minimum security model) is
-in the offline keys provided by developers.  Although the minimum security
-model supports continuous delivery, all of the projects are signed by an online
-key.  An attacker can corrupt packages in the minimum security model, but not
-in the maximum model without also compromising a developer's key.
+to *claimed*.  Offline keys provided by developers ensure the strength of this model (over the minimum security model).  
+Although the minimum security model supports continuous delivery [LV: of projects], using this model, all projects are 
+signed by an online
+key.  That is, an attacker is able to corrupt packages in the minimum security model, but not
+in the maximum model, without also compromising a developer's key.
 
 .. image:: figure1.png
 
@@ -240,8 +247,8 @@ End-to-End Signing
 
 End-to-end signing allows both PyPI and developers to sign for the metadata
 downloaded by clients.  PyPI is trusted to make uploaded projects available to
-clients (they sign the metadata for this part of the process), and developers
-can sign the distributions that they upload.
+clients (they [LV: who is they? PyPI or clients?] sign the metadata for this part of the process), and developers
+can [LV: change 'can' to 'also'?] sign the distributions that they upload.
 
 This PEP discusses the tools available to developers who sign the distributions
 that they upload to PyPI.  To summarize, developers generate cryptographic keys
@@ -261,35 +268,39 @@ Automated Signing of Distributions
 __ https://docs.python.org/2/distutils/index.html#distutils-index
 
 [VD: May Distutils be modified?]
-The upload procedure would need to be modified to sign and upload TUF metadata.
+The upload procedure would need to be modified to sign and upload TUF metadata. [LV: not clear why you say 
+'would need' - if you added at the end of this sentence something like "in order for X to happen" it would make more sense. 
+If this isn't the right solution, we will need to chat, I think. Unless the sentence belongs inside the brackets above, 
+as part of Vlad's comment.}
 
 
 - Separate tool provided to the developers
 
-A default PyPI-mediated key management & package signing solution that is
+A default PyPI-mediated key management and package signing solution that is
 transparent and does not require a key escrow (sharing or moving encrypted
-private keys.)  Additionally, a developer may also circumvent sharing encrypted
+private keys.)  Additionally, a developer may also circumvent sharing of encrypted
 private keys between multiple machines.
 
-Here is a brief outline of one approach that may be considered:
+The following briefly outlines one possible approach:
 
 1.  Register project.
 2.  Enter secondary password.
-3.  Add new identity to user account from machine 2 (a password prompt.)
+3.  Add new identity to user account from machine 2 (after a password prompt)
 4.  Upload project.
 
-Under the hood (the average user is not aware or needs to care):
+Under the hood (the average user is not aware or needs to care [LV: these are not parallel. 
+I assume you mean that the user does not need to care]):
 
 The "create an identity with only a password" action generates an encrypted
 private key file and uploads the ed25519 public key to PyPI.  An existing
-identity (contains its public key in project metadata or on PyPI) signs (done
-transparently) for new identities.  By default, project metadata has a
-signature threshold of 1.  Other verified identities or maintainers may create
+identity (contains its public key in project metadata or on PyPI [LV: reorganize to: 'its public key is contained
+in project metadata or on PyPI]) signs (this is done transparently) for new identities.  By default, project metadata 
+has a signature threshold of 1.  Other verified identities or maintainers [LV: do you need to define maintainers?] may create
 new releases and satisfy the threshold.
 
-The framework is flexible, though.  A single project key may also be shared
-between machines or maintainers, if manual key management is preferred (e.g.,
-ssh-copy-id.)
+However, the framework [LV: I think this refers to the model, but maybe you should be explicit here - remind the reader and 
+name the model or framework.] is flexible.  A single project key may also be shared
+between machines or maintainers, if manual key management is preferred (e.g., ssh-copy-id).
 
 TUF's `repository`__ and `developer`__ tools:
 
@@ -300,11 +311,12 @@ __ https://github.com/theupdateframework/tuf/blob/develop/tuf/README-developer-t
 - Cryptographic key files 
 
 The implementation SHOULD encrypt key files with AES-256-CTR-Mode and passwords
-strengthened with PBKDF2-HMAC-SHA256 (100K iterations by default, but may be
-overriden in 'tuf.conf.PBKDF2_ITERATIONS' by the user.) The framework, however,
+strengthened with PBKDF2-HMAC-SHA256 (100K iterations by default, but [LV: this/these?] may be
+overriden in 'tuf.conf.PBKDF2_ITERATIONS' by the user). The framework, however,
 can use any Cryptography library (support for PyCA cryptography may be added)
 and the KDF tweaked to your taste.  Tried and tested approaches is the way to
-go.
+go. [LV: this last sentence seems rather offhand or colloquial. is there a point to its existence? is there 
+another way to phrase the intent?]
 
 
 - Cryptographic signature scheme: `Ed25519`__
@@ -313,7 +325,10 @@ __ http://ed25519.cr.yp.to/
 
 Ed25519 is a public-key signature system that uses small cryptographic
 signatures and keys.  A pure-python implementation of the signature scheme is
-available.  pip MUST not depend on external depencies that have to be compiled
+available [LV: do you need to say where its available?]. [LV: the following sentence just confuses me. 
+Does it need a 'therefore' or 'however' at the beginning? Should pip be capitalized? The remaining relationships
+also seem a bit unclear. However, it is possible that it would all make sense to your expected readers. I can't tell.]
+pip MUST not depend on external depencies that have to be compiled
 (e.g., compiling C extensions to perform verification of signatures), so
 verifying RSA signatures may be impractical due to speed.  `Verification of
 Ed25519 signatures`__ is fast, even when performed in Python code.
@@ -323,9 +338,9 @@ __ https://github.com/pyca/ed25519
 
 - Key management: `MiniLock`__
 
-Essentially it derives a private key from a password so that users do not have
-to manage cryptographic key files.  Users may view the cryptographic key as
-secondary password: no matter how many computers they have. MiniLock works well
+Essentially it [LV: what is 'it'?] derives a private key from a password so that users do not have
+to manage cryptographic key files.  Users may view the cryptographic key as a
+secondary password: no matter how many computers they have. [LV: is there some relationship between the secondary password and the number of computers a user has? In any case, that : most likely needs to go, but the relationship between the phrases needs clarification] MiniLock works well
 with a signature scheme like Ed25519, which only needs a very small key.
 
 __ https://github.com/kaepora/miniLock#-minilock
