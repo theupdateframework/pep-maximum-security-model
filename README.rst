@@ -264,18 +264,17 @@ Automated Signing of Distributions
 __ https://docs.python.org/2/distutils/index.html#distutils-index
 
 [VD: May Distutils be modified?]
-The upload procedure would need to be modified to sign and upload TUF metadata. [LV: not clear why you say 
-'would need' - if you added at the end of this sentence something like "in order for X to happen" it would make more sense. 
-If this isn't the right solution, we will need to chat, I think. Unless the sentence belongs inside the brackets above, 
-as part of Vlad's comment.}
+
+Distutil MUST be modified to sign metadada in order to successfully upload
+distribution to PyPI.
 
 
 - Separate tool provided to the developers
 
 A default PyPI-mediated key management and package signing solution that is
 transparent and does not require a key escrow (sharing or moving encrypted
-private keys.)  Additionally, a developer may also circumvent sharing of encrypted
-private keys between multiple machines.
+private keys.)  Additionally, a developer may also circumvent sharing of
+encrypted private keys between multiple machines.
 
 The following briefly outlines one possible approach:
 
@@ -284,17 +283,16 @@ The following briefly outlines one possible approach:
 3.  Add new identity to user account from machine 2 (after a password prompt)
 4.  Upload project.
 
-Under the hood (the average user is not aware or needs to care [LV: these are not parallel. 
-I assume you mean that the user does not need to care]):
+Under the hood (the user is not aware or needs to care:
 
 The "create an identity with only a password" action generates an encrypted
 private key file and uploads the ed25519 public key to PyPI.  An existing
-identity (contains its public key in project metadata or on PyPI [LV: reorganize to: 'its public key is contained
-in project metadata or on PyPI]) signs (this is done transparently) for new identities.  By default, project metadata 
-has a signature threshold of 1.  Other verified identities or maintainers [LV: do you need to define maintainers?] may create
-new releases and satisfy the threshold.
+identity (its public key is contained in project metadata or on PyPI) signs
+(this is done transparently) for new identities.  By default, project metadata
+has a signature threshold of 1.  Other verified identities may create new
+releases and satisfy the threshold.
 
-However, the framework [LV: I think this refers to the model, but maybe you should be explicit here - remind the reader and 
+However, the  [LV: I think this refers to the model, but maybe you should be explicit here - remind the reader and 
 name the model or framework.] is flexible.  A single project key may also be shared
 between machines or maintainers, if manual key management is preferred (e.g., ssh-copy-id).
 
@@ -307,32 +305,29 @@ __ https://github.com/theupdateframework/tuf/blob/develop/tuf/README-developer-t
 - Cryptographic key files 
 
 The implementation SHOULD encrypt key files with AES-256-CTR-Mode and passwords
-strengthened with PBKDF2-HMAC-SHA256 (100K iterations by default, but [LV: this/these?] may be
-overriden in 'tuf.conf.PBKDF2_ITERATIONS' by the user). The framework, however,
-can use any Cryptography library (support for PyCA cryptography may be added)
-and the KDF tweaked to your taste.  Tried and tested approaches is the way to
-go. [LV: this last sentence seems rather offhand or colloquial. is there a point to its existence? is there 
-another way to phrase the intent?]
-
+strengthened with PBKDF2-HMAC-SHA256 (100K iterations by default, but this may
+be overriden in 'tuf.conf.PBKDF2_ITERATIONS' by the user). The framework,
+however, can use any Cryptography library (support for PyCA cryptography may be
+added) and the KDF tweaked to your taste.
 
 - Cryptographic signature scheme: `Ed25519`__
 
 __ http://ed25519.cr.yp.to/
 
 Ed25519 is a public-key signature system that uses small cryptographic
-signatures and keys.  A pure-python implementation of the signature scheme is
-available [LV: do you need to say where its available?]. [LV: the following sentence just confuses me. 
+signatures and keys.  A `pure-python implementation` of the signature scheme is
+available.  [LV: the following sentence just confuses me. 
 Does it need a 'therefore' or 'however' at the beginning? Should pip be capitalized? The remaining relationships
 also seem a bit unclear. However, it is possible that it would all make sense to your expected readers. I can't tell.]
 pip MUST not depend on external depencies that have to be compiled
 (e.g., compiling C extensions to perform verification of signatures), so
-verifying RSA signatures may be impractical due to speed.  `Verification of
-Ed25519 signatures`__ is fast, even when performed in Python code.
+verifying RSA signatures may be impractical due to speed.  Verification of
+Ed25519 signatures is fast, even when performed in Python code.
 
 __ https://github.com/pyca/ed25519
 
 
-- Key management: `MiniLock`__
+- Key management: `miniLock`__
 
 Essentially the key management solution that uses miniLock derives a private
 key from a password so that users do not have to manage cryptographic key
@@ -359,14 +354,13 @@ __ https://github.com/pypa/twine
 Producing Consistent Snapshots
 ------------------------------
 
-PyPI is responsible for updating, depending on the project,
-either the claimed, recently-claimed, or unclaimed metadata as well as
-associated delegated targets [LV: should this be targets' ? if yes, then later instances should also be changed. 
-if not, this is the only comment made about this potential edit] metadata. Every project MUST upload its set of
-metadata and targets in a single transaction.  The uploaded set of files is
-called the "project transaction."  How PyPI MAY validate files in a project
-transaction is discussed in a later section.  The focus of this section is on how PyPI
-will respond to a project transaction.
+PyPI is responsible for updating, depending on the project, either the
+*claimed*, *recently-claimed*, or *unclaimed* metadata as well as associated
+delegated metadata metadata. Every project MUST upload its set of metadata and
+targets in a single transaction.  The uploaded set of files is called the
+"project transaction."  How PyPI MAY validate files in a project transaction is
+discussed in a later section.  The focus of this section is on how PyPI will
+respond to a project transaction.
 
 Every metadata and target file MUST include in its filename the `hex digest`__
 of its `SHA-256`__ hash.  For this PEP, it is RECOMMENDED that PyPI adopt a
@@ -392,9 +386,9 @@ project transaction process MUST inform the consistent snapshot process about
 new recently-claimed metadata as well as the current set of delegated targets
 metadata for the project.
 
-The process [LV: would it be helpful to name the process?] for a claimed project is slightly 
-different in that PyPI administrators will choose to move the project from the recently-claimed
-role to the claimed role. A project transaction process MUST then add new
+The transaction process for a claimed project is slightly different in that
+PyPI administrators will choose to move the project from the *recently-claimed*
+role to the *claimed* role. A project transaction process MUST then add new
 recently-claimed and claimed metadata to reflect this migration. As is the case
 for a recently-claimed project, the project transaction process MUST always add
 all new targets and delegated targets metadata for the claimed project.
@@ -404,8 +398,7 @@ set of delegated targets metadata for the project.
 
 Project transaction processes SHOULD be automated, except when PyPI
 administrators move a project from the recently-claimed role to the claimed
-role. Project transaction processes MUST also be applied atomically: [LV: is this the right word? 
-My guess is automatically] either all
+role. Project transaction processes MUST also be applied atomically: either all
 metadata and targets -- or none of them -- are added. The project transaction
 processes and consistent snapshot process SHOULD work concurrently. Finally,
 project transaction processes SHOULD keep in memory the latest claimed,
@@ -453,23 +446,22 @@ roles) generated in the previous step.  Finally, the snapshot process MUST make
 available to clients the new *timestamp* and *snapshot* metadata representing
 the latest snapshot.
 
-A few implementation notes are now in order.  So far, we have seen only that
+A few implementation notes are now in order.  So far, we have seen that only
 new metadata and targets are added, but not that old metadata and targets are
 removed.  Practical constraints are such that eventually PyPI will run out of
-disk space to produce a new consistent snapshot.  If that happens, PyPI MAY then
-use something like a "mark-and-sweep" algorithm to delete sufficiently old
-consistent snapshots. Specifically, in order to preserve the latest consistent snapshot, PyPI
-would walk objects -- beginning from the root (*timestamp*) -- of the latest
-consistent snapshot, mark all visited objects, and delete all unmarked objects. [LV: I added dashes in the prior sentence]
-The last few consistent snapshots may be preserved in a similar fashion.
-Deleting a consistent snapshot will cause clients to see nothing except HTTP
-404 responses to any request for a file within that consistent snapshot. [LV: "file within a consistent snapshot"
-seems like a confusing way to say X. Not sure what X is...]
-Clients SHOULD then retry (as before) their requests with the latest consistent
-snapshot.
+disk space to produce a new consistent snapshot.  If that happens, PyPI MAY
+then use something like a "mark-and-sweep" algorithm to delete sufficiently old
+consistent snapshots. Specifically, in order to preserve the latest consistent
+snapshot, PyPI would walk objects -- beginning from the root (*timestamp*) --
+of the latest consistent snapshot, mark all visited objects, and delete all
+unmarked objects.  The last few consistent snapshots may be preserved in a
+similar fashion.  Deleting a consistent snapshot will cause clients to see
+nothing except HTTP 404 responses to any request for a file within that
+consistent snapshot. [LV: "file within a consistent snapshot" seems like a
+confusing way to say X. Not sure what X is...] Clients SHOULD then retry (as
+before) their requests with the latest consistent snapshot.
 
-All clients, such as pip using the TUF protocol, [LV: is the example client pip or pip using the TUF protocol? this is relevant to 
-deciding if a comma is missing] MUST be modified to download
+All package managers that support TUF metadata MUST be modified to download
 every metadata and target file (except for *timestamp* metadata) by including,
 in the request for the file, the cryptographic hash of the file in the
 filename.  Following the filename convention recommended earlier, a request for
@@ -605,10 +597,9 @@ the project MUST take the following steps:
 
 Whereas PyPI MUST take the following steps:
 
-1.  Revoke the compromised developer keys from the delegation to the project by
-    the recently-claimed or claimed role. [LV: does the prior sentence really make
-    sense? It seems off to me.] This is done by replacing the compromised developer
-    keys with newly issued developer keys.
+1.  Revoke the compromised developer keys from the *recently-claimed* or
+    *claimed* role.  This is done by replacing the compromised developer keys
+    with newly issued developer keys.
 
 2.  A new timestamped consistent snapshot MUST be issued.
 
