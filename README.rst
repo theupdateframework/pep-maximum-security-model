@@ -25,19 +25,19 @@ distributions (because they are signed by online keys), but that model does not
 protect distributions in the event that PyPI is compromised.  The maximum
 security model retains many of the benefits of PEP 458 (e.g., immediate
 availability of distributions that are uploaded to PyPI) and additionally aims
-to ensure that PyPI survive a key compromise.
+to ensure that PyPI can recover from a key compromise.
 
-This PEP covers the changes made to PEP 458 but excludes its informational
+This PEP includes the changes made to PEP 458, but excludes its informational
 elements (e.g., overview of The Update Framework) to primarily focus on the
-maximum security model. These changes include modifications to the snapshot
-process, key compromise analysis, auditing snapshots, and the steps that should
-be taken in the event of a PyPI compromise.  The signing and key management
-process that PyPI MAY follow is outlined but not strictly defined.  How the
-release process should be implemented to manage keys and metadata of signed
-projects is left to implementors of the signing tools.  That is, this PEP
-delineates the expected cryptographic key type and signature in metadata that
-MUST be uploaded by developers in order to support end-to-end verification of
-distributions.
+maximum security model. The changes to PEP 458 include modifications to the
+snapshot process, key compromise analysis, auditing snapshots, and the steps
+that should be taken in the event of a PyPI compromise.  The signing and key
+management process of projects that PyPI MAY follow is outlined but not
+strictly defined.  How the release process should be implemented to manage keys
+and metadata is left to the implementors of the signing tools.  That is, this
+PEP delineates the expected cryptographic key type and signature included in
+metadata that MUST be uploaded by developers in order to support end-to-end
+verification of distributions.
 
 
 Rationale
@@ -45,37 +45,34 @@ Rationale
 
 PEP 458 [1]_ proposes how PyPI should be integrated with The Update Framework
 (TUF) [2]_.  It explains how modern package managers like pip can be made more
-secure as well as the types of attacks that could be prevented if PyPI were
-modified on the server side to include TUF metadata.  Package managers can
+secure, and the types of attacks that could be prevented if PyPI were modified
+on the server side to include TUF metadata.  Package managers can
 reference the TUF metadata available on PyPI to download distributions more
-securely.  PEP 458 describes the metadata layout of the PyPI repository and the
+securely.
+
+PEP 458 also describes the metadata layout of the PyPI repository and the
 minimum security model.  Although the minimum security model protects against
-many of the attacks prevented by TUF, such as mix-and-match and extrananeous
+most software update attacks, such as mix-and-match and extrananeous
 dependencies attacks, it can be improved to also support end-to-end signing and
-to protect distributions even if PyPI is compromised.
+to prohibit forged distributions if PyPI is compromised.
 
 The minimum security model supports continuous delivery of projects and uses
 online cryptographic keys to sign the distributions uploaded by projects.  The
 main strength of the minimum security model is the automated and simplified
 release process: developers may upload distributions and then have PyPI sign
-for their distributions.
+for their distributions.  Much of the release process is handled in an
+automated fashion by online roles and this simplified approach requires that
+cryptographic signing keys be stored on the PyPI infrastructure.
+Unfortunately, cryptographic keys that are stored online are vulnerable to
+theft, and thus distributions that are signed by these keys can be easily
+forged if attackers compromise the servers that sign for distributions.
 
-In this minimum security model, much of the release process is handled in an
-automated fashion by online roles, but this simplified approach requires that
-cryptographic signing keys be stored on the PyPI infrastructure.  Unfortunately,
-cryptographic keys that are stored online are vulnerable to theft, and thus
-distributions that are signed by these keys can be easily forged if attackers
-compromise the server(s) that rely on these signing keys.  The maximum
-security model is an extension to the minimum model that allows PyPI to survive
-a repository compromise and permits developers to sign for the distributions
-that they make available to PyPI users.
-
-Although the maximum security model provides additional protections while still
-supporting continuous delivery of distributions, it was postponed for several
-reasons: {LV: I would reorder this sentence to put the main point first. Also, 
-is the point that it was postponed or that it is separate from PEP 458?]: "The 
-maximum security model provides .... delivery of distributions. However, for the 
-following reasons, it is [___?__] as a separate PEP:
+The maximum security model is an extension to the minimum model that allows
+PyPI to survive a repository compromise and permits developers to sign for the
+distributions that they make available to PyPI users.  The maximum security
+provides added protections while still supporting continuous delivery of
+distributions.  However, for the following reasons, it was postponed and moved
+to this PEP:
 
 1.  A build farm (distribution wheels on supported platforms are generated on
     PyPI infrastructure for each project) may possibly complicate matters.
@@ -88,11 +85,11 @@ following reasons, it is [___?__] as a separate PEP:
 
 2.  An easy-to-use key management solution is needed for developers.
     `miniLock`__ is one likely candidate for management and generation of keys.
-    Although developer signatures can remain an option, this approach may
-    be insufficient due to the great number of unsigned dependencies that can
-    occur [LV: would 'accumulate' be a better word than 'occur'?] for a signed 
-    distribution requested by a client.  Requiring developers to manually sign distributions 
-    and manage keys is expected to render key signing an unused feature.
+    Although developer signatures can remain optional, this approach may be
+    inadequate due to the great number of potentially unsigned dependencies for
+    distributions a client may request.  Requiring developers to manually sign
+    distributions and manage keys is expected to render key signing an unused
+    feature.
 
     __ https://minilock.io/
 
@@ -194,11 +191,15 @@ Extension to PEP 458 (minimum security model)
 
 The maximum security model and end-to-end signing have been intentionally
 excluded from PEP 458.  Both improve PyPI's ability to survive a
-repository compromise and allow developers to sign their distributions. However 
+repository compromise and allow developers to sign their distributions. However, 
+the maximum security model and end-to-end signing are being reviewed as an extension to PEP 458 because 
+
 [LV: from here to where I inserted a comment, confusion! See comment at end of paragr.] they
 have been postponed for review as a potential future extension to PEP 458.
 This PEP is available for review to those developers interested in the
-end-to-end signing option. [LV: I don't know what this is trying to say. Postponed, 
+end-to-end signing option.
+
+[LV: I don't know what this is trying to say. Postponed, 
 but here it is? Which PEP is "this PEP" 458 or the one I'm reading? We can chat about this... Maybe you want to rephrase this? 
 Something like: X & Y are being reviewed as an extension to PEP 458 because (why?). Here, the proposed extension PEP 
 is made available to those developers interested in the
@@ -218,14 +219,14 @@ Maximum Security Model
 The maximum security model relies on developers signing their projects and
 uploading signed metadata to PyPI.  If the PyPI infrastructure were to be
 compromised, attackers would then be unable to serve malicious versions of
-*claimed* without having access to that project's developer key.  Figure 1
-depicts the changes made to the metadata layout of the minimum security model,
-namely that developer roles are now supported and that three new delegated
-roles exist: *claimed*, *recently-claimed*, and *unclaimed*.  The *bins* role
-has been renamed *unclaimed* and can contain any projects that have not been
-added to *claimed*.  Offline keys provided by developers ensure the strength of
-this model (over the minimum security model).  Although the minimum security
-model supports continuous delivery [LV: of projects], using this model, all
+*claimed* project without having access to that project's developer key.
+Figure 1 depicts the changes made to the metadata layout of the minimum
+security model, namely that developer roles are now supported and that three
+new delegated roles exist: *claimed*, *recently-claimed*, and *unclaimed*.  The
+*bins* role has been renamed *unclaimed* and can contain any projects that have
+not been added to *claimed*.  Offline keys provided by developers ensure the
+strength of this model (over the minimum security model).  Although the minimum
+security model supports continuous delivery of projects using this model, all
 projects are signed by an online key.  That is, an attacker is able to corrupt
 packages in the minimum security model, but not in the maximum model, without
 also compromising a developer's key.
@@ -242,9 +243,8 @@ End-to-End Signing
 
 End-to-end signing allows both PyPI and developers to sign for the metadata
 downloaded by clients.  PyPI is trusted to make uploaded projects available to
-clients (they [LV: who is they? PyPI or clients?] sign the metadata for this
-part of the process), and developers also sign the distributions that they
-upload.
+clients (PyPI signs the metadata for this part of the process), and developers
+also sign the distributions that they upload.
 
 This PEP discusses the tools available to developers who sign the distributions
 that they upload to PyPI.  To summarize, developers generate cryptographic keys
@@ -334,12 +334,14 @@ __ https://github.com/pyca/ed25519
 
 - Key management: `MiniLock`__
 
-Essentially it [LV: what is 'it'?] derives a private key from a password so that users do not have
-to manage cryptographic key files.  Users may view the cryptographic key as a
-secondary password: no matter how many computers they have. [LV: is there some relationship between 
-the secondary password and the number of computers a user has? In any case, that : most likely needs to go, 
-but the relationship between the phrases needs clarification] MiniLock works well
-with a signature scheme like Ed25519, which only needs a very small key.
+Essentially the key management solution that uses miniLock derives a private
+key from a password so that users do not have to manage cryptographic key
+files.  Users may view the cryptographic key as a secondary password: no matter
+how many computers they have. [LV: is there some relationship between the
+secondary password and the number of computers a user has? In any case, that :
+most likely needs to go, but the relationship between the phrases needs
+clarification] miniLock works well with a signature scheme like Ed25519, which
+only needs a very small key.
 
 __ https://github.com/kaepora/miniLock#-minilock
 
@@ -486,10 +488,10 @@ Key Compromise Analysis
 
 This PEP has covered the maximum security model, the TUF roles that should be
 added to support continuous delivery of distributions, how to generate and sign
-the metadata of each role, [LV: and how to] support distributions that have been signed by
-developers.  The remaining sections discuss how PyPI SHOULD audit repository
-metadata and the methods PyPI can use to detect and recover from a PyPI
-compromise.
+the metadata of each role, and how to support distributions that have been
+signed by developers.  The remaining sections discuss how PyPI SHOULD audit
+repository metadata and the methods PyPI can use to detect and recover from a
+PyPI compromise.
 
 Table 1 summarizes a few of the attacks possible when a threshold number of
 private cryptographic keys (belonging to any of the PyPI roles) are
@@ -604,9 +606,9 @@ the project MUST take the following steps:
 Whereas PyPI MUST take the following steps:
 
 1.  Revoke the compromised developer keys from the delegation to the project by
-    the recently-claimed or claimed role. [LV: does the prior sentence really make sense? It seems off to me.]
-    This is done by replacing the
-    compromised developer keys with newly issued developer keys.
+    the recently-claimed or claimed role. [LV: does the prior sentence really make
+    sense? It seems off to me.] This is done by replacing the compromised developer
+    keys with newly issued developer keys.
 
 2.  A new timestamped consistent snapshot MUST be issued.
 
@@ -730,12 +732,10 @@ responsible only for mirroring PyPI.  The mirrors can be checked against one
 another to detect accidental or malicious failures.
 
 Another approach is to generate the cryptographic hash of *snapshot*
-periodically and tweet it.  Perhaps a user comes forward with the actual
-metadata and the repository maintainers can verify the metadata's cryptographic
-hash. [LV: how about this version: "For example, upon receiving the tweet, a
-user comes forward with the actual metadata and the repository maintainers are
-then able to verify the metadata's cryptographic hash.]  Alternatively, PyPI
-may periodically archive its own versions of *snapshot* rather than rely on
+periodically and tweet it.  For example, upon receiving the tweet, a user comes
+forward with the actual metadata and the repository maintainers are then able
+to verify the metadata's cryptographic hash.  Alternatively, PyPI may
+periodically archive its own versions of *snapshot* rather than rely on
 externally provided metadata.  In this case, PyPI SHOULD take the cryptographic
 hash of every package on the repository and store this data on an offline
 device. If any package hash has changed, this indicates an attack has occured.
