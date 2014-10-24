@@ -188,20 +188,21 @@ Terms used in this PEP are defined as follows:
 Maximum Security Model
 ----------------------
 
-The maximum security model relies on developers signing their projects and
-uploading signed metadata to PyPI.  If the PyPI infrastructure were to be
-compromised, attackers would then be unable to serve malicious versions of
-*claimed* project without having access to that project's developer key.
-Figure 1 depicts the changes made to the metadata layout of the minimum
-security model, namely that developer roles are now supported and that three
-new delegated roles exist: *claimed*, *recently-claimed*, and *unclaimed*.  The
-*bins* role has been renamed *unclaimed* and can contain any projects that have
-not been added to *claimed*.  Offline keys provided by developers ensure the
-strength of this model (over the minimum security model).  Although the minimum
-security model supports continuous delivery of projects using this model, all
-projects are signed by an online key.  That is, an attacker is able to corrupt
-packages in the minimum security model, but not in the maximum model, without
-also compromising a developer's key.
+The maximum security model permits developers to sign their projects and upload
+signed metadata to PyPI.  If the PyPI infrastructure were to be compromised,
+attackers would be unable to serve malicious versions of *claimed* project
+without having access to that project's developer key.  Figure 1 depicts the
+changes made to the metadata layout of the minimum security model, namely that
+developer roles are now supported and that three new delegated roles exist:
+*claimed*, *recently-claimed*, and *unclaimed*.  The *bins* role has been
+renamed *unclaimed* and can contain any projects that have not been added to
+*claimed*.  The *unclaimed* role functions just as before (i.e., as explained
+in PEP 458, projects added to this role are signed by PyPI with an online key).
+Offline keys provided by developers ensure the strength of the maximum security
+model over the minimum model.  Although the minimum security model supports
+continuous delivery of projects, all projects are signed by an online key.
+That is, an attacker is able to corrupt packages in the minimum security model,
+but not in the maximum model, without also compromising a developer's key.
 
 .. image:: figure1.png
 
@@ -209,11 +210,13 @@ Figure 1: An overview of the metadata layout in the maximum security model.
 The maximum security model supports continuous delivery and survivable key
 compromise.
 
-[VD: Discuss roles in both models and explain disadvanges/advantages?]
-
-Minimum Security Model - outline of roles, signing process.
-
-Maximum Security Model - benefits, additional roles, signing process.
+Projects that are signed by developers and uploaded to PyPI for the first time
+are added to the *recently-claimed* role.  The *recently-claimed* role uses an
+online key, so projects uploaded for the first time are immediately available
+to clients.  After some time has passed, PyPI administrators MAY move projects
+listed in *recently-claimed* to the *claimed* role for maximum security.  The
+*claimed* role uses an offline key, thus projects added to this role cannot be
+easily forged if PyPI is compromised.
 
 
 End-to-End Signing
