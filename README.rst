@@ -70,9 +70,9 @@ forged if attackers compromise the servers that sign for distributions.
 The maximum security model is an extension to the minimum model that allows
 PyPI to survive a repository compromise and permits developers to sign for the
 distributions that they make available to PyPI users.  The maximum security
-provides added protections while still supporting continuous delivery of
-distributions.  However, for the following reasons, it was postponed and moved
-to this PEP:
+provides additional protections while still supporting continuous delivery of
+distributions.  However, for the following reasons, it is postponed and
+covered in this PEP:
 
 1.  A build farm (distribution wheels on supported platforms are generated on
     PyPI infrastructure for each project) may possibly complicate matters.
