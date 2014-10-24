@@ -186,33 +186,6 @@ Terms used in this PEP are defined as follows:
   signature property.
 
 
-Extension to PEP 458 (minimum security model)
-=============================================
-
-The maximum security model and end-to-end signing have been intentionally
-excluded from PEP 458.  Both improve PyPI's ability to survive a
-repository compromise and allow developers to sign their distributions. However, 
-the maximum security model and end-to-end signing are being reviewed as an extension to PEP 458 because 
-
-[LV: from here to where I inserted a comment, confusion! See comment at end of paragr.] they
-have been postponed for review as a potential future extension to PEP 458.
-This PEP is available for review to those developers interested in the
-end-to-end signing option.
-
-[LV: I don't know what this is trying to say. Postponed, 
-but here it is? Which PEP is "this PEP" 458 or the one I'm reading? We can chat about this... Maybe you want to rephrase this? 
-Something like: X & Y are being reviewed as an extension to PEP 458 because (why?). Here, the proposed extension PEP 
-is made available to those developers interested in the
-end-to-end signing option.]  The maximum security model and end-to-end signing
-are covered in the subsections that follow.  
-
-[VD: Discuss roles in both models and explain disadvanges/advantages?]
-
-Minimum Security Model - outline of roles, signing process.
-
-Maximum Security Model - benefits, additional roles, signing process.
-
-
 Maximum Security Model
 ----------------------
 
@@ -236,6 +209,12 @@ also compromising a developer's key.
 Figure 1: An overview of the metadata layout in the maximum security model.
 The maximum security model supports continuous delivery and survivable key
 compromise.
+
+[VD: Discuss roles in both models and explain disadvanges/advantages?]
+
+Minimum Security Model - outline of roles, signing process.
+
+Maximum Security Model - benefits, additional roles, signing process.
 
 
 End-to-End Signing
