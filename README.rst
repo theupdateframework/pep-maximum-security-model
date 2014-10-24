@@ -72,7 +72,7 @@ PyPI to survive a repository compromise and permits developers to sign for the
 distributions that they make available to PyPI users.  The maximum security
 provides additional protections while still supporting continuous delivery of
 distributions.  However, for the following reasons, it is postponed and
-covered in this PEP:
+covered in this PEP instead of PEP 458:
 
 1.  A build farm (distribution wheels on supported platforms are generated on
     PyPI infrastructure for each project) may possibly complicate matters.
@@ -84,14 +84,12 @@ covered in this PEP:
     delegate trust of these wheels to an online role.
 
 2.  An easy-to-use key management solution is needed for developers.
-    `miniLock`__ is one likely candidate for management and generation of keys.
+    miniLock is one likely candidate for management and generation of keys.
     Although developer signatures can remain optional, this approach may be
     inadequate due to the great number of potentially unsigned dependencies for
     distributions a client may request.  Requiring developers to manually sign
     distributions and manage keys is expected to render key signing an unused
     feature.
-
-__ https://minilock.io/
 
 3.  A two-phase approach, where the minimum security model is implemented
     before the maximum security model, will simplify matters and give PyPI
@@ -105,15 +103,16 @@ The threat model assumes the following:
 
 * Offline keys are safe and securely stored.
 
-* Attackers can compromise at least one of PyPI's trusted keys that are stored online,
-  and may do so at once or over a period of time.
+* Attackers can compromise at least one of PyPI's trusted keys that are stored
+  online, and may do so at once or over a period of time.
 
 * Attackers can respond to client requests.
 
 Attackers are considered successful if they can cause a client to install (or
 leave installed) something other than the most up-to-date version of the
-software the client is updating. When an attacker is preventing the installation
-of updates, the attacker's goal is that clients *not* realize that anything is wrong. 
+software the client is updating. When an attacker is preventing the
+installation of updates, the attacker's goal is that clients *not* realize that
+anything is wrong. 
 
 
 Definitions
