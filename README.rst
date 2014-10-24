@@ -436,17 +436,19 @@ distributions which are signed for by the delegated targets metadata).
 Whenever the project uploads metadata or targets to PyPI, PyPI SHOULD check the
 project TUF metadata for at least the following properties:
 
-    * A threshold number of the developers keys registered with PyPI by that
-    * project MUST have signed for the delegated targets metadata file that
-    * represents the "root" of targets for that project (e.g. metadata/targets/
-    * project.txt).  The signatures of delegated targets metadata files MUST be
-    * valid.  The delegated targets metadata files MUST NOT be expired.  The
-    * delegated targets metadata MUST be consistent with the targets.  A
-    * delegator MUST NOT delegate targets that were not delegated to itself by
-    * another delegator.  A delegatee MUST NOT sign for targets that were not
-    * delegated to itself by a delegator.  Every file MUST contain a unique
-    * copy of its hash in its filename following the filename.digest.ext
-    * convention recommended earlier.
+* A threshold number of the developers keys registered with PyPI by that
+  project MUST have signed for the delegated targets metadata file that
+  represents the "root" of targets for that project (e.g. metadata/targets/
+  project.txt).
+* The signatures of delegated targets metadata files MUST be valid.
+* The delegated targets metadata files MUST NOT be expired.
+* The delegated targets metadata MUST be consistent with the targets.
+* A delegator MUST NOT delegate targets that were not delegated to itself by
+  another delegator.
+* A delegatee MUST NOT sign for targets that were not delegated to itself by a
+  delegator.
+* Every file MUST contain a unique copy of its hash in its filename following
+  the filename.digest.ext convention recommended earlier.
 
 If PyPI chooses to check the project TUF metadata, then PyPI MAY choose to
 reject publishing any set of metadata or targets that do not meet these
