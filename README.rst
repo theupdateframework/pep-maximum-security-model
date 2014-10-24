@@ -272,9 +272,9 @@ identity (its public key is contained in project metadata or on PyPI) signs
 has a signature threshold of 1.  Other verified identities may create new
 releases and satisfy the threshold.
 
-However, the [LV: I think this refers to the model, but maybe you should be explicit here - remind the reader and 
-name the model or framework.] is flexible.  A single project key may also be shared
-between machines or maintainers, if manual key management is preferred (e.g., ssh-copy-id).
+However, the current TUF signing tools are flexible;  a single project key may
+also be shared between machines if manual key management is preferred (e.g.,
+ssh-copy-id).
 
 TUF's `repository`__ and `developer`__ tools:
 
@@ -482,10 +482,9 @@ snapshot, PyPI would walk objects -- beginning from the root (*timestamp*) --
 of the latest consistent snapshot, mark all visited objects, and delete all
 unmarked objects.  The last few consistent snapshots may be preserved in a
 similar fashion.  Deleting a consistent snapshot will cause clients to see
-nothing except HTTP 404 responses to any request for a file within that
-consistent snapshot. [LV: "file within a consistent snapshot" seems like a
-confusing way to say X. Not sure what X is...] Clients SHOULD then retry (as
-before) their requests with the latest consistent snapshot.
+nothing except HTTP 404 responses to any request for a target of the deleted
+consistent snapshot.  Clients SHOULD then retry (as before) their requests with
+the latest consistent snapshot.
 
 All package managers that support TUF metadata MUST be modified to download
 every metadata and target file (except for *timestamp* metadata) by including,
@@ -730,16 +729,15 @@ information must be validated:
 
 2. If the role metadata on the repository has been changed, this will impact
    the metadata that is signed by online keys.  Any role information created
-   since the last period should be discarded. As a result, developers of new
+   since the compromise should be discarded. As a result, developers of new
    projects will need to re-register their projects.
 
 3. If the packages themselves may have been tampered with, they can be
-   validated using the stored hash information for packages that existed at the
-   time of the last period [LV: "the time of the last period" seems to include some redundant info. 
-   not clear what's going on.]  Also, new distributions that are signed by
-   developers in the claimed role may be safely retained.  However, any
-   distributions signed by developers in the *recently-claimed* or *unclaimed*
-   roles should be discarded.
+   validated using the stored hash information for packages that existed in
+   trusted metadata before the compromise.  Also, new distributions that are
+   signed by developers in the claimed role may be safely retained.  However,
+   any distributions signed by developers in the *recently-claimed* or
+   *unclaimed* roles should be discarded.
 
 In order to safely restore snapshots in the event of a compromise, PyPI SHOULD
 maintain a small number of its own mirrors to copy PyPI snapshots according to
