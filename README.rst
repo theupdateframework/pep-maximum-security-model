@@ -91,7 +91,7 @@ to this PEP:
     distributions and manage keys is expected to render key signing an unused
     feature.
 
-    __ https://minilock.io/
+__ https://minilock.io/
 
 3.  A two-phase approach, where the minimum security model is implemented
     before the maximum security model, will simplify matters and give PyPI
@@ -283,7 +283,8 @@ The following briefly outlines one possible approach:
 3.  Add new identity to user account from machine 2 (after a password prompt)
 4.  Upload project.
 
-Under the hood (the user is not aware or needs to care:
+Under the hood (the user is not aware or needs to care that packages are
+automatically signed):
 
 The "create an identity with only a password" action generates an encrypted
 private key file and uploads the ed25519 public key to PyPI.  An existing
@@ -292,7 +293,7 @@ identity (its public key is contained in project metadata or on PyPI) signs
 has a signature threshold of 1.  Other verified identities may create new
 releases and satisfy the threshold.
 
-However, the  [LV: I think this refers to the model, but maybe you should be explicit here - remind the reader and 
+However, the [LV: I think this refers to the model, but maybe you should be explicit here - remind the reader and 
 name the model or framework.] is flexible.  A single project key may also be shared
 between machines or maintainers, if manual key management is preferred (e.g., ssh-copy-id).
 
@@ -314,15 +315,17 @@ added) and the KDF tweaked to your taste.
 
 __ http://ed25519.cr.yp.to/
 
+pip MUST work on non-CPython interpreters and cannot have dependencies that
+have to be compiled (i.e., the TUF integration MUST NOT require compilation of
+C extensions in order to verify cryptographic signatures).  Verification of
+signatures must be done in Python, and verifying RSA signatures in pure-Python
+may be impractical due to speed.  Therefore, PyPI MAY use the Ed25519 signature.
+scheme.
+
 Ed25519 is a public-key signature system that uses small cryptographic
-signatures and keys.  A `pure-python implementation` of the signature scheme is
-available.  [LV: the following sentence just confuses me. 
-Does it need a 'therefore' or 'however' at the beginning? Should pip be capitalized? The remaining relationships
-also seem a bit unclear. However, it is possible that it would all make sense to your expected readers. I can't tell.]
-pip MUST not depend on external depencies that have to be compiled
-(e.g., compiling C extensions to perform verification of signatures), so
-verifying RSA signatures may be impractical due to speed.  Verification of
-Ed25519 signatures is fast, even when performed in Python code.
+signatures and keys.  A `pure-python implementation` of the Ed25519 signature
+scheme is available.  Verification of Ed25519 signatures is fast, even when
+performed in Python.
 
 __ https://github.com/pyca/ed25519
 
