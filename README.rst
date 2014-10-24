@@ -280,7 +280,7 @@ The following briefly outlines one possible approach:
 
 1.  Register project.
 2.  Enter secondary password.
-3.  Add new identity to user account from machine 2 (after a password prompt)
+3.  Add new identity to user account from machine 2 (after a password prompt).
 4.  Upload project.
 
 Under the hood (the user is not aware or needs to care that packages are
@@ -334,12 +334,9 @@ __ https://github.com/pyca/ed25519
 
 Essentially the key management solution that uses miniLock derives a private
 key from a password so that users do not have to manage cryptographic key
-files.  Users may view the cryptographic key as a secondary password: no matter
-how many computers they have. [LV: is there some relationship between the
-secondary password and the number of computers a user has? In any case, that :
-most likely needs to go, but the relationship between the phrases needs
-clarification] miniLock works well with a signature scheme like Ed25519, which
-only needs a very small key.
+files across multiple computers.  Users may view the cryptographic key as a
+secondary password.  miniLock also works well with a signature scheme like
+Ed25519, which only needs a very small key.
 
 __ https://github.com/kaepora/miniLock#-minilock
 
@@ -349,7 +346,7 @@ __ https://github.com/kaepora/miniLock#-minilock
 Third-party tools like `Twine`__ may be modified (if they wish to support
 distributions that include TUF metadata) to sign and upload developer projects
 to PyPI.  Twine is a utility for interacting with PyPI that uses TLS to upload
-distributions and prevent MITM attacks on user names and passwords.
+distributions and prevents MITM attacks on user names and passwords.
 
 __ https://github.com/pypa/twine
 
@@ -448,6 +445,53 @@ metadata that will vouch for the metadata (*root*, *targets*, and delegated
 roles) generated in the previous step.  Finally, the snapshot process MUST make
 available to clients the new *timestamp* and *snapshot* metadata representing
 the latest snapshot.
+
+
+A claimed or recently-claimed project will need to upload in its transaction to
+PyPI not just targets (a simple index as well as distributions) but also TUF
+metadata. The project MAY do so by uploading a ZIP file containing two
+directories, /metadata/ (containing delegated targets metadata files) and
+/targets/ (containing targets such as the project simple index and
+distributions which are signed for by the delegated targets metadata).
+
+Whenever the project uploads metadata or targets to PyPI, PyPI SHOULD check the
+project TUF metadata for at least the following properties:
+
+    * A threshold number of the developers keys registered with PyPI by that
+    * project MUST have signed for the delegated targets metadata file that
+    * represents the "root" of targets for that project (e.g. metadata/targets/
+    * project.txt).  The signatures of delegated targets metadata files MUST be
+    * valid.  The delegated targets metadata files MUST NOT be expired.  The
+    * delegated targets metadata MUST be consistent with the targets.  A
+    * delegator MUST NOT delegate targets that were not delegated to itself by
+    * another delegator.  A delegatee MUST NOT sign for targets that were not
+    * delegated to itself by a delegator.  Every file MUST contain a unique
+    * copy of its hash in its filename following the filename.digest.ext
+    * convention recommended earlier.
+
+If PyPI chooses to check the project TUF metadata, then PyPI MAY choose to
+reject publishing any set of metadata or targets that do not meet these
+requirements.
+
+PyPI MUST enforce access control by ensuring that each project can only write
+to the TUF metadata for which it is responsible. It MUST do so by ensuring that
+project transaction processes write to the correct metadata as well as correct
+locations within those metadata. For example, a project transaction process for
+an unclaimed project MUST write to the correct target paths in the correct
+delegated unclaimed metadata for the targets of the project.
+
+On rare occasions, PyPI MAY wish to extend the TUF metadata format for projects
+in a backward-incompatible manner. Note that PyPI will NOT be able to
+automatically rewrite existing TUF metadata on behalf of projects in order to
+upgrade the metadata to the new backward-incompatible format because this would
+invalidate the signatures of the metadata as signed by developer keys.
+Instead, package managers SHOULD be written to recognize and handle multiple
+incompatible versions of TUF metadata so that claimed and recently-claimed
+projects could be offered a reasonable time to migrate their metadata to newer
+but backward-incompatible formats.
+
+The details of how each project manages its TUF metadata is beyond the scope of
+this PEP.
 
 A few implementation notes are now in order.  So far, we have seen that only
 new metadata and targets are added, but not that old metadata and targets are
