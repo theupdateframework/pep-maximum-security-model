@@ -186,7 +186,7 @@ Terms used in this PEP are defined as follows:
 
 
 Maximum Security Model
-----------------------
+======================
 
 The maximum security model permits developers to sign their projects and upload
 signed metadata to PyPI.  If the PyPI infrastructure were to be compromised,
@@ -220,7 +220,7 @@ easily forged if PyPI is compromised.
 
 
 End-to-End Signing
-------------------
+==================
 
 End-to-end signing allows both PyPI and developers to sign for the metadata
 downloaded by clients.  PyPI is trusted to make uploaded projects available to
@@ -239,10 +239,11 @@ from PyPI.
 
 
 Metadata Signatures, Key Management, and Signing Distributions
---------------------------------------------------------------
+==============================================================
+
 
 Cryptographic Signature Scheme: Ed25519
-========================================
+---------------------------------------
 
 The package manager shipped with CPython (pip) MUST work on non-CPython
 interpreters and cannot have dependencies that have to be compiled (i.e., the
@@ -262,7 +263,7 @@ __ https://github.com/pyca/ed25519
 
 
 Cryptographic Key Files 
-=======================
+-----------------------
 
 The implementation SHOULD encrypt key files with AES-256-CTR-Mode and passwords
 strengthened with PBKDF2-HMAC-SHA256 (100K iterations by default, but this may
@@ -272,7 +273,7 @@ added) and the KDF tweaked to your taste.
 
 
 Key Management: miniLock
-========================
+------------------------
 
 Essentially the key management solution that uses miniLock derives a private
 key from a password so that users do not have to manage cryptographic key
@@ -284,7 +285,7 @@ __ https://github.com/kaepora/miniLock#-minilock
 
 
 Third-party Upload Tools: Twine
-===============================
+-------------------------------
 
 Third-party tools like `Twine`__ may be modified (if they wish to support
 distributions that include TUF metadata) to sign and upload developer projects
@@ -295,7 +296,7 @@ __ https://github.com/pypa/twine
 
 
 Distutils
-=========
+---------
 
 __ https://docs.python.org/2/distutils/index.html#distutils-index
 
@@ -307,7 +308,7 @@ distribution to PyPI.
 
 
 Automated Signing Solution
-==========================
+--------------------------
 
 A default PyPI-mediated key management and package signing solution that is
 transparent and does not require a key escrow (sharing or moving encrypted
