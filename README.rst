@@ -241,16 +241,17 @@ from PyPI.
 Metadata Signatures, Key Management, and Signing Distributions
 --------------------------------------------------------------
 
-- Cryptographic signature scheme: `Ed25519`__
-
-__ http://ed25519.cr.yp.to/
+Cryptographic Signature Scheme: Ed25519
+========================================
 
 The package manager shipped with CPython (pip) MUST work on non-CPython
 interpreters and cannot have dependencies that have to be compiled (i.e., the
 TUF integration MUST NOT require compilation of C extensions in order to verify
 cryptographic signatures).  Verification of signatures must be done in Python,
 and verifying RSA signatures in pure-Python may be impractical due to speed.
-Therefore, PyPI MAY use the Ed25519 signature.  scheme.
+Therefore, PyPI MAY use the `Ed25519`__ signature.  scheme.
+
+__ http://ed25519.cr.yp.to/
 
 Ed25519 is a public-key signature system that uses small cryptographic
 signatures and keys.  A `pure-python implementation` of the Ed25519 signature
@@ -260,7 +261,8 @@ performed in Python.
 __ https://github.com/pyca/ed25519
 
 
-- Cryptographic key files 
+Cryptographic Key Files 
+=======================
 
 The implementation SHOULD encrypt key files with AES-256-CTR-Mode and passwords
 strengthened with PBKDF2-HMAC-SHA256 (100K iterations by default, but this may
@@ -269,7 +271,8 @@ however, can use any Cryptography library (support for PyCA cryptography may be
 added) and the KDF tweaked to your taste.
 
 
-- Key management: `miniLock`__
+Key Management: miniLock
+========================
 
 Essentially the key management solution that uses miniLock derives a private
 key from a password so that users do not have to manage cryptographic key
@@ -280,7 +283,8 @@ Ed25519, which only needs a very small key.
 __ https://github.com/kaepora/miniLock#-minilock
 
 
-- Third-party upload tool: Twine
+Third-party Upload Tools: Twine
+===============================
 
 Third-party tools like `Twine`__ may be modified (if they wish to support
 distributions that include TUF metadata) to sign and upload developer projects
@@ -290,7 +294,8 @@ distributions and prevents MITM attacks on user names and passwords.
 __ https://github.com/pypa/twine
 
 
-- `Distutils`__
+Distutils
+=========
 
 __ https://docs.python.org/2/distutils/index.html#distutils-index
 
@@ -301,7 +306,8 @@ distribution to PyPI.
 
 
 
-- Automated signing solution provided to the developers
+Automated Signing Solution
+==========================
 
 A default PyPI-mediated key management and package signing solution that is
 transparent and does not require a key escrow (sharing or moving encrypted
