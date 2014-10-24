@@ -27,17 +27,17 @@ security model retains many of the benefits of PEP 458 (e.g., immediate
 availability of distributions that are uploaded to PyPI) and additionally aims
 to ensure that PyPI can recover from a key compromise.
 
-This PEP includes the changes made to PEP 458, but excludes its informational
-elements (e.g., overview of The Update Framework) to primarily focus on the
-maximum security model. The changes to PEP 458 include modifications to the
-snapshot process, key compromise analysis, auditing snapshots, and the steps
-that should be taken in the event of a PyPI compromise.  The signing and key
-management process of projects that PyPI MAY follow is outlined but not
-strictly defined.  How the release process should be implemented to manage keys
-and metadata is left to the implementors of the signing tools.  That is, this
-PEP delineates the expected cryptographic key type and signature included in
-metadata that MUST be uploaded by developers in order to support end-to-end
-verification of distributions.
+This PEP includes the changes made to PEP 458 but excludes its informational
+elements to primarily focus on the maximum security model.  For example, an
+overview of The Update Framework is not covered here.  The changes to PEP 458
+include modifications to the snapshot process, key compromise analysis,
+auditing snapshots, and the steps that should be taken in the event of a PyPI
+compromise.  The signing and key management process of projects that PyPI MAY
+follow is outlined but not strictly defined.  How the release process should be
+implemented to manage keys and metadata is left to the implementors of the
+signing tools.  That is, this PEP delineates the expected cryptographic key
+type and signature included in metadata that MUST be uploaded by developers in
+order to support end-to-end verification of distributions.
 
 
 Rationale
