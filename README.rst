@@ -53,9 +53,9 @@ securely.
 
 PEP 458 also describes the metadata layout of the PyPI repository and the
 minimum security model.  Although the minimum security model protects against
-most software update attacks, such as mix-and-match and extrananeous
-dependencies attacks, it can be improved to also support end-to-end signing and
-to prohibit forged distributions if PyPI is compromised.
+most software update attacks, such as mix-and-match and extraneous dependencies
+attacks, it can be improved to also support end-to-end signing and to prohibit
+forged distributions if PyPI is compromised.
 
 The minimum security model supports continuous delivery of projects and uses
 online cryptographic keys to sign the distributions uploaded by projects.  The
@@ -258,7 +258,7 @@ speed.  Therefore, PyPI MAY use the `Ed25519`__ signature scheme.
 __ http://ed25519.cr.yp.to/
 
 Ed25519 is a public-key signature system that uses small cryptographic
-signatures and keys.  A `pure-python implementation` of the Ed25519 signature
+signatures and keys.  A `pure-Python implementation` of the Ed25519 signature
 scheme is available.  Verification of Ed25519 signatures is fast, even when
 performed in Python.
 
@@ -270,8 +270,8 @@ Cryptographic Key Files
 
 The implementation MAY encrypt key files with AES-256-CTR-Mode and strengthen
 passwords with PBKDF2-HMAC-SHA256 (100K iterations by default, but this may be
-overriden by the developer). The current Python implementation of TUF can use
-any cryptography library (support for PyCA cryptography will be added in the
+overridden by the developer). The current Python implementation of TUF can use
+any cryptographic library (support for PyCA cryptography will be added in the
 future), may override the default number of PBKDF2 iterations, and the KDF
 tweaked to taste.
 
@@ -294,7 +294,7 @@ Third-party Upload Tools: Twine
 Third-party tools like `Twine`__ may be modified (if they wish to support
 distributions that include TUF metadata) to sign and upload developer projects
 to PyPI.  Twine is a utility for interacting with PyPI that uses TLS to upload
-distributions, and prevents MITM attacks on user names and passwords.
+distributions, and prevents MITM attacks on usernames and passwords.
 
 __ https://github.com/pypa/twine
 
@@ -304,7 +304,7 @@ Distutils
 
 __ https://docs.python.org/2/distutils/index.html#distutils-index
 
-Distutils MAY be modified to sign metadada and to upload signed distributions
+Distutils MAY be modified to sign metadata and to upload signed distributions
 to PyPI.  Distutils comes packaged with CPython and is the most widely-used
 tool for uploading distributions to PyPI.
 
@@ -777,7 +777,7 @@ to verify the metadata's cryptographic hash.  Alternatively, PyPI may
 periodically archive its own versions of *snapshot* rather than rely on
 externally provided metadata.  In this case, PyPI SHOULD take the cryptographic
 hash of every package on the repository and store this data on an offline
-device. If any package hash has changed, this indicates an attack has occured.
+device. If any package hash has changed, this indicates an attack has occurred.
 
 Attacks that serve different versions of metadata or that freeze a version
 of a package at a specific version can be handled by TUF with techniques
