@@ -33,11 +33,12 @@ overview of The Update Framework is not covered here.  The changes to PEP 458
 include modifications to the snapshot process, key compromise analysis,
 auditing snapshots, and the steps that should be taken in the event of a PyPI
 compromise.  The signing and key management process followed by developers that
-PyPI MAY outline is discussed but not strictly defined.  How the release
+PyPI MAY RECOMMEND is discussed but not strictly defined.  How the release
 process should be implemented to manage keys and metadata is left to the
 implementors of the signing tools.  That is, this PEP delineates the expected
-cryptographic key type and signature included in metadata that MUST be uploaded
-by developers in order to support end-to-end verification of distributions.
+cryptographic key type and signature format included in metadata that MUST be
+uploaded by developers in order to support end-to-end verification of
+distributions.
 
 
 Rationale
@@ -110,6 +111,7 @@ The threat model assumes the following:
 
 Attackers are considered successful if they can cause a client to install (or
 leave installed) something other than the most up-to-date version of the
+
 software the client is updating. When an attacker is preventing the
 installation of updates, the attacker's goal is that clients *not* realize that
 anything is wrong. 
@@ -190,7 +192,7 @@ Maximum Security Model
 
 The maximum security model permits developers to sign their projects and upload
 signed metadata to PyPI.  If the PyPI infrastructure were to be compromised,
-attackers would be unable to serve malicious versions of *claimed* project
+attackers would be unable to serve malicious versions of a *claimed* project
 without having access to that project's developer key.  Figure 1 depicts the
 changes made to the metadata layout of the minimum security model, namely that
 developer roles are now supported and that three new delegated roles exist:
@@ -225,21 +227,22 @@ End-to-End Signing
 End-to-end signing allows both PyPI and developers to sign for the metadata
 downloaded by clients.  PyPI is trusted to make uploaded projects available to
 clients (PyPI signs the metadata for this part of the process), and developers
-also sign the distributions that they upload.
-
-The next section discusses the tools available to developers who sign the
-distributions that they upload to PyPI.  To summarize, developers generate
-cryptographic keys and sign metadata in some automated fashion, where the
-metadata includes the information required to verify the authenticity of the
-distribution.  The metadata is then uploaded to PyPI by the client, where it
-will be available for download by package managers such as pip (i.e., package
-managers that support TUF metadata).  The entire process is transparent to
-clients (using a package manager that supports TUF) who download distributions
-from PyPI.
+sign the distributions that they upload.
 
 
 Metadata Signatures, Key Management, and Signing Distributions
 ==============================================================
+
+This section discusses the tools, signature schemes, and signing methods that
+PyPI MAY recommend to implementors of the signing tools.  Developers are
+expected to use these tools to sign and upload distributions to PyPI.  To
+summarize, developers MAY generate cryptographic keys and sign metadata in some
+automated fashion, where the metadata includes the information required to
+verify the authenticity of the distribution.  The metadata is then uploaded to
+PyPI by the developer, where it will be available for download by package
+managers such as pip (i.e., package managers that support TUF metadata).  The
+entire process is transparent to end-users (using a package manager that
+supports TUF) who download distributions from PyPI.
 
 
 Cryptographic Signature Scheme: Ed25519
@@ -247,10 +250,10 @@ Cryptographic Signature Scheme: Ed25519
 
 The package manager shipped with CPython (pip) MUST work on non-CPython
 interpreters and cannot have dependencies that have to be compiled (i.e., the
-TUF integration MUST NOT require compilation of C extensions in order to verify
-cryptographic signatures).  Verification of signatures must be done in Python,
-and verifying RSA signatures in pure-Python may be impractical due to speed.
-Therefore, PyPI MAY use the `Ed25519`__ signature.  scheme.
+PyPI+TUF integration MUST NOT require compilation of C extensions in order to
+verify cryptographic signatures).  Verification of signatures MUST be done in
+Python, and verifying RSA signatures in pure-Python may be impractical due to
+speed.  Therefore, PyPI MAY use the `Ed25519`__ signature scheme.
 
 __ http://ed25519.cr.yp.to/
 
@@ -265,19 +268,20 @@ __ https://github.com/pyca/ed25519
 Cryptographic Key Files 
 -----------------------
 
-The implementation SHOULD encrypt key files with AES-256-CTR-Mode and passwords
-strengthened with PBKDF2-HMAC-SHA256 (100K iterations by default, but this may
-be overriden in 'tuf.conf.PBKDF2_ITERATIONS' by the user). The framework,
-however, can use any Cryptography library (support for PyCA cryptography may be
-added) and the KDF tweaked to your taste.
+The implementation MAY encrypt key files with AES-256-CTR-Mode and strengthen
+passwords with PBKDF2-HMAC-SHA256 (100K iterations by default, but this may be
+overriden by the developer). The current Python implementation of TUF can use
+any cryptography library (support for PyCA cryptography will be added in the
+future), may override the default number of PBKDF2 iterations, and the KDF
+tweaked to taste.
 
 
 Key Management: miniLock
 ------------------------
 
-Essentially the key management solution that uses miniLock derives a private
-key from a password so that users do not have to manage cryptographic key
-files across multiple computers.  Users may view the cryptographic key as a
+A key management solution that uses miniLock derives a private key from a
+password so that developers do not have to manage cryptographic key files
+across multiple computers.  Developers may view the cryptographic key as a
 secondary password.  miniLock also works well with a signature scheme like
 Ed25519, which only needs a very small key.
 
@@ -290,7 +294,7 @@ Third-party Upload Tools: Twine
 Third-party tools like `Twine`__ may be modified (if they wish to support
 distributions that include TUF metadata) to sign and upload developer projects
 to PyPI.  Twine is a utility for interacting with PyPI that uses TLS to upload
-distributions and prevents MITM attacks on user names and passwords.
+distributions, and prevents MITM attacks on user names and passwords.
 
 __ https://github.com/pypa/twine
 
@@ -300,47 +304,53 @@ Distutils
 
 __ https://docs.python.org/2/distutils/index.html#distutils-index
 
-[VD: May Distutils be modified?]
-
-Distutil MUST be modified to sign metadada in order to successfully upload
-distribution to PyPI.
-
+Distutils MAY be modified to sign metadada and to upload signed distributions
+to PyPI.  Distutils comes packaged with CPython and is the most widely-used
+tool for uploading distributions to PyPI.
 
 
 Automated Signing Solution
 --------------------------
 
 A default PyPI-mediated key management and package signing solution that is
-transparent and does not require a key escrow (sharing or moving encrypted
-private keys.)  Additionally, a developer may also circumvent sharing of
-encrypted private keys between multiple machines.
+transparent to developers and does not require a key escrow (sharing encrypted
+private keys with PyPI) is RECOMMENDED for the signing tools.  Additionally,
+the signing tools SHOULD also circumvent the sharing of encrypted private keys
+between the multiple machines of each developer.
 
-The following briefly outlines one possible approach:
+The following outlines the automated signing solution that a developer MAY
+follow to upload a distribution to PyPI:
 
 1.  Register project.
 2.  Enter secondary password.
 3.  Add new identity to user account from machine 2 (after a password prompt).
 4.  Upload project.
 
-Under the hood (the user is not aware or needs to care that packages are
+Under the hood (the developer is not aware or needs to care that packages are
 automatically signed):
 
 The "create an identity with only a password" action generates an encrypted
-private key file and uploads the ed25519 public key to PyPI.  An existing
+private key file that uploads the ed25519 public key to PyPI.  An existing
 identity (its public key is contained in project metadata or on PyPI) signs
 (this is done transparently) for new identities.  By default, project metadata
-has a signature threshold of 1.  Other verified identities may create new
-releases and satisfy the threshold.
+has a signature threshold of 1 and other verified identities may create new
+releases to satisfy the threshold.
 
-However, the current TUF signing tools are flexible;  a single project key may
-also be shared between machines if manual key management is preferred (e.g.,
+However, the signing tools should be flexible; a single project key may also be
+shared between multiple machines if manual key management is preferred (e.g.,
 ssh-copy-id).
 
-TUF's `repository`__ and `developer`__ tools:
+The current TUF `repository`__ and `developer`__ tools are available for
+review:
 
 __ https://github.com/theupdateframework/tuf/blob/develop/tuf/README.md
 __ https://github.com/theupdateframework/tuf/blob/develop/tuf/README-developer-tools.md
 
+The two signing tools above currently support all of the recommendations
+previously mentioned except for the automated signing solution, which must be
+added to Distutils, Twine, and other third-party signing tools.  The automated
+signing solution simply calls available repository tool functions to sign
+metadata and generate the cryptographic key files.
 
 Producing Consistent Snapshots
 ------------------------------
