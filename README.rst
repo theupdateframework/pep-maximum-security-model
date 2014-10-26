@@ -53,9 +53,9 @@ securely.
 
 PEP 458 also describes the metadata layout of the PyPI repository and the
 minimum security model.  Although the minimum security model protects against
-most software update attacks, such as mix-and-match and extraneous dependencies
-attacks, it can be improved to also support end-to-end signing and to prohibit
-forged distributions if PyPI is compromised.
+most software update attacks [5]_ [7]_, such as mix-and-match and extraneous
+dependencies attacks, it can be improved to also support end-to-end signing and
+to prohibit forged distributions if PyPI is compromised.
 
 The minimum security model supports continuous delivery of projects and uses
 online cryptographic keys to sign the distributions uploaded by projects.  The
@@ -71,9 +71,9 @@ forged if attackers compromise the servers that sign for distributions.
 The maximum security model is an extension to the minimum model that allows
 PyPI to survive a repository compromise and permits developers to sign for the
 distributions that they make available to PyPI users.  The maximum security
-provides additional protections while still supporting continuous delivery of
-distributions.  However, for the following reasons, it is postponed and
-covered in this PEP instead of PEP 458:
+model provides additional protections while still supporting continuous
+delivery of distributions.  However, for the following reasons, it is postponed
+and covered in this PEP instead of PEP 458:
 
 1.  A build farm (distribution wheels on supported platforms are generated on
     PyPI infrastructure for each project) may possibly complicate matters.
@@ -111,7 +111,6 @@ The threat model assumes the following:
 
 Attackers are considered successful if they can cause a client to install (or
 leave installed) something other than the most up-to-date version of the
-
 software the client is updating. When an attacker is preventing the
 installation of updates, the attacker's goal is that clients *not* realize that
 anything is wrong. 
@@ -248,17 +247,17 @@ supports TUF) who download distributions from PyPI.
 Cryptographic Signature Scheme: Ed25519
 ---------------------------------------
 
-The package manager shipped with CPython (pip) MUST work on non-CPython
+The package manager (pip) shipped with CPython MUST work on non-CPython
 interpreters and cannot have dependencies that have to be compiled (i.e., the
 PyPI+TUF integration MUST NOT require compilation of C extensions in order to
 verify cryptographic signatures).  Verification of signatures MUST be done in
-Python, and verifying RSA signatures in pure-Python may be impractical due to
-speed.  Therefore, PyPI MAY use the `Ed25519`__ signature scheme.
+Python, and verifying RSA [11] signatures in pure-Python may be impractical due
+to speed.  Therefore, PyPI MAY use the `Ed25519`__ signature scheme.
 
 __ http://ed25519.cr.yp.to/
 
-Ed25519 is a public-key signature system that uses small cryptographic
-signatures and keys.  A `pure-Python implementation` of the Ed25519 signature
+Ed25519 [13]_ is a public-key signature system that uses small cryptographic
+signatures and keys.  A `pure-Python implementation`__ of the Ed25519 signature
 scheme is available.  Verification of Ed25519 signatures is fast, even when
 performed in Python.
 
@@ -323,7 +322,7 @@ follow to upload a distribution to PyPI:
 
 1.  Register project.
 2.  Enter secondary password.
-3.  Add new identity to user account from machine 2 (after a password prompt).
+3.  Add new identity to PyPI user account from machine 2 (after a password prompt).
 4.  Upload project.
 
 Under the hood (the developer is not aware or needs to care that packages are
@@ -341,16 +340,16 @@ shared between multiple machines if manual key management is preferred (e.g.,
 ssh-copy-id).
 
 The current TUF `repository`__ and `developer`__ tools are available for
-review:
+review.
 
 __ https://github.com/theupdateframework/tuf/blob/develop/tuf/README.md
 __ https://github.com/theupdateframework/tuf/blob/develop/tuf/README-developer-tools.md
 
-The two signing tools above currently support all of the recommendations
-previously mentioned except for the automated signing solution, which must be
-added to Distutils, Twine, and other third-party signing tools.  The automated
-signing solution simply calls available repository tool functions to sign
-metadata and generate the cryptographic key files.
+The repository and developer TUF tools currently support all of the
+recommendations previously mentioned except for the automated signing solution,
+which must be added to Distutils, Twine, and other third-party signing tools.
+The automated signing solution simply calls available repository tool functions
+to sign metadata and to generate the cryptographic key files.
 
 Producing Consistent Snapshots
 ------------------------------
