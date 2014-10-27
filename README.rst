@@ -91,9 +91,9 @@ and covered here instead of in PEP 458:
     distribution may have.  If any one of these dependencies is unsigned, it
     negates any benefit the project gains from signing its own distribution
     (i.e., attackers would only need to compromise one of the unsigned
-    dependencies to attack end-users).  Alternatively, requiring developers to
-    manually sign distributions and manage keys is expected to render key
-    signing an unused feature.
+    dependencies to attack end-users).  Requiring developers to manually
+    sign distributions and manage keys is expected to render key signing an
+    unused feature.
 
 3.  A two-phase approach, where the minimum security model is implemented
     before the maximum security model, will simplify matters and give PyPI
