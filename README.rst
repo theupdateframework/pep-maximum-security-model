@@ -52,10 +52,10 @@ reference the TUF metadata available on PyPI to download distributions more
 securely.
 
 PEP 458 also describes the metadata layout of the PyPI repository and the
-minimum security model.  Although the minimum security model protects against
-most software update attacks [5]_ [7]_, such as mix-and-match and extraneous
-dependencies attacks, it can be improved to also support end-to-end signing and
-to prohibit forged distributions if PyPI is compromised.
+minimum security model.  Although the minimum security model guards against
+most attacks on software updaters [5]_ [7]_, such as mix-and-match and
+extraneous dependencies attacks, it can be improved to also support end-to-end
+signing and to prohibit forged distributions if PyPI is compromised.
 
 The minimum security model supports continuous delivery of projects and uses
 online cryptographic keys to sign the distributions uploaded by projects.  The
@@ -73,24 +73,27 @@ PyPI to survive a repository compromise and permits developers to sign for the
 distributions that they make available to PyPI users.  The maximum security
 model provides additional protections while still supporting continuous
 delivery of distributions.  However, for the following reasons, it is postponed
-and covered in this PEP instead of PEP 458:
+and covered here instead of in PEP 458:
 
-1.  A build farm (distribution wheels on supported platforms are generated on
-    PyPI infrastructure for each project) may possibly complicate matters.
-    PyPI wants to support a build farm in the future.  Unfortunately, if wheels
-    are auto-generated externally, developer signatures for these wheels are
+1.  A build farm (distribution wheels on supported platforms are generated for
+    each project on PyPI infrastructure) may possibly complicate matters.  PyPI
+    wants to support a build farm in the future.  Unfortunately, if wheels are
+    auto-generated externally, developer signatures for these wheels are
     unlikely.  However, there might still be a benefit to generating wheels
     from source distributions that are signed by developers (provided that
     reproducible wheels are possible).  Another possibility is to optionally
     delegate trust of these wheels to an online role.
 
-2.  An easy-to-use key management solution is needed for developers.
-    miniLock is one likely candidate for management and generation of keys.
-    Although developer signatures can remain optional, this approach may be
-    inadequate due to the great number of potentially unsigned dependencies for
-    distributions a client may request.  Requiring developers to manually sign
-    distributions and manage keys is expected to render key signing an unused
-    feature.
+2.  An easy-to-use key management solution is needed for developers.  miniLock
+    is one likely candidate for management and generation of keys.  Although
+    developer signatures can remain optional, this approach may be inadequate
+    due to the great number of potentially unsigned dependencies each
+    distribution may have.  If any one of these dependencies is unsigned, it
+    negates any benefit the project gains from signing its own distribution
+    (i.e., attackers would only need to compromise one of the unsigned
+    dependencies to attack end-users).  Alternatively, requiring developers to
+    manually sign distributions and manage keys is expected to render key
+    signing an unused feature.
 
 3.  A two-phase approach, where the minimum security model is implemented
     before the maximum security model, will simplify matters and give PyPI
