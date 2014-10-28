@@ -245,9 +245,25 @@ End-to-End Signing
 End-to-end signing allows both PyPI and developers to sign for the metadata
 downloaded by clients.  PyPI is trusted to make uploaded projects available to
 clients (PyPI signs the metadata for this part of the process), and developers
-sign the distributions that they upload.
+sign the distributions that they upload to PyPI.
 
-Need to discuss the trust and practical implications of end-to-end signing. 
+In order to delegate trust to a project, developers are required to submit a
+public key to PyPI.  PyPI takes the project's public key and adds it to parent
+metadata that PyPI then signs.  After the initial trust is established,
+developers are required to sign distributions that they upload to PyPI using
+the public key's corresponding private key.  The signed TUF metadata that
+developers upload to PyPI includes information like the distribution's file
+size and hash.
+
+The practical implications of end-to-end signing is the extra administrative
+work needed to delegate trust to a project, and the signed metadadata that
+developers MUST upload to PyPI along with the distribution.  Specifically, PyPI
+is expected to periodically sign metadata with an offline key by adding
+projects to the *claimed* metadata file and then signing it.  In contrast,
+projects are only ever signed with an online key in the minimum security model.
+End-to-end signing does require manual intervention to delegate trust (i.e., to
+sign metadata with an offline key), but this is a one-time cost and projects
+have much stronger protections thereafter.
 
 
 Metadata Signatures, Key Management, and Signing Distributions
@@ -350,7 +366,7 @@ Under the hood (the developer is not aware or needs to care that packages are
 automatically signed):
 
 Adding a new identity, by entering only a password, in step 3 generates an
-encrypted private key file that uploads the ed25519 public key to PyPI.  An
+encrypted private key file and uploads the ed25519 public key to PyPI.  An
 existing identity (its public key is contained in project metadata or on PyPI)
 signs (this is done transparently) for new identities.  By default, project
 metadata has a signature threshold of 1 and other verified identities may
@@ -516,19 +532,18 @@ but backward-incompatible formats.
 The details of how each project manages its TUF metadata is beyond the scope of
 this PEP.
 
-A few implementation notes are now in order.  So far, we have seen that only
-new metadata and targets are added, but not that old metadata and targets are
-removed.  Practical constraints are such that eventually PyPI will run out of
-disk space to produce a new consistent snapshot.  If that happens, PyPI MAY
-then use something like a "mark-and-sweep" algorithm to delete sufficiently old
-consistent snapshots. Specifically, in order to preserve the latest consistent
-snapshot, PyPI would walk objects -- beginning from the root (*timestamp*) --
-of the latest consistent snapshot, mark all visited objects, and delete all
-unmarked objects.  The last few consistent snapshots may be preserved in a
-similar fashion.  Deleting a consistent snapshot will cause clients to see
-nothing except HTTP 404 responses to any request for a target of the deleted
-consistent snapshot.  Clients SHOULD then retry (as before) their requests with
-the latest consistent snapshot.
+How new metadata and targets are added has been discussed so far, but not how
+old metadata and targets are removed.  Practical constraints are such that
+eventually PyPI will run out of disk space to produce a new consistent
+snapshot.  If that happens, PyPI MAY then use something like a "mark-and-sweep"
+algorithm to delete sufficiently old consistent snapshots. Specifically, in
+order to preserve the latest consistent snapshot, PyPI would walk objects --
+beginning from the root (*timestamp*) -- of the latest consistent snapshot,
+mark all visited objects, and delete all unmarked objects.  The last few
+consistent snapshots may be preserved in a similar fashion.  Deleting a
+consistent snapshot will cause clients to see nothing except HTTP 404 responses
+to any request for a target of the deleted consistent snapshot.  Clients SHOULD
+then retry (as before) their requests with the latest consistent snapshot.
 
 All package managers that support TUF metadata MUST be modified to download
 every metadata and target file (except for *timestamp* metadata) by including,
