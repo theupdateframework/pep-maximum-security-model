@@ -535,7 +535,7 @@ this PEP.
 If PyPI eventually runs out of disk space to produce a new consistent snapshot,
 then PyPI MAY then use something like a "mark-and-sweep" algorithm to delete
 sufficiently outdated consistent snapshots.  That is, only outdated metadata
-like *timesetamp* and *snapshot* that are no longer used are deleted.
+like *timestamp* and *snapshot* that are no longer used are deleted.
 Specifically, in order to preserve the latest consistent snapshot, PyPI would
 walk objects -- beginning from the root (*timestamp*) -- of the latest
 consistent snapshot, mark all visited objects, and delete all unmarked objects.
