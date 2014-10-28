@@ -532,18 +532,18 @@ but backward-incompatible formats.
 The details of how each project manages its TUF metadata is beyond the scope of
 this PEP.
 
-How new metadata and targets are added has been discussed so far, but not how
-old metadata and targets are removed.  Practical constraints are such that
-eventually PyPI will run out of disk space to produce a new consistent
-snapshot.  If that happens, PyPI MAY then use something like a "mark-and-sweep"
-algorithm to delete sufficiently old consistent snapshots. Specifically, in
-order to preserve the latest consistent snapshot, PyPI would walk objects --
-beginning from the root (*timestamp*) -- of the latest consistent snapshot,
-mark all visited objects, and delete all unmarked objects.  The last few
-consistent snapshots may be preserved in a similar fashion.  Deleting a
-consistent snapshot will cause clients to see nothing except HTTP 404 responses
-to any request for a target of the deleted consistent snapshot.  Clients SHOULD
-then retry (as before) their requests with the latest consistent snapshot.
+If PyPI eventually runs out of disk space to produce a new consistent snapshot,
+then PyPI MAY then use something like a "mark-and-sweep" algorithm to delete
+sufficiently outdated consistent snapshots.  That is, only outdated metadata
+like *timesetamp* and *snapshot* that are no longer used are deleted.
+Specifically, in order to preserve the latest consistent snapshot, PyPI would
+walk objects -- beginning from the root (*timestamp*) -- of the latest
+consistent snapshot, mark all visited objects, and delete all unmarked objects.
+The last few consistent snapshots may be preserved in a similar fashion.
+Deleting a consistent snapshot will cause clients to see nothing except HTTP
+404 responses to any request for a target of the deleted consistent snapshot.
+Clients SHOULD then retry (as before) their requests with the latest consistent
+snapshot.
 
 All package managers that support TUF metadata MUST be modified to download
 every metadata and target file (except for *timestamp* metadata) by including,
