@@ -256,7 +256,7 @@ developers upload to PyPI includes information like the distribution's file
 size and hash.
 
 The practical implications of end-to-end signing is the extra administrative
-work needed to delegate trust to a project, and the signed metadadata that
+work needed to delegate trust to a project, and the signed metadata that
 developers MUST upload to PyPI along with the distribution.  Specifically, PyPI
 is expected to periodically sign metadata with an offline key by adding
 projects to the *claimed* metadata file and signing it.  In contrast,
