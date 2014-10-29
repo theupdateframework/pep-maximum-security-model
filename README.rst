@@ -646,43 +646,43 @@ attacks, or metadata inconsistency attacks.
 |                   | cooperate         |                       |                       |
 +-------------------+-------------------+-----------------------+-----------------------+
 |    timestamp      |       NO          |         YES           |       YES             |
-|    **AND**        | targets or any    | limited by earliest   | limited by earliest   |
+|    *AND*          | targets or any    | limited by earliest   | limited by earliest   |
 |    snapshot       | of the delegated  | root, targets, or bin | root, targets, or bin |
 |                   | roles need to     | metadata expiry time  | metadata expiry time  |
 |                   | cooperate         |                       |                       |
 |                   |                   |                       |                       |
 +-------------------+-------------------+-----------------------+-----------------------+
 |    targets        |       NO          |     NOT APPLICABLE    |    NOT APPLICABLE     |
-|    **OR**         | timestamp and     | need timestamp and    | need timestamp        |
-|    claimed        | snapshot need to  | snapshot              | and snapshot          |
-|    **OR**         | cooperate         |                       |                       |
+|    *OR*           | timestamp and     | need timestamp and    | need timestamp        |
+|    **claimed**    | snapshot need to  | snapshot              | and snapshot          |
+|    *OR*           | cooperate         |                       |                       |
 | recently-claimed  |                   |                       |                       |
-|    **OR**         |                   |                       |                       |
+|    *OR*           |                   |                       |                       |
 |    unclaimed      |                   |                       |                       |
-|    **OR**         |                   |                       |                       |
-|    project        |                   |                       |                       |
+|    *OR*           |                   |                       |                       |
+|    **project**    |                   |                       |                       |
 +-------------------+-------------------+-----------------------+-----------------------+
 |   (timestamp      |       YES         |       YES             |       YES             |
-|   **AND**         |                   | limited by earliest   | limited by earliest   |
+|   *AND*           |                   | limited by earliest   | limited by earliest   |
 |   snapshot)       |                   | root, targets, or bin | root, targets, or bin |
-|   **AND**         |                   | metadata expiry time  | metadata expiry time  |
-|   project         |                   |                       |                       |
+|   *AND*           |                   | metadata expiry time  | metadata expiry time  |
+|   **project**     |                   |                       |                       |
 |                   |                   |                       |                       |
 +-------------------+-------------------+-----------------------+-----------------------+
 |  (timestamp       |     YES           |        YES            |           YES         |
-|  **AND**          | but only of       | limited by earliest   | limited by earliest   |
+|  *AND*            | but only of       | limited by earliest   | limited by earliest   |
 |  snapshot)        | projects not      | root, targets,        | root, targets,        |
-|  **AND**          | delegated by      | claimed,              | claimed,              |
+|  *AND*            | delegated by      | claimed,              | claimed,              |
 | (recently-claimed | claimed           | recently-claimed,     | recently-claimed,     |
-| **OR**            |                   | project, or unclaimed | project, or unclaimed |
-| unclaimed)        |                   | metadata expiry time  | metadata expiry time  |
+| *OR*              |                   | project, or unclaimed | project, or unclaimed |
+| **unclaimed**)    |                   | metadata expiry time  | metadata expiry time  |
 +-------------------+-------------------+-----------------------+-----------------------+
 | (timestamp        |                   |         YES           |           YES         | 
-| **AND**           |                   | limited by earliest   | limited by earliest   |   
+| *AND*             |                   | limited by earliest   | limited by earliest   |   
 | snapshot)         |                   | root, targets,        | root, targets,        |
-| **AND**           |       YES         | claimed,              | claimed,              |
-| (targets **OR**   |                   | recently-claimed,     | recently-claimed,     |
-| claimed)          |                   | project, or unclaimed | project, or unclaimed |
+| *AND*             |       YES         | claimed,              | claimed,              |
+| (targets *OR*     |                   | recently-claimed,     | recently-claimed,     |
+| **claimed**)      |                   | project, or unclaimed | project, or unclaimed |
 |                   |                   | metadata expiry time  | metadata expiry time  |
 +-------------------+-------------------+-----------------------+-----------------------+
 |     root          |       YES         |         YES           |           YES         |
@@ -691,7 +691,7 @@ attacks, or metadata inconsistency attacks.
 Table 1: Attacks that are possible by compromising certain combinations of role
 keys.  In `September 2013`__, it was shown how the latest version (at the time)
 of pip was susceptible to these attacks and how TUF could protect users against
-them [8]_.
+them [8]_.  In Table 1, roles signed by offline keys are in **bold**.
 
 __ https://mail.python.org/pipermail/distutils-sig/2013-September/022755.html
 
