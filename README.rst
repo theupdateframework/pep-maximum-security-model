@@ -272,14 +272,27 @@ Metadata Signatures, Key Management, and Signing Distributions
 This section discusses the tools, signature schemes, and signing methods that
 PyPI MAY recommend to implementors of the signing tools.  Developers are
 expected to use these tools to sign and upload distributions to PyPI.  To
-summarize, developers MAY generate cryptographic keys and sign metadata in some
-automated fashion, where the metadata includes the information required to
-verify the authenticity of the distribution.  The metadata is then uploaded to
-PyPI by the developer, where it will be available for download by package
-managers such as pip (i.e., package managers that support TUF metadata).  The
-entire process is transparent to end-users (using a package manager that
-supports TUF) who download distributions from PyPI.
+summarize the RECOMMENDED tools and schemes discussed in the subsections below,
+developers MAY generate cryptographic keys and sign metadata (with the Ed25519
+signature scheme) in some automated fashion, where the metadata includes the
+information required to verify the authenticity of the distribution.
+Developers then upload metadata to PyPI, where it will be available for
+download by package managers such as pip (i.e., package managers that support
+TUF metadata).  The entire process is transparent to the end-users (using a
+package manager that supports TUF) that download distributions from PyPI.
 
+The first three subsections (Cryptographic Signature Scheme, Cryptographic Key
+Files, and Key Management) cover the cryptographic components of the release
+process.  That is, which key type is supported and how keys may be generated
+and stored to sign distributions.  The two subsections that follow discuss the
+PyPI modules that require modification to support TUF metadata.  For example,
+Twine and Distutils are two projects that may be modified.  Finally, the last
+section goes over the key management and signing solution that is RECOMMENDED
+for the signing tools.
+
+TUF is flexible with respect to cryptographic key types, signatures, and signing
+methods.  The tools, modification, and methods discussed in the following
+sections are RECOMMENDATIONS for implementors of the signing tools.
 
 Cryptographic Signature Scheme: Ed25519
 ---------------------------------------
