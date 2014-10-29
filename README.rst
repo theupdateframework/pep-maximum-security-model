@@ -562,9 +562,8 @@ project transaction processes SHOULD keep in memory the latest claimed,
 recently-claimed, and unclaimed metadata so that they will be correctly updated
 in new consistent snapshots.
 
-All project transactions MAY be placed in a single queue and processed
-serially.  Alternatively, the queue MAY be processed concurrently in order of
-appearance, provided that the following rules are observed:
+The queue MAY be processed concurrently in order of appearance, provided that
+the following rules are observed:
 
 1.  No pair of project transaction processes may concurrently work on the same
     project.
