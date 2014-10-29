@@ -85,8 +85,8 @@ following reasons, it is postponed and covered here instead of in PEP 458:
     auto-generated externally, developer signatures for these wheels are
     unlikely.  However, there might still be a benefit to generating wheels
     from source distributions that are signed by developers (provided that
-    reproducible wheels are possible).  Another possibility is to optionally
-    delegate trust of these wheels to an online role.
+    reproducible wheels are possible).  Developers may optionally delegate
+    trust of these wheels to a PyPI role that uses an online role.
 
 2.  An easy-to-use key management solution is needed for developers.  One
     approach is to generate a cryptographic private key from a user password,
@@ -224,10 +224,10 @@ compromise.
 Projects that are signed by developers and uploaded to PyPI for the first time
 are added to the *recently-claimed* role.  The *recently-claimed* role uses an
 online key, so projects uploaded for the first time are immediately available
-to clients.  After some time has passed, PyPI administrators MAY move projects
-listed in *recently-claimed* to the *claimed* role for maximum security.  The
-*claimed* role uses an offline key, thus projects added to this role cannot be
-easily forged if PyPI is compromised.
+to clients.  After some time has passed, PyPI administrators MAY periodically
+move (e.g., every month) projects listed in *recently-claimed* to the *claimed*
+role for maximum security.  The *claimed* role uses an offline key, thus
+projects added to this role cannot be easily forged if PyPI is compromised.
 
 The *recently-claimed* role is separate from the *unclaimed* role for usability
 and efficiency, not security.  If new projects delegations were prepended to
@@ -513,11 +513,10 @@ metadata.
 When a recently-claimed project uploads a new transaction, a project
 transaction process MUST add all new targets and delegated targets metadata for
 the project. If the project is new, then the project transaction process MUST
-also add new recently-claimed metadata with the public keys and threshold
-number (which MUST be part of the transaction) for the project. Finally, the
-project transaction process MUST inform the consistent snapshot process about
-new recently-claimed metadata as well as the current set of delegated targets
-metadata for the project.
+also add new recently-claimed metadata with the public keys (which MUST be part
+of the transaction) for the project. Finally, the project transaction process
+MUST inform the snapshot process about new recently-claimed metadata, as well
+as the current set of delegated targets metadata for the project.
 
 The transaction process for a claimed project is slightly different in that
 PyPI administrators will choose to move the project from the *recently-claimed*
@@ -526,14 +525,14 @@ recently-claimed and claimed metadata to reflect this migration. As is the case
 for a recently-claimed project, the project transaction process MUST always add
 all new targets and delegated targets metadata for the claimed project.
 Finally, the project transaction process MUST inform the consistent snapshot
-process about new recently-claimed or claimed metadata as well as the current
+process about new recently-claimed or claimed metadata, as well as the current
 set of delegated targets metadata for the project.
 
 Project transaction processes SHOULD be automated, except when PyPI
 administrators move a project from the recently-claimed role to the claimed
 role. Project transaction processes MUST also be applied atomically: either all
 metadata and targets -- or none of them -- are added. The project transaction
-processes and consistent snapshot process SHOULD work concurrently. Finally,
+processes and snapshot process SHOULD work concurrently. Finally,
 project transaction processes SHOULD keep in memory the latest claimed,
 recently-claimed, and unclaimed metadata so that they will be correctly updated
 in new consistent snapshots.
@@ -675,7 +674,7 @@ attacks, or metadata inconsistency attacks.
 |  *AND*            | delegated by      | claimed,              | claimed,              |
 | (recently-claimed | claimed           | recently-claimed,     | recently-claimed,     |
 | *OR*              |                   | project, or unclaimed | project, or unclaimed |
-| **unclaimed**)    |                   | metadata expiry time  | metadata expiry time  |
+| unclaimed)        |                   | metadata expiry time  | metadata expiry time  |
 +-------------------+-------------------+-----------------------+-----------------------+
 | (timestamp        |                   |         YES           |           YES         | 
 | *AND*             |                   | limited by earliest   | limited by earliest   |   
