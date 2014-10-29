@@ -315,9 +315,10 @@ tweaked to taste.
 Key Management: miniLock
 ------------------------
 
-A key management solution that uses miniLock derives a private key from a
-password so that developers do not have to manage cryptographic key files
-across multiple computers.  Developers may view the cryptographic key as a
+An easy-to-use key management solution is needed.  One solution is to derive a
+private key from a password so that developers do not have to manage
+cryptographic key files across multiple computers.  `miniLock`__ is an example
+of how this can be done.  Developers may view the cryptographic key as a
 secondary password.  miniLock also works well with a signature scheme like
 Ed25519, which only needs a very small key.
 
@@ -387,84 +388,6 @@ recommendations previously mentioned except for the automated signing solution,
 which must be added to Distutils, Twine, and other third-party signing tools.
 The automated signing solution simply calls available repository tool functions
 to sign metadata and to generate the cryptographic key files.
-
-Producing Consistent Snapshots
-------------------------------
-
-PyPI is responsible for updating, depending on the project, either the
-*claimed*, *recently-claimed*, or *unclaimed* metadata as well as associated
-delegated metadata. Every project MUST upload its set of metadata and targets
-in a single transaction.  The uploaded set of files is called the "project
-transaction."  How PyPI MAY validate files in a project transaction is
-discussed in a later section.  The focus of this section is on how PyPI will
-respond to a project transaction.
-
-Every metadata and target file MUST include in its filename the `hex digest`__
-of its `SHA-256`__ hash, which PyPI may prepend to filenames after the files
-have been uploaded.  For this PEP, it is RECOMMENDED that PyPI adopt a simple
-convention of the form: digest.filename, where filename is the original
-filename without a copy of the hash, and digest is the hex digest of the hash.
-
-__ http://docs.python.org/2/library/hashlib.html#hashlib.hash.hexdigest
-__ https://en.wikipedia.org/wiki/SHA-2
-
-When an unclaimed project uploads a new transaction, a project transaction
-process MUST add all new targets and relevant delegated unclaimed metadata. (We
-describe later in this section why the unclaimed role will delegate targets to
-a number of delegated unclaimed roles.) Finally, the project transaction
-process MUST inform the snapshot process about new delegated unclaimed
-metadata.
-
-When a recently-claimed project uploads a new transaction, a project
-transaction process MUST add all new targets and delegated targets metadata for
-the project. If the project is new, then the project transaction process MUST
-also add new recently-claimed metadata with the public keys and threshold
-number (which MUST be part of the transaction) for the project. Finally, the
-project transaction process MUST inform the consistent snapshot process about
-new recently-claimed metadata as well as the current set of delegated targets
-metadata for the project.
-
-The transaction process for a claimed project is slightly different in that
-PyPI administrators will choose to move the project from the *recently-claimed*
-role to the *claimed* role. A project transaction process MUST then add new
-recently-claimed and claimed metadata to reflect this migration. As is the case
-for a recently-claimed project, the project transaction process MUST always add
-all new targets and delegated targets metadata for the claimed project.
-Finally, the project transaction process MUST inform the consistent snapshot
-process about new recently-claimed or claimed metadata as well as the current
-set of delegated targets metadata for the project.
-
-Project transaction processes SHOULD be automated, except when PyPI
-administrators move a project from the recently-claimed role to the claimed
-role. Project transaction processes MUST also be applied atomically: either all
-metadata and targets -- or none of them -- are added. The project transaction
-processes and consistent snapshot process SHOULD work concurrently. Finally,
-project transaction processes SHOULD keep in memory the latest claimed,
-recently-claimed, and unclaimed metadata so that they will be correctly updated
-in new consistent snapshots.
-
-All project transactions MAY be placed in a single queue and processed
-serially.  Alternatively, the queue MAY be processed concurrently in order of
-appearance, provided that the following rules are observed:
-
-1.  No pair of project transaction processes may concurrently work on the same
-    project.
-
-2.  No pair of project transaction processes may concurrently work on
-    *unclaimed* projects that belong to the same delegated *unclaimed* role.
-
-3.  No pair of project transaction processes may concurrently work on new
-    recently-claimed projects.
-
-4.  No pair of project transaction processes may concurrently work on new
-    claimed projects.
-
-5.  No project transaction process may work on a new claimed project while
-    another project transaction process is working on a new recently-claimed
-    project and vice versa.
-
-These rules MUST be observed to ensure that metadata is not read from or
-written to inconsistently.
 
 
 Snapshot Process
@@ -558,6 +481,133 @@ processes and queues so that it will be easier to recover from errors after a
 server failure.
 
 __ https://en.wikipedia.org/wiki/Transaction_log
+
+
+Producing Consistent Snapshots
+------------------------------
+
+PyPI is responsible for updating, depending on the project, either the
+*claimed*, *recently-claimed*, or *unclaimed* metadata as well as associated
+delegated metadata. Every project MUST upload its set of metadata and targets
+in a single transaction.  The uploaded set of files is called the "project
+transaction."  How PyPI MAY validate files in a project transaction is
+discussed in a later section.  The focus of this section is on how PyPI will
+respond to a project transaction.
+
+Every metadata and target file MUST include in its filename the `hex digest`__
+of its `SHA-256`__ hash, which PyPI may prepend to filenames after the files
+have been uploaded.  For this PEP, it is RECOMMENDED that PyPI adopt a simple
+convention of the form: digest.filename, where filename is the original
+filename without a copy of the hash, and digest is the hex digest of the hash.
+
+__ http://docs.python.org/2/library/hashlib.html#hashlib.hash.hexdigest
+__ https://en.wikipedia.org/wiki/SHA-2
+
+When an unclaimed project uploads a new transaction, a project transaction
+process MUST add all new targets and relevant delegated unclaimed metadata. (We
+describe later in this section why the unclaimed role will delegate targets to
+a number of delegated unclaimed roles.) Finally, the project transaction
+process MUST inform the snapshot process about new delegated unclaimed
+metadata.
+
+When a recently-claimed project uploads a new transaction, a project
+transaction process MUST add all new targets and delegated targets metadata for
+the project. If the project is new, then the project transaction process MUST
+also add new recently-claimed metadata with the public keys and threshold
+number (which MUST be part of the transaction) for the project. Finally, the
+project transaction process MUST inform the consistent snapshot process about
+new recently-claimed metadata as well as the current set of delegated targets
+metadata for the project.
+
+The transaction process for a claimed project is slightly different in that
+PyPI administrators will choose to move the project from the *recently-claimed*
+role to the *claimed* role. A project transaction process MUST then add new
+recently-claimed and claimed metadata to reflect this migration. As is the case
+for a recently-claimed project, the project transaction process MUST always add
+all new targets and delegated targets metadata for the claimed project.
+Finally, the project transaction process MUST inform the consistent snapshot
+process about new recently-claimed or claimed metadata as well as the current
+set of delegated targets metadata for the project.
+
+Project transaction processes SHOULD be automated, except when PyPI
+administrators move a project from the recently-claimed role to the claimed
+role. Project transaction processes MUST also be applied atomically: either all
+metadata and targets -- or none of them -- are added. The project transaction
+processes and consistent snapshot process SHOULD work concurrently. Finally,
+project transaction processes SHOULD keep in memory the latest claimed,
+recently-claimed, and unclaimed metadata so that they will be correctly updated
+in new consistent snapshots.
+
+All project transactions MAY be placed in a single queue and processed
+serially.  Alternatively, the queue MAY be processed concurrently in order of
+appearance, provided that the following rules are observed:
+
+1.  No pair of project transaction processes may concurrently work on the same
+    project.
+
+2.  No pair of project transaction processes may concurrently work on
+    *unclaimed* projects that belong to the same delegated *unclaimed* role.
+
+3.  No pair of project transaction processes may concurrently work on new
+    recently-claimed projects.
+
+4.  No pair of project transaction processes may concurrently work on new
+    claimed projects.
+
+5.  No project transaction process may work on a new claimed project while
+    another project transaction process is working on a new recently-claimed
+    project and vice versa.
+
+These rules MUST be observed to ensure that metadata is not read from or
+written to inconsistently.
+
+
+Auditing Snapshots
+------------------
+
+If a malicious party compromises PyPI, they can sign arbitrary files with any
+of the online keys.  The roles with offline keys (i.e., *root* and *targets*)
+are still protected. To safely recover from a repository compromise, snapshots
+should be audited to ensure that files are only restored to trusted versions.
+
+When a repository compromise has been detected, the integrity of three types of
+information must be validated:
+
+1. If the online keys of the repository have been compromised, they can be
+   revoked by having the *targets* role sign new metadata, delegated to a new
+   key.
+
+2. If the role metadata on the repository has been changed, this will impact
+   the metadata that is signed by online keys.  Any role information created
+   since the compromise should be discarded. As a result, developers of new
+   projects will need to re-register their projects.
+
+3. If the packages themselves may have been tampered with, they can be
+   validated using the stored hash information for packages that existed in
+   trusted metadata before the compromise.  Also, new distributions that are
+   signed by developers in the claimed role may be safely retained.  However,
+   any distributions signed by developers in the *recently-claimed* or
+   *unclaimed* roles should be discarded.
+
+In order to safely restore snapshots in the event of a compromise, PyPI SHOULD
+maintain a small number of its own mirrors to copy PyPI snapshots according to
+some schedule.  The mirroring protocol can be used immediately for this
+purpose.  The mirrors must be secured and isolated such that they are
+responsible only for mirroring PyPI.  The mirrors can be checked against one
+another to detect accidental or malicious failures.
+
+Another approach is to periodically generate the cryptographic hash of
+*snapshot* and tweet it.  For example, upon receiving the tweet, a user comes
+forward with the actual metadata and the repository maintainers are then able
+to verify metadata's cryptographic hash.  Alternatively, PyPI may periodically
+archive its own versions of *snapshot* rather than rely on externally provided
+metadata.  In this case, PyPI SHOULD take the cryptographic hash of every
+package on the repository and store this data on an offline device. If any
+package hash has changed, this indicates an attack has occurred.
+
+Attacks that serve different versions of metadata or that freeze a version
+of a package at a specific version can be handled by TUF with techniques
+such as implicit key revocation and metadata mismatch detection [1].
 
 
 Key Compromise Analysis
@@ -765,54 +815,6 @@ compromise, an end-user may choose to update new *root* metadata with
 `out-of-band`__ mechanisms.
 
 __ https://en.wikipedia.org/wiki/Out-of-band#Authentication
-
-
-Auditing Snapshots
-------------------
-
-If a malicious party compromises PyPI, they can sign arbitrary files with any
-of the online keys.  The roles with offline keys (i.e., *root* and *targets*)
-are still protected. To safely recover from a repository compromise, snapshots
-should be audited to ensure that files are only restored to trusted versions.
-
-When a repository compromise has been detected, the integrity of three types of
-information must be validated:
-
-1. If the online keys of the repository have been compromised, they can be
-   revoked by having the *targets* role sign new metadata, delegated to a new
-   key.
-
-2. If the role metadata on the repository has been changed, this will impact
-   the metadata that is signed by online keys.  Any role information created
-   since the compromise should be discarded. As a result, developers of new
-   projects will need to re-register their projects.
-
-3. If the packages themselves may have been tampered with, they can be
-   validated using the stored hash information for packages that existed in
-   trusted metadata before the compromise.  Also, new distributions that are
-   signed by developers in the claimed role may be safely retained.  However,
-   any distributions signed by developers in the *recently-claimed* or
-   *unclaimed* roles should be discarded.
-
-In order to safely restore snapshots in the event of a compromise, PyPI SHOULD
-maintain a small number of its own mirrors to copy PyPI snapshots according to
-some schedule.  The mirroring protocol can be used immediately for this
-purpose.  The mirrors must be secured and isolated such that they are
-responsible only for mirroring PyPI.  The mirrors can be checked against one
-another to detect accidental or malicious failures.
-
-Another approach is to periodically generate the cryptographic hash of
-*snapshot* and tweet it.  For example, upon receiving the tweet, a user comes
-forward with the actual metadata and the repository maintainers are then able
-to verify metadata's cryptographic hash.  Alternatively, PyPI may periodically
-archive its own versions of *snapshot* rather than rely on externally provided
-metadata.  In this case, PyPI SHOULD take the cryptographic hash of every
-package on the repository and store this data on an offline device. If any
-package hash has changed, this indicates an attack has occurred.
-
-Attacks that serve different versions of metadata or that freeze a version
-of a package at a specific version can be handled by TUF with techniques
-such as implicit key revocation and metadata mismatch detection [1].
 
 
 References
