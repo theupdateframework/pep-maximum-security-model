@@ -349,45 +349,57 @@ tool for uploading distributions to PyPI.
 Automated Signing Solution
 --------------------------
 
-A default PyPI-mediated key management and package signing solution that is
-transparent to developers and does not require a key escrow (sharing encrypted
-private keys with PyPI) is RECOMMENDED for the signing tools.  Additionally,
-the signing tools SHOULD also circumvent the sharing of encrypted private keys
-between the multiple machines of each developer.
+A default, PyPI-mediated key management and package signing solution that is
+`transparent`__ to developers and does not require a key escrow (sharing of
+encrypted private keys with PyPI) is RECOMMENDED for the signing tools.
+Additionally, the signing tools SHOULD circumvent the sharing of private keys
+across multiple machines of each developer.
+
+__ https://en.wikipedia.org/wiki/Transparency_%28human%E2%80%93computer_interaction%29
 
 The following outlines the automated signing solution that a developer MAY
 follow to upload a distribution to PyPI:
 
-1.  Register project.
-2.  Enter secondary password.
-3.  Add new identity to PyPI user account from machine 2 (after a password prompt).
+1.  Register a PyPI project.
+2.  Enter a secondary password (independent of the PyPI user account password).
+3.  Optional: Add a new identity to the developer's PyPI user account from a
+    second machine (after a password prompt).
 4.  Upload project.
 
-Under the hood (the developer is not aware or needs to care that packages are
-automatically signed):
+Step 1 is the normal procedure followed by developers to `register a PyPI
+project`__.
 
-Adding a new identity, by entering only a password, in step 3 generates an
-encrypted private key file and uploads the ed25519 public key to PyPI.  An
-existing identity (its public key is contained in project metadata or on PyPI)
-signs (this is done transparently) for new identities.  By default, project
-metadata has a signature threshold of 1 and other verified identities may
+__ https://pypi.python.org/pypi?:action=register_form
+
+Step 2 generates an encrypted key file (private), uploads an Ed25519 public key
+to PyPI, and signs the TUF metadata that is generated for the distribution.
+
+Optionally adding a new identity from a second machine, by simply entering a
+password, in step 3 also generates an encrypted private key file and uploads an
+Ed25519 public key to PyPI.  Separate identities MAY be created to allow a
+developer, or other project maintainers, to sign releases on multiple machines.
+An existing verified identity (its public key is contained in project metadata
+or has been uploaded to PyPI) signs for new identities.  By default, project
+metadata has a signature threshold of "1" and other verified identities may
 create new releases to satisfy the threshold.
 
-However, the signing tools should be flexible; a single project key may also be
-shared between multiple machines if manual key management is preferred (e.g.,
-ssh-copy-id).
+Step 4 uploads the distribution file and TUF metadata to PyPI.  The "Snapshot
+Process" section discusses the project upload procedure in more detail.
 
-The current TUF `repository`__ and `developer`__ tools are available for
-review.
+Generation of cryptographic files and signatures are transparent to the
+developer in the default case and developers need not be aware that packages
+are automatically signed.  However, the signing tools should be flexible; a
+single project key may also be shared between multiple machines if manual key
+management is preferred (e.g., ssh-copy-id).
+
+The `repository`__ and `developer`__ TUF tools currently support all of the
+recommendations previously mentioned, except for the automated signing
+solution, which must be added to Distutils, Twine, and other third-party
+signing tools.  The automated signing solution calls available repository tool
+functions to sign metadata and to generate the cryptographic key files.
 
 __ https://github.com/theupdateframework/tuf/blob/develop/tuf/README.md
 __ https://github.com/theupdateframework/tuf/blob/develop/tuf/README-developer-tools.md
-
-The repository and developer TUF tools currently support all of the
-recommendations previously mentioned except for the automated signing solution,
-which must be added to Distutils, Twine, and other third-party signing tools.
-The automated signing solution simply calls available repository tool functions
-to sign metadata and to generate the cryptographic key files.
 
 
 Snapshot Process
