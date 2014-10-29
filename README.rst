@@ -301,7 +301,7 @@ The package manager (pip) shipped with CPython MUST work on non-CPython
 interpreters and cannot have dependencies that have to be compiled (i.e., the
 PyPI+TUF integration MUST NOT require compilation of C extensions in order to
 verify cryptographic signatures).  Verification of signatures MUST be done in
-Python, and verifying RSA [11] signatures in pure-Python may be impractical due
+Python, and verifying RSA [11]_ signatures in pure-Python may be impractical due
 to speed.  Therefore, PyPI MAY use the `Ed25519`__ signature scheme.
 
 __ http://ed25519.cr.yp.to/
