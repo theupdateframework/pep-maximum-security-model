@@ -429,8 +429,8 @@ project TUF metadata for at least the following properties:
   another delegator.
 * A delegatee MUST NOT sign for targets that were not delegated to itself by a
   delegator.
-* Every file MUST contain a unique copy of its hash in its filename following
-  the digest.filename convention recommended earlier.
+* Every file MUST contain a unique copy of its hash in its filename.  The
+  digest.filename convention recommended earlier MAY be followed.
 
 If PyPI chooses to check the project TUF metadata, then PyPI MAY choose to
 reject publishing any set of metadata or targets that do not meet these
