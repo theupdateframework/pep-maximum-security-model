@@ -733,8 +733,8 @@ compromise of the PyPI infrastructure MAY introduce malicious updates to
 In the Event of a Key Compromise
 --------------------------------
 
-A key compromise means that a threshold of keys (belonging to the metadata
-roles on PyPI), as well as the PyPI infrastructure, have been compromised and
+A key compromise means that a threshold of keys belonging to developers or the
+roles on PyPI, as well as the PyPI infrastructure, have been compromised and
 used to sign new metadata on PyPI.
 
 If a threshold number of developer keys of a project have been compromised,
