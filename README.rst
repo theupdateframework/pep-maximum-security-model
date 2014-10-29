@@ -400,8 +400,9 @@ discussed in a later section.  The focus of this section is on how PyPI will
 respond to a project transaction.
 
 Every metadata and target file MUST include in its filename the `hex digest`__
-of its `SHA-256`__ hash.  For this PEP, it is RECOMMENDED that PyPI adopt a
-simple convention of the form: digest.filename, where filename is the original
+of its `SHA-256`__ hash, which PyPI may prepend to filenames after the files
+have been uploaded.  For this PEP, it is RECOMMENDED that PyPI adopt a simple
+convention of the form: digest.filename, where filename is the original
 filename without a copy of the hash, and digest is the hex digest of the hash.
 
 __ http://docs.python.org/2/library/hashlib.html#hashlib.hash.hexdigest
@@ -411,8 +412,8 @@ When an unclaimed project uploads a new transaction, a project transaction
 process MUST add all new targets and relevant delegated unclaimed metadata. (We
 describe later in this section why the unclaimed role will delegate targets to
 a number of delegated unclaimed roles.) Finally, the project transaction
-process MUST inform the consistent snapshot process about new delegated
-unclaimed metadata.
+process MUST inform the snapshot process about new delegated unclaimed
+metadata.
 
 When a recently-claimed project uploads a new transaction, a project
 transaction process MUST add all new targets and delegated targets metadata for
@@ -506,7 +507,7 @@ project TUF metadata for at least the following properties:
 * A delegatee MUST NOT sign for targets that were not delegated to itself by a
   delegator.
 * Every file MUST contain a unique copy of its hash in its filename following
-  the filename.digest.ext convention recommended earlier.
+  the digest.filename convention recommended earlier.
 
 If PyPI chooses to check the project TUF metadata, then PyPI MAY choose to
 reject publishing any set of metadata or targets that do not meet these
@@ -637,10 +638,10 @@ attacks, or metadata inconsistency attacks.
 |     root          |       YES         |         YES           |           YES         |
 +-------------------+-------------------+-----------------------+-----------------------+
 
-Table 1: Attacks that are possible by compromising certain combinations of role keys.
-In `September 2013`__, it was shown how the latest version (at the time) of pip
-was susceptible to these attacks and how TUF could protect users against them
-[8]_.
+Table 1: Attacks that are possible by compromising certain combinations of role
+keys.  In `September 2013`__, it was shown how the latest version (at the time)
+of pip was susceptible to these attacks and how TUF could protect users against
+them [8]_.
 
 __ https://mail.python.org/pipermail/distutils-sig/2013-September/022755.html
 
@@ -648,17 +649,12 @@ Note that compromising *targets* or any delegated role (except for project
 targets metadata) does not immediately allow an attacker to serve malicious
 updates.  The attacker must also compromise the *timestamp* and *snapshot*
 roles (which are both online and therefore more likely to be compromised).
-This means that in order to launch any attack, one must not only be able to
-act as a man-in-the-middle but also compromise the *timestamp* key (or
-compromise the *root* keys and sign a new *timestamp* key).  To launch any
-attack other than a freeze attack, one must also compromise the *snapshot* key.
-
-Finally, a compromise of the PyPI infrastructure MAY introduce malicious
-updates to *bins* projects because the keys for these roles are online.  The
-maximum security model discussed in the appendix addresses this issue.  PEP X
-[VD: Link to PEP once it is completed] also covers the maximum security model
-and goes into more detail on generating developer keys and signing uploaded
-distributions.
+This means that in order to launch any attack, one must not only be able to act
+as a man-in-the-middle but also compromise the *timestamp* key (or compromise
+the *root* keys and sign a new *timestamp* key).  To launch any attack other
+than a freeze attack, one must also compromise the *snapshot* key.  Finally, a
+compromise of the PyPI infrastructure MAY introduce malicious updates to
+*recently-claimed* projects because the keys for these roles are online.
 
 
 In the Event of a Key Compromise
