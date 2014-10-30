@@ -529,22 +529,22 @@ __ http://docs.python.org/2/library/hashlib.html#hashlib.hash.hexdigest
 __ https://en.wikipedia.org/wiki/SHA-2
 
 When an unclaimed project uploads a new transaction, a project transaction
-process MUST add all new targets and relevant delegated unclaimed metadata. (We
-describe later in this section why the unclaimed role will delegate targets to
-a number of delegated unclaimed roles.) Finally, the project transaction
-process MUST inform the snapshot process about new delegated unclaimed
-metadata.
+process MUST add all new targets and relevant delegated unclaimed metadata.
+The project transaction process MUST inform the snapshot process about new
+delegated unclaimed metadata.
 
-When a recently-claimed project uploads a new transaction, a project
+When a *recently-claimed* project uploads a new transaction, a project
 transaction process MUST add all new targets and delegated targets metadata for
 the project. If the project is new, then the project transaction process MUST
-also add new recently-claimed metadata with the public keys (which MUST be part
-of the transaction) for the project. Finally, the project transaction process
-MUST inform the snapshot process about new recently-claimed metadata, as well
-as the current set of delegated targets metadata for the project.
+also add new *recently-claimed* metadata with the public keys (which MUST be
+part of the transaction) for the project. *recently-claimed* projects have a
+threshold value of "1" set by the transaction process.  Finally, the project
+transaction process MUST inform the snapshot process about new
+*recently-claimed* metadata, as well as the current set of delegated targets
+metadata for the project.
 
 The transaction process for a claimed project is slightly different in that
-PyPI administrators will choose to move the project from the *recently-claimed*
+PyPI administrators periodically move project from the *recently-claimed*
 role to the *claimed* role. A project transaction process MUST then add new
 recently-claimed and claimed metadata to reflect this migration. As is the case
 for a recently-claimed project, the project transaction process MUST always add
@@ -554,13 +554,13 @@ process about new recently-claimed or claimed metadata, as well as the current
 set of delegated targets metadata for the project.
 
 Project transaction processes SHOULD be automated, except when PyPI
-administrators move a project from the recently-claimed role to the claimed
+administrators move a project from the *recently-claimed* role to the *claimed*
 role. Project transaction processes MUST also be applied atomically: either all
 metadata and targets -- or none of them -- are added. The project transaction
-processes and snapshot process SHOULD work concurrently. Finally,
-project transaction processes SHOULD keep in memory the latest claimed,
-recently-claimed, and unclaimed metadata so that they will be correctly updated
-in new consistent snapshots.
+processes and snapshot process SHOULD work concurrently. Finally, project
+transaction processes SHOULD keep in memory the latest *claimed*,
+*recently-claimed*, and *unclaimed* metadata so that they will be correctly
+updated in new consistent snapshots.
 
 The queue MAY be processed concurrently in order of appearance, provided that
 the following rules are observed:
@@ -608,7 +608,7 @@ information must be validated:
 3. If the packages themselves may have been tampered with, they can be
    validated using the stored hash information for packages that existed in
    trusted metadata before the compromise.  Also, new distributions that are
-   signed by developers in the claimed role may be safely retained.  However,
+   signed by developers in the *claimed* role may be safely retained.  However,
    any distributions signed by developers in the *recently-claimed* or
    *unclaimed* roles should be discarded.
 
@@ -756,63 +756,64 @@ Whereas PyPI MUST take the following steps:
 
 2.  A new timestamped consistent snapshot MUST be issued.
 
-If a threshold number of timestamp, snapshot, recently-claimed, or
-unclaimed keys have been compromised, then PyPI MUST take the following steps:
+If a threshold number of *timestamp*, *snapshot*, *recently-claimed*, or
+*unclaimed* keys have been compromised, then PyPI MUST take the following
+steps:
 
-1.  Revoke the timestamp, snapshot, and targets role keys from the
-    root role. This is done by replacing the compromised timestamp,
-    snapshot, and targets keys with newly issued keys.
+1.  Revoke the *timestamp*, *snapshot*, and *targets* role keys from the
+    root role. This is done by replacing the compromised *timestamp*,
+    *snapshot*, and *targets* keys with newly issued keys.
 
-2.  Revoke the recently-claimed and unclaimed keys from the targets role by
+2.  Revoke the *recently-claimed* and *unclaimed* keys from the targets role by
     replacing their keys with newly issued keys. Sign the new targets role
     metadata and discard the new keys (because, as we explained earlier, this
     increases the security of targets metadata).
 
-3.  Clear all targets or delegations in the recently-claimed role and delete
+3.  Clear all targets or delegations in the *recently-claimed* role and delete
     all associated delegated targets metadata. Recently registered projects
     SHOULD register their developer keys again with PyPI.
 
-4.  All targets of the recently-claimed and unclaimed roles SHOULD be compared
-    with the last known good consistent snapshot where none of the timestamp,
-    snapshot, recently-claimed, or unclaimed keys were known to have been
-    compromised. Added, updated, or deleted targets in the compromised
+4.  All targets of the *recently-claimed* and *unclaimed* roles SHOULD be
+    compared with the last known good consistent snapshot where none of the
+    timestamp, snapshot, recently-claimed, or unclaimed keys were known to have
+    been compromised. Added, updated, or deleted targets in the compromised
     consistent snapshot that do not match the last known good consistent
     snapshot SHOULD be restored to their previous versions. After ensuring the
     integrity of all unclaimed targets, the unclaimed metadata MUST be
     regenerated.
 
-5.  The recently-claimed and unclaimed metadata MUST have their version numbers
-    incremented, expiry times suitably extended, and signatures renewed.
+5.  The *recently-claimed* and *unclaimed* metadata MUST have their version
+    numbers incremented, expiry times suitably extended, and signatures
+    renewed.
 
 6.  A new timestamped consistent snapshot MUST be issued.
 
 This would preemptively protect all of these roles even though only one of them
 may have been compromised.
 
-If a threshold number of the targets or claimed keys have been compromised,
-then there is little that an attacker would be able do without the timestamp and
-snapshot keys. In this case, PyPI MUST simply revoke the compromised targets or
-claimed keys by replacing them with new keys in the root and targets roles,
-respectively.
+If a threshold number of the *targets* or *claimed* keys have been compromised,
+then there is little that an attacker would be able do without the *timestamp*
+and *snapshot* keys. In this case, PyPI MUST simply revoke the compromised
+*targets* or *claimed* keys by replacing them with new keys in the *root* and
+*targets* roles, respectively.
 
-If a threshold number of the timestamp, snapshot, and claimed keys have been
-compromised, then PyPI MUST take the following steps in addition to the steps
-taken when either the timestamp or snapshot keys are compromised:
+If a threshold number of the *timestamp*, *snapshot*, and *claimed* keys have
+been compromised, then PyPI MUST take the following steps in addition to the
+steps taken when either the *timestamp* or *snapshot* keys are compromised:
 
-1.  Revoke the claimed role keys from the targets role and replace them with
+1.  Revoke the *claimed* role keys from the targets role and replace them with
     newly issued keys.
     
 2.  All project targets of the claimed roles SHOULD be compared with the last
-    known good consistent snapshot where none of the timestamp, snapshot, or
-    claimed keys were known to have been compromised.  Added, updated, or
+    known good consistent snapshot where none of the *timestamp*, *snapshot*,
+    or *claimed* keys were known to have been compromised.  Added, updated, or
     deleted targets in the compromised consistent snapshot that do not match
     the last known good consistent snapshot MAY be restored to their previous
     versions.  After ensuring the integrity of all claimed project targets, the
-    claimed metadata MUST be regenerated.
+    *claimed* metadata MUST be regenerated.
 
 3.  The claimed metadata MUST have their version numbers incremented, expiry
     times suitably extended, and signatures renewed.
-
 
 Following these steps would preemptively protect all of these roles even though
 only one of them may have been compromised.
