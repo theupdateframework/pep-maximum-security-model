@@ -22,26 +22,26 @@ and the maximum security model.  End-to-end signing allows both PyPI and
 developers to sign for the distributions that are downloaded by clients.  The
 minimum security model proposed by PEP 458 supports continuous delivery of
 distributions (because they are signed by online keys), but that model does not
-protect distributions in the event that PyPI is compromised.  The maximum
-security model retains many of the benefits of PEP 458 (e.g., immediate
-availability of distributions that are uploaded to PyPI) and additionally aims
-to ensure that end-users are not at risk of installing forged distributions if
-PyPI is compromised.  In the minimum security model, attackers may sign for
-malicious distributions by compromising the signing keys stored on PyPI
-infrastructure.
+protect distributions in the event that PyPI is compromised.  In the minimum
+security model, attackers may sign for malicious distributions by compromising
+the signing keys stored on PyPI infrastructure.   The maximum security model,
+described in this PEP, retains the benefits of PEP 458 (e.g., immediate
+availability of distributions that are uploaded to PyPI), but additionally
+ensures that end-users are not at risk of installing forged software if PyPI is
+compromised.
 
 This PEP includes the changes made to PEP 458 but excludes its informational
-elements to primarily focus on the maximum security model.  For example, an
-overview of The Update Framework is not covered here.  The changes to PEP 458
-include modifications to the snapshot process, key compromise analysis,
-auditing snapshots, and the steps that should be taken in the event of a PyPI
-compromise.  The signing and key management process followed by developers that
-PyPI MAY RECOMMEND is discussed but not strictly defined.  How the release
-process should be implemented to manage keys and metadata is left to the
-implementors of the signing tools.  That is, this PEP delineates the expected
-cryptographic key type and signature format included in metadata that MUST be
-uploaded by developers in order to support end-to-end verification of
-distributions.
+elements to primarily focus on the maximum security model. For example, an
+overview of The Update Framework or the basic mechanisms in PEP 458 are not
+covered here. The changes to PEP 458 include modifications to the snapshot
+process, key compromise analysis, auditing snapshots, and the steps that should
+be taken in the event of a PyPI compromise. The signing and key management
+process followed by developers that PyPI MAY RECOMMEND is discussed but not
+strictly defined. How the release process should be implemented to manage keys
+and metadata is left to the implementors of the signing tools. That is, this
+PEP delineates the expected cryptographic key type and signature format
+included in metadata that MUST be uploaded by developers in order to support
+end-to-end verification of distributions.
 
 
 Rationale
@@ -49,59 +49,28 @@ Rationale
 
 PEP 458 [1]_ proposes how PyPI should be integrated with The Update Framework
 (TUF) [2]_.  It explains how modern package managers like pip can be made more
-secure, and the types of attacks that could be prevented if PyPI were modified
-on the server side to include TUF metadata.  Package managers can
-reference the TUF metadata available on PyPI to download distributions more
-securely.
+secure, and the types of attacks that can be prevented if PyPI is modified on
+the server side to include TUF metadata.  Package managers can reference the
+TUF metadata available on PyPI to download distributions more securely.
 
-PEP 458 also describes the metadata layout of the PyPI repository and the
-minimum security model.  Although the minimum security model guards against
-most attacks on software updaters [5]_ [7]_, such as mix-and-match and
-extraneous dependencies attacks, it can be improved to also support end-to-end
-signing and to prohibit forged distributions if PyPI is compromised.
+PEP 458 also describes the metadata layout of the PyPI repository and employs
+the minimum security model, which supports continuous delivery of projects and
+uses online cryptographic keys to sign the distributions uploaded by
+developers.  Although the minimum security model guards against most attacks on
+software updaters [5]_ [7]_, such as mix-and-match and extraneous dependencies
+attacks, it can be improved to support end-to-end signing and to prohibit
+forged distributions in the event that PyPI is compromised.
 
-The minimum security model supports continuous delivery of projects and uses
-online cryptographic keys to sign the distributions uploaded by projects.  The
-main strength of the minimum security model is the automated and simplified
+The main strength of the minimum security model is the automated and simplified
 release process: developers may upload distributions and then have PyPI sign
 for their distributions.  Much of the release process is handled in an
-automated fashion by online roles and this simplified approach requires that
-cryptographic signing keys be stored on the PyPI infrastructure.
-Unfortunately, cryptographic keys that are stored online are vulnerable to
-theft, and thus distributions that are signed by these keys can be easily
-forged if attackers compromise the servers that sign for distributions.
-
-The maximum security model is an extension to the minimum model that permits
-developers to sign for the distributions that they make available to PyPI
-users, and does not put end-users at risk of downloading malicious
-distributions if online signing keys stored on PyPI infrastructure are
-compromised.  The maximum security model provides additional protections while
-still supporting continuous delivery of distributions.  However, for the
-following reasons, it is postponed and covered here instead of in PEP 458:
-
-1.  A build farm (distribution wheels on supported platforms are generated for
-    each project on PyPI infrastructure) may possibly complicate matters.  PyPI
-    wants to support a build farm in the future.  Unfortunately, if wheels are
-    auto-generated externally, developer signatures for these wheels are
-    unlikely.  However, there might still be a benefit to generating wheels
-    from source distributions that are signed by developers (provided that
-    reproducible wheels are possible).  Developers may optionally delegate
-    trust of these wheels to a PyPI role that uses an online role.
-
-2.  An easy-to-use key management solution is needed for developers.  One
-    approach is to generate a cryptographic private key from a user password,
-    akin to miniLock.  Although developer signatures can remain optional, this
-    approach may be inadequate due to the great number of potentially unsigned
-    dependencies each distribution may have.  If any one of these dependencies
-    is unsigned, it negates any benefit the project gains from signing its own
-    distribution (i.e., attackers would only need to compromise one of the
-    unsigned dependencies to attack end-users).  Requiring developers to
-    manually sign distributions and manage keys is expected to render key
-    signing an unused feature.
-
-3.  A two-phase approach, where the minimum security model is implemented
-    before the maximum security model, will simplify matters and give PyPI
-    administrators time to review the feasibility of end-to-end signing.
+automated fashion by online roles and this simplified approach requires storing
+cryptographic signing keys on the PyPI infrastructure.  Unfortunately,
+cryptographic keys that are stored online are vulnerable to theft.  The maximum
+security model, proposed in this PEP, permits developers to sign for the
+distributions that they make available to PyPI users, and does not put
+end-users at risk of downloading malicious distributions if the online keys
+stored on PyPI infrastructure are compromised.
 
 
 Threat Model
@@ -362,6 +331,16 @@ tool for uploading distributions to PyPI.
 Automated Signing Solution
 --------------------------
 
+An easy-to-use key management solution is needed for developers.  One approach
+is to generate a cryptographic private key from a user password, akin to
+miniLock.  Although developer signatures can remain optional, this approach may
+be inadequate due to the great number of potentially unsigned dependencies each
+distribution may have.  If any one of these dependencies is unsigned, it
+negates any benefit the project gains from signing its own distribution (i.e.,
+attackers would only need to compromise one of the unsigned dependencies to
+attack end-users).  Requiring developers to manually sign distributions and
+manage keys is expected to render key signing an unused feature.
+
 A default, PyPI-mediated key management and package signing solution that is
 `transparent`__ to developers and does not require a key escrow (sharing of
 encrypted private keys with PyPI) is RECOMMENDED for the signing tools.
@@ -370,7 +349,7 @@ across multiple machines of each developer.
 
 __ https://en.wikipedia.org/wiki/Transparency_%28human%E2%80%93computer_interaction%29
 
-The following outlines the automated signing solution that a developer MAY
+The following outlines an automated signing solution that a new developer MAY
 follow to upload a distribution to PyPI:
 
 1.  Register a PyPI project.
@@ -825,20 +804,43 @@ the steps taken when the *targets* role has been compromised.  All of the
 It is also RECOMMENDED that PyPI sufficiently document compromises with
 security bulletins.  These security bulletins will be most informative when
 users of pip-with-TUF are unable to install or update a project because the
-keys for the *timestamp*, *snapshot*, or *root* roles are no longer valid.  Users
-could then visit the PyPI web site to consult security bulletins that would
-help to explain why users are no longer able to install or update, and then take
-action accordingly.  When a threshold number of *root* keys have not been
-revoked due to a compromise, then new *root* metadata may be safely updated
-because a threshold number of existing *root* keys will be used to sign for the
-integrity of the new *root* metadata.  TUF clients will be able to verify the
-integrity of the new *root* metadata with a threshold number of previously
-known *root* keys.  This will be the common case.  In the worst
+keys for the *timestamp*, *snapshot*, or *root* roles are no longer valid.
+Users could then visit the PyPI web site to consult security bulletins that
+would help to explain why users are no longer able to install or update, and
+then take action accordingly.  When a threshold number of *root* keys have not
+been revoked due to a compromise, then new *root* metadata may be safely
+updated because a threshold number of existing *root* keys will be used to sign
+for the integrity of the new *root* metadata.  TUF clients will be able to
+verify the integrity of the new *root* metadata with a threshold number of
+previously known *root* keys.  This will be the common case.  In the worst
 case, where a threshold number of *root* keys have been revoked due to a
 compromise, an end-user may choose to update new *root* metadata with
-`out-of-band`__ mechanisms.
+`out-of-band`__ mechanisms.p
 
 __ https://en.wikipedia.org/wiki/Out-of-band#Authentication
+
+
+Appendix A: A PyPI Build Farm and End-to-End Signing
+====================================================
+
+PyPI administrators intend to support a central build farm.  The PyPI build
+farm will auto-generate a `Wheel`__, for each distribution that is uploaded by
+developers, on PyPI infrastructure and on supported platforms.  Package
+managers will likely install projects by downloading these PyPI Wheels (which
+can be installed much faster than source distributions) rather than the source
+distributions signed by developers.  The implications of having a central build
+farm with end-to-end signing SHOULD be investigated before the maximum security
+model is implemented.
+
+__ http://wheel.readthedocs.org/en/latest/
+
+An issue with a central build farm and end-to-end signing is that developers
+are unlikely to sign Wheel distributions once they have been generated on PyPI
+infrastructure.  However, generating wheels from source distributions that are
+signed by developers can still be beneficial, provided that building Wheels is
+a deterministic process.  If deterministic builds are infeasible, developers
+may delegate trust of these wheels to a PyPI role that signs for wheels with
+an online key.
 
 
 References
