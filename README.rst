@@ -523,14 +523,17 @@ transaction process MUST inform the snapshot process about new
 metadata for the project.
 
 The transaction process for a claimed project is slightly different in that
-PyPI administrators periodically move project from the *recently-claimed*
-role to the *claimed* role. A project transaction process MUST then add new
-recently-claimed and claimed metadata to reflect this migration. As is the case
-for a recently-claimed project, the project transaction process MUST always add
-all new targets and delegated targets metadata for the claimed project.
-Finally, the project transaction process MUST inform the consistent snapshot
-process about new recently-claimed or claimed metadata, as well as the current
-set of delegated targets metadata for the project.
+PyPI administrators periodically move (a manual process that MAY occur every
+two weeks to a month) projects from the *recently-claimed* role to the
+*claimed* role. (Moving a project from *recently-claimed* to *claimed* is a
+manual process because PyPI administrators have to use an offline key to sign
+the claimed project's distribution.)  A project transaction process MUST then
+add new *recently-claimed* and *claimed* metadata to reflect this migration. As
+is the case for a *recently-claimed* project, the project transaction process
+MUST always add all new targets and delegated targets metadata for the claimed
+project.  Finally, the project transaction process MUST inform the consistent
+snapshot process about new *recently-claimed* or *claimed* metadata, as well as
+the current set of delegated targets metadata for the project.
 
 Project transaction processes SHOULD be automated, except when PyPI
 administrators move a project from the *recently-claimed* role to the *claimed*
