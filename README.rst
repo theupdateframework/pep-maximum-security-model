@@ -2,8 +2,8 @@ Title: Surviving a Compromise of PyPI: The Maximum Security Model
 Version: $Revision$
 Last-Modified: $Date$
 Author: Trishank Karthik Kuppusamy <trishank@nyu.edu>,
-Donald Stufft <donald@stufft.io>, Justin Cappos <jcappos@nyu.edu>,
-Vladimir Diaz <vladimir.v.diaz@gmail.com>
+Vladimir Diaz <vd558@nyu.edu, Donald Stufft <donald@stufft.io>,
+Justin Cappos <jcappos@nyu.edu>
 
 BDFL-Delegate: Nick Coghlan <ncoghlan@gmail.com>
 Discussions-To: DistUtils mailing list <distutils-sig@python.org>
@@ -11,7 +11,7 @@ Status: Draft
 Type: Standards Track
 Content-Type: text/x-rst
 Created: 8-Oct-2014
-Replaces:  458 
+Extends:  458 
 
 
 Abstract
@@ -22,22 +22,25 @@ and the maximum security model.  End-to-end signing allows both PyPI and
 developers to sign for the distributions that are downloaded by clients.  The
 minimum security model proposed by PEP 458 supports continuous delivery of
 distributions (because they are signed by online keys), but that model does not
-protect distributions in the event that PyPI is compromised.  The maximum
-security model retains many of the benefits of PEP 458 (e.g., immediate
-availability of distributions that are uploaded to PyPI) and additionally aims
-to ensure that PyPI can recover from a key compromise.
+protect distributions in the event that PyPI is compromised.  In the minimum
+security model, attackers may sign for malicious distributions by compromising
+the signing keys stored on PyPI infrastructure.   The maximum security model,
+described in this PEP, retains the benefits of PEP 458 (e.g., immediate
+availability of distributions that are uploaded to PyPI), but additionally
+ensures that end-users are not at risk of installing forged software if PyPI is
+compromised.
 
-This PEP includes the changes made to PEP 458 but excludes its informational
-elements to primarily focus on the maximum security model.  For example, an
-overview of The Update Framework is not covered here.  The changes to PEP 458
-include modifications to the snapshot process, key compromise analysis,
-auditing snapshots, and the steps that should be taken in the event of a PyPI
-compromise.  The signing and key management process followed by developers that
-PyPI MAY RECOMMEND is discussed but not strictly defined.  How the release
-process should be implemented to manage keys and metadata is left to the
-implementors of the signing tools.  That is, this PEP delineates the expected
-cryptographic key type and signature format included in metadata that MUST be
-uploaded by developers in order to support end-to-end verification of
+This PEP discusses the changes made to PEP 458 but excludes its informational
+elements to primarily focus on the maximum security model. For example, an
+overview of The Update Framework or the basic mechanisms in PEP 458 are not
+covered here. The changes to PEP 458 include modifications to the snapshot
+process, key compromise analysis, auditing snapshots, and the steps that should
+be taken in the event of a PyPI compromise. The signing and key management
+process that PyPI MAY RECOMMEND is discussed but not strictly defined. How the
+release process should be implemented to manage keys and metadata is left to
+the implementors of the signing tools. That is, this PEP delineates the
+expected cryptographic key type and signature format included in metadata that
+MUST be uploaded by developers in order to support end-to-end verification of
 distributions.
 
 
@@ -46,58 +49,28 @@ Rationale
 
 PEP 458 [1]_ proposes how PyPI should be integrated with The Update Framework
 (TUF) [2]_.  It explains how modern package managers like pip can be made more
-secure, and the types of attacks that could be prevented if PyPI were modified
-on the server side to include TUF metadata.  Package managers can
-reference the TUF metadata available on PyPI to download distributions more
-securely.
+secure, and the types of attacks that can be prevented if PyPI is modified on
+the server side to include TUF metadata.  Package managers can reference the
+TUF metadata available on PyPI to download distributions more securely.
 
-PEP 458 also describes the metadata layout of the PyPI repository and the
-minimum security model.  Although the minimum security model guards against
-most attacks on software updaters [5]_ [7]_, such as mix-and-match and
-extraneous dependencies attacks, it can be improved to also support end-to-end
-signing and to prohibit forged distributions if PyPI is compromised.
+PEP 458 also describes the metadata layout of the PyPI repository and employs
+the minimum security model, which supports continuous delivery of projects and
+uses online cryptographic keys to sign the distributions uploaded by
+developers.  Although the minimum security model guards against most attacks on
+software updaters [5]_ [7]_, such as mix-and-match and extraneous dependencies
+attacks, it can be improved to support end-to-end signing and to prohibit
+forged distributions in the event that PyPI is compromised.
 
-The minimum security model supports continuous delivery of projects and uses
-online cryptographic keys to sign the distributions uploaded by projects.  The
-main strength of the minimum security model is the automated and simplified
-release process: developers may upload distributions and then have PyPI sign
-for their distributions.  Much of the release process is handled in an
-automated fashion by online roles and this simplified approach requires that
-cryptographic signing keys be stored on the PyPI infrastructure.
-Unfortunately, cryptographic keys that are stored online are vulnerable to
-theft, and thus distributions that are signed by these keys can be easily
-forged if attackers compromise the servers that sign for distributions.
-
-The maximum security model is an extension to the minimum model that allows
-PyPI to survive a repository compromise and permits developers to sign for the
-distributions that they make available to PyPI users.  The maximum security
-model provides additional protections while still supporting continuous
-delivery of distributions.  However, for the following reasons, it is postponed
-and covered here instead of in PEP 458:
-
-1.  A build farm (distribution wheels on supported platforms are generated for
-    each project on PyPI infrastructure) may possibly complicate matters.  PyPI
-    wants to support a build farm in the future.  Unfortunately, if wheels are
-    auto-generated externally, developer signatures for these wheels are
-    unlikely.  However, there might still be a benefit to generating wheels
-    from source distributions that are signed by developers (provided that
-    reproducible wheels are possible).  Another possibility is to optionally
-    delegate trust of these wheels to an online role.
-
-2.  An easy-to-use key management solution is needed for developers.  miniLock
-    is one likely candidate for management and generation of keys.  Although
-    developer signatures can remain optional, this approach may be inadequate
-    due to the great number of potentially unsigned dependencies each
-    distribution may have.  If any one of these dependencies is unsigned, it
-    negates any benefit the project gains from signing its own distribution
-    (i.e., attackers would only need to compromise one of the unsigned
-    dependencies to attack end-users).  Requiring developers to manually
-    sign distributions and manage keys is expected to render key signing an
-    unused feature.
-
-3.  A two-phase approach, where the minimum security model is implemented
-    before the maximum security model, will simplify matters and give PyPI
-    administrators time to review the feasibility of end-to-end signing.
+The main strength of PEP 458 and the minimum security model is the automated
+and simplified release process: developers may upload distributions and then
+have PyPI sign for their distributions.  Much of the release process is handled
+in an automated fashion by online roles and this approach requires storing
+cryptographic signing keys on the PyPI infrastructure.  Unfortunately,
+cryptographic keys that are stored online are vulnerable to theft.  The maximum
+security model, proposed in this PEP, permits developers to sign for the
+distributions that they make available to PyPI users, and does not put
+end-users at risk of downloading malicious distributions if the online keys
+stored on PyPI infrastructure are compromised.
 
 
 Threat Model
@@ -112,10 +85,13 @@ The threat model assumes the following:
 
 * Attackers can respond to client requests.
 
+* Attackers may control any number of developer keys for projects a client does
+  not want to install.
+
 Attackers are considered successful if they can cause a client to install (or
 leave installed) something other than the most up-to-date version of the
 software the client is updating. When an attacker is preventing the
-installation of updates, the attacker's goal is that clients *not* realize that
+installation of updates, the attacker's goal is that clients not realize that
 anything is wrong. 
 
 
@@ -144,13 +120,14 @@ Terms used in this PEP are defined as follows:
 * Releases: Releases are uniquely identified snapshots of a project [4]_.
 
 * Distributions: Distributions are the packaged files that are used to publish
+  and distribute a release.
 
 * Simple index: The HTML page that contains internal links to the
   distributions of a project [4]_.
 
 * Roles: There is one *root* role in PyPI.  There are multiple roles whose
   responsibilities are delegated to them directly or indirectly by the *root*
-  role. The term top-level role refers to the *root* role and any role
+  role. The term "top-level role" refers to the *root* role and any role
   delegated by the *root* role. Each role has a single metadata file that it is
   trusted to provide.
 
@@ -169,7 +146,7 @@ Terms used in this PEP are defined as follows:
   specification [3]_, the *release* role is renamed to the *snapshot* role.
   
 * Developer: Either the owner or maintainer of a project who is allowed to
-  update TUF metadata as well as distribution metadata and files for a given
+  update TUF metadata, as well as distribution metadata and files for a given
   project. 
 
 * Online key: A private cryptographic key that MUST be stored on the PyPI
@@ -192,21 +169,22 @@ Terms used in this PEP are defined as follows:
 Maximum Security Model
 ======================
 
-The maximum security model permits developers to sign their projects and upload
-signed metadata to PyPI.  If the PyPI infrastructure were to be compromised,
+The maximum security model permits developers to sign their projects and to
+upload signed metadata to PyPI.  If the PyPI infrastructure were compromised,
 attackers would be unable to serve malicious versions of a *claimed* project
 without having access to that project's developer key.  Figure 1 depicts the
 changes made to the metadata layout of the minimum security model, namely that
 developer roles are now supported and that three new delegated roles exist:
-*claimed*, *recently-claimed*, and *unclaimed*.  The *bins* role has been
-renamed *unclaimed* and can contain any projects that have not been added to
-*claimed*.  The *unclaimed* role functions just as before (i.e., as explained
-in PEP 458, projects added to this role are signed by PyPI with an online key).
-Offline keys provided by developers ensure the strength of the maximum security
-model over the minimum model.  Although the minimum security model supports
-continuous delivery of projects, all projects are signed by an online key.
-That is, an attacker is able to corrupt packages in the minimum security model,
-but not in the maximum model, without also compromising a developer's key.
+*claimed*, *recently-claimed*, and *unclaimed*.  The *bins* role from the
+minimum security model has been renamed *unclaimed* and can contain any
+projects that have not been added to *claimed*.  The *unclaimed* role functions
+just as before (i.e., as explained in PEP 458, projects added to this role are
+signed by PyPI with an online key).  Offline keys provided by developers ensure
+the strength of the maximum security model over the minimum model.  Although
+the minimum security model supports continuous delivery of projects, all
+projects are signed by an online key.  That is, an attacker is able to corrupt
+packages in the minimum security model, but not in the maximum model, without
+also compromising a developer's key.
 
 .. image:: figure1.png
 
@@ -217,10 +195,19 @@ compromise.
 Projects that are signed by developers and uploaded to PyPI for the first time
 are added to the *recently-claimed* role.  The *recently-claimed* role uses an
 online key, so projects uploaded for the first time are immediately available
-to clients.  After some time has passed, PyPI administrators MAY move projects
-listed in *recently-claimed* to the *claimed* role for maximum security.  The
-*claimed* role uses an offline key, thus projects added to this role cannot be
-easily forged if PyPI is compromised.
+to clients.  After some time has passed, PyPI administrators MAY periodically
+move (e.g., every month) projects listed in *recently-claimed* to the *claimed*
+role for maximum security.  The *claimed* role uses an offline key, thus
+projects added to this role cannot be easily forged if PyPI is compromised.
+
+The *recently-claimed* role is separate from the *unclaimed* role for usability
+and efficiency, not security.  If new project delegations were prepended to
+*unclaimed* metadata, *unclaimed* would need to be re-downloaded every time a
+project obtained a key.  By separating out new projects, the amount of data
+retrieved is reduced.  From a usability standpoint, it also makes it easier for
+administrators to see which projects are now claimed.  This information is
+needed when moving keys from *recently-claimed* to *claimed*, which is
+discussed in more detail in the "Producing Consistent Snapshots" section.
 
 
 End-to-End Signing
@@ -229,22 +216,56 @@ End-to-End Signing
 End-to-end signing allows both PyPI and developers to sign for the metadata
 downloaded by clients.  PyPI is trusted to make uploaded projects available to
 clients (PyPI signs the metadata for this part of the process), and developers
-sign the distributions that they upload.
+sign the distributions that they upload to PyPI.
+
+In order to delegate trust to a project, developers are required to submit a
+public key to PyPI.  PyPI takes the project's public key and adds it to parent
+metadata that PyPI then signs.  After the initial trust is established,
+developers are required to sign distributions that they upload to PyPI using
+the public key's corresponding private key.  The signed TUF metadata that
+developers upload to PyPI includes information like the distribution's file
+size and hash, which package managers use to verify distributions that are
+downloaded.
+
+The practical implications of end-to-end signing is the extra administrative
+work needed to delegate trust to a project, and the signed metadata that
+developers MUST upload to PyPI along with the distribution.  Specifically, PyPI
+is expected to periodically sign metadata with an offline key by adding
+projects to the *claimed* metadata file and signing it.  In contrast, projects
+are only ever signed with an online key in the minimum security model.
+End-to-end signing does require manual intervention to delegate trust (i.e., to
+sign metadata with an offline key), but this is a one-time cost and projects
+have stronger protections against PyPI compromises thereafter.
 
 
 Metadata Signatures, Key Management, and Signing Distributions
 ==============================================================
 
-This section discusses the tools, signature schemes, and signing methods that
+This section discusses the tools, signature scheme, and signing methods that
 PyPI MAY recommend to implementors of the signing tools.  Developers are
 expected to use these tools to sign and upload distributions to PyPI.  To
-summarize, developers MAY generate cryptographic keys and sign metadata in some
-automated fashion, where the metadata includes the information required to
-verify the authenticity of the distribution.  The metadata is then uploaded to
-PyPI by the developer, where it will be available for download by package
-managers such as pip (i.e., package managers that support TUF metadata).  The
-entire process is transparent to end-users (using a package manager that
-supports TUF) who download distributions from PyPI.
+summarize the RECOMMENDED tools and schemes discussed in the subsections below,
+developers MAY generate cryptographic keys and sign metadata (with the Ed25519
+signature scheme) in some automated fashion, where the metadata includes the
+information required to verify the authenticity of the distribution.
+Developers then upload metadata to PyPI, where it will be available for
+download by package managers such as pip (i.e., package managers that support
+TUF metadata).  The entire process is transparent to the end-users (using a
+package manager that supports TUF) that download distributions from PyPI.
+
+The first three subsections (Cryptographic Signature Scheme, Cryptographic Key
+Files, and Key Management) cover the cryptographic components of the developer
+release process.  That is, which key type PyPI supports, how keys may be
+stored, and how keys may be generated.  The two subsections that follow the
+first three discuss the PyPI modules that SHOULD be modified to support TUF
+metadata.  For example, Twine and Distutils are two projects that SHOULD be
+modified.  Finally, the last subsection goes over the automated key management
+and signing solution that is RECOMMENDED for the signing tools.
+
+TUF's design is flexible with respect to cryptographic key types, signatures,
+and signing methods.  The tools, modification, and methods discussed in the
+following sections are RECOMMENDATIONS for the implementors of the signing
+tools.
 
 
 Cryptographic Signature Scheme: Ed25519
@@ -254,14 +275,14 @@ The package manager (pip) shipped with CPython MUST work on non-CPython
 interpreters and cannot have dependencies that have to be compiled (i.e., the
 PyPI+TUF integration MUST NOT require compilation of C extensions in order to
 verify cryptographic signatures).  Verification of signatures MUST be done in
-Python, and verifying RSA [11] signatures in pure-Python may be impractical due
+Python, and verifying RSA [11]_ signatures in pure-Python may be impractical due
 to speed.  Therefore, PyPI MAY use the `Ed25519`__ signature scheme.
 
 __ http://ed25519.cr.yp.to/
 
-Ed25519 [13]_ is a public-key signature system that uses small cryptographic
+Ed25519 [12]_ is a public-key signature system that uses small cryptographic
 signatures and keys.  A `pure-Python implementation`__ of the Ed25519 signature
-scheme is available.  Verification of Ed25519 signatures is fast, even when
+scheme is available.  Verification of Ed25519 signatures is fast even when
 performed in Python.
 
 __ https://github.com/pyca/ed25519
@@ -281,9 +302,10 @@ tweaked to taste.
 Key Management: miniLock
 ------------------------
 
-A key management solution that uses miniLock derives a private key from a
-password so that developers do not have to manage cryptographic key files
-across multiple computers.  Developers may view the cryptographic key as a
+An easy-to-use key management solution is needed.  One solution is to derive a
+private key from a password so that developers do not have to manage
+cryptographic key files across multiple computers.  `miniLock`__ is an example
+of how this can be done.  Developers may view the cryptographic key as a
 secondary password.  miniLock also works well with a signature scheme like
 Ed25519, which only needs a very small key.
 
@@ -293,7 +315,7 @@ __ https://github.com/kaepora/miniLock#-minilock
 Third-party Upload Tools: Twine
 -------------------------------
 
-Third-party tools like `Twine`__ may be modified (if they wish to support
+Third-party tools like `Twine`__ MAY be modified (if they wish to support
 distributions that include TUF metadata) to sign and upload developer projects
 to PyPI.  Twine is a utility for interacting with PyPI that uses TLS to upload
 distributions, and prevents MITM attacks on usernames and passwords.
@@ -314,122 +336,68 @@ tool for uploading distributions to PyPI.
 Automated Signing Solution
 --------------------------
 
-A default PyPI-mediated key management and package signing solution that is
-transparent to developers and does not require a key escrow (sharing encrypted
-private keys with PyPI) is RECOMMENDED for the signing tools.  Additionally,
-the signing tools SHOULD also circumvent the sharing of encrypted private keys
-between the multiple machines of each developer.
+An easy-to-use key management solution is RECOMMENDED for developers.  One
+approach is to generate a cryptographic private key from a user password, akin
+to miniLock.  Although developer signatures can remain optional, this approach
+may be inadequate due to the great number of potentially unsigned dependencies
+each distribution may have.  If any one of these dependencies is unsigned, it
+negates any benefit the project gains from signing its own distribution (i.e.,
+attackers would only need to compromise one of the unsigned dependencies to
+attack end-users).  Requiring developers to manually sign distributions and
+manage keys is expected to render key signing an unused feature.
 
-The following outlines the automated signing solution that a developer MAY
+A default, PyPI-mediated key management and package signing solution that is
+`transparent`__ to developers and does not require a key escrow (sharing of
+encrypted private keys with PyPI) is RECOMMENDED for the signing tools.
+Additionally, the signing tools SHOULD circumvent the sharing of private keys
+across multiple machines of each developer.
+
+__ https://en.wikipedia.org/wiki/Transparency_%28human%E2%80%93computer_interaction%29
+
+The following outlines an automated signing solution that a new developer MAY
 follow to upload a distribution to PyPI:
 
-1.  Register project.
-2.  Enter secondary password.
-3.  Add new identity to PyPI user account from machine 2 (after a password prompt).
+1.  Register a PyPI project.
+2.  Enter a secondary password (independent of the PyPI user account password).
+3.  Optional: Add a new identity to the developer's PyPI user account from a
+    second machine (after a password prompt).
 4.  Upload project.
 
-Under the hood (the developer is not aware or needs to care that packages are
-automatically signed):
+Step 1 is the normal procedure followed by developers to `register a PyPI
+project`__.
 
-The "create an identity with only a password" action generates an encrypted
-private key file that uploads the ed25519 public key to PyPI.  An existing
-identity (its public key is contained in project metadata or on PyPI) signs
-(this is done transparently) for new identities.  By default, project metadata
-has a signature threshold of 1 and other verified identities may create new
-releases to satisfy the threshold.
+__ https://pypi.python.org/pypi?:action=register_form
 
-However, the signing tools should be flexible; a single project key may also be
-shared between multiple machines if manual key management is preferred (e.g.,
-ssh-copy-id).
+Step 2 generates an encrypted key file (private), uploads an Ed25519 public key
+to PyPI, and signs the TUF metadata that is generated for the distribution.
 
-The current TUF `repository`__ and `developer`__ tools are available for
-review.
+Optionally adding a new identity from a second machine, by simply entering a
+password, in step 3 also generates an encrypted private key file and uploads an
+Ed25519 public key to PyPI.  Separate identities MAY be created to allow a
+developer, or other project maintainers, to sign releases on multiple machines.
+An existing verified identity (its public key is contained in project metadata
+or has been uploaded to PyPI) signs for new identities.  By default, project
+metadata has a signature threshold of "1" and other verified identities may
+create new releases to satisfy the threshold.
+
+Step 4 uploads the distribution file and TUF metadata to PyPI.  The "Snapshot
+Process" section discusses in detail the procedure followed by developers to
+upload a distribution to PyPI.
+
+Generation of cryptographic files and signatures is transparent to the
+developers in the default case: developers need not be aware that packages are
+automatically signed.  However, the signing tools should be flexible; a single
+project key may also be shared between multiple machines if manual key
+management is preferred (e.g., ssh-copy-id).
+
+The `repository`__ and `developer`__ TUF tools currently support all of the
+recommendations previously mentioned, except for the automated signing
+solution, which SHOULD be added to Distutils, Twine, and other third-party
+signing tools.  The automated signing solution calls available repository tool
+functions to sign metadata and to generate the cryptographic key files.
 
 __ https://github.com/theupdateframework/tuf/blob/develop/tuf/README.md
 __ https://github.com/theupdateframework/tuf/blob/develop/tuf/README-developer-tools.md
-
-The repository and developer TUF tools currently support all of the
-recommendations previously mentioned except for the automated signing solution,
-which must be added to Distutils, Twine, and other third-party signing tools.
-The automated signing solution simply calls available repository tool functions
-to sign metadata and to generate the cryptographic key files.
-
-Producing Consistent Snapshots
-------------------------------
-
-PyPI is responsible for updating, depending on the project, either the
-*claimed*, *recently-claimed*, or *unclaimed* metadata as well as associated
-delegated metadata metadata. Every project MUST upload its set of metadata and
-targets in a single transaction.  The uploaded set of files is called the
-"project transaction."  How PyPI MAY validate files in a project transaction is
-discussed in a later section.  The focus of this section is on how PyPI will
-respond to a project transaction.
-
-Every metadata and target file MUST include in its filename the `hex digest`__
-of its `SHA-256`__ hash.  For this PEP, it is RECOMMENDED that PyPI adopt a
-simple convention of the form: digest.filename, where filename is the original
-filename without a copy of the hash, and digest is the hex digest of the hash.
-
-__ http://docs.python.org/2/library/hashlib.html#hashlib.hash.hexdigest
-__ https://en.wikipedia.org/wiki/SHA-2
-
-When an unclaimed project uploads a new transaction, a project transaction
-process MUST add all new targets and relevant delegated unclaimed metadata. (We
-describe later in this section why the unclaimed role will delegate targets to
-a number of delegated unclaimed roles.) Finally, the project transaction
-process MUST inform the consistent snapshot process about new delegated
-unclaimed metadata.
-
-When a recently-claimed project uploads a new a transaction, a project
-transaction process MUST add all new targets and delegated targets metadata for
-the project. If the project is new, then the project transaction process MUST
-also add new recently-claimed metadata with the public keys and threshold
-number (which MUST be part of the transaction) for the project. Finally, the
-project transaction process MUST inform the consistent snapshot process about
-new recently-claimed metadata as well as the current set of delegated targets
-metadata for the project.
-
-The transaction process for a claimed project is slightly different in that
-PyPI administrators will choose to move the project from the *recently-claimed*
-role to the *claimed* role. A project transaction process MUST then add new
-recently-claimed and claimed metadata to reflect this migration. As is the case
-for a recently-claimed project, the project transaction process MUST always add
-all new targets and delegated targets metadata for the claimed project.
-Finally, the project transaction process MUST inform the consistent snapshot
-process about new recently-claimed or claimed metadata as well as the current
-set of delegated targets metadata for the project.
-
-Project transaction processes SHOULD be automated, except when PyPI
-administrators move a project from the recently-claimed role to the claimed
-role. Project transaction processes MUST also be applied atomically: either all
-metadata and targets -- or none of them -- are added. The project transaction
-processes and consistent snapshot process SHOULD work concurrently. Finally,
-project transaction processes SHOULD keep in memory the latest claimed,
-recently-claimed, and unclaimed metadata so that they will be correctly updated
-in new consistent snapshots.
-
-All project transactions MAY be placed in a single queue and processed
-serially.  Alternatively, the queue MAY be processed concurrently in order of
-appearance, provided that the following rules are observed:
-
-1.  No pair of project transaction processes must concurrently work on the same
-    project.
-
-2.  No pair of project transaction processes must concurrently work on
-    *unclaimed* projects that belong to the same delegated *unclaimed* role.
-
-3.  No pair of project transaction processes must concurrently work on new
-    recently-claimed projects.
-
-4.  No pair of project transaction processes must concurrently work on new
-    claimed projects.
-
-5.  No project transaction process must work on a new claimed project while
-    another project transaction process is working on a new recently-claimed
-    project and vice versa.
-
-These rules MUST be observed to ensure that metadata is not read from or
-written to inconsistently.
 
 
 Snapshot Process
@@ -449,13 +417,12 @@ roles) generated in the previous step.  Finally, the snapshot process MUST make
 available to clients the new *timestamp* and *snapshot* metadata representing
 the latest snapshot.
 
-
-A claimed or recently-claimed project will need to upload in its transaction to
-PyPI not just targets (a simple index as well as distributions) but also TUF
-metadata. The project MAY do so by uploading a ZIP file containing two
-directories, /metadata/ (containing delegated targets metadata files) and
+A *claimed* or *recently-claimed* project will need to upload in its
+transaction to PyPI not just targets (a simple index as well as distributions)
+but also TUF metadata. The project MAY do so by uploading a ZIP file containing
+two directories, /metadata/ (containing delegated targets metadata files) and
 /targets/ (containing targets such as the project simple index and
-distributions which are signed for by the delegated targets metadata).
+distributions that are signed by the delegated targets metadata).
 
 Whenever the project uploads metadata or targets to PyPI, PyPI SHOULD check the
 project TUF metadata for at least the following properties:
@@ -465,14 +432,12 @@ project TUF metadata for at least the following properties:
   represents the "root" of targets for that project (e.g. metadata/targets/
   project.txt).
 * The signatures of delegated targets metadata files MUST be valid.
-* The delegated targets metadata files MUST NOT be expired.
+* The delegated targets metadata files MUST NOT have expired.
 * The delegated targets metadata MUST be consistent with the targets.
 * A delegator MUST NOT delegate targets that were not delegated to itself by
   another delegator.
 * A delegatee MUST NOT sign for targets that were not delegated to itself by a
   delegator.
-* Every file MUST contain a unique copy of its hash in its filename following
-  the filename.digest.ext convention recommended earlier.
 
 If PyPI chooses to check the project TUF metadata, then PyPI MAY choose to
 reject publishing any set of metadata or targets that do not meet these
@@ -495,29 +460,25 @@ incompatible versions of TUF metadata so that claimed and recently-claimed
 projects could be offered a reasonable time to migrate their metadata to newer
 but backward-incompatible formats.
 
-The details of how each project manages its TUF metadata is beyond the scope of
-this PEP.
-
-A few implementation notes are now in order.  So far, we have seen that only
-new metadata and targets are added, but not that old metadata and targets are
-removed.  Practical constraints are such that eventually PyPI will run out of
-disk space to produce a new consistent snapshot.  If that happens, PyPI MAY
-then use something like a "mark-and-sweep" algorithm to delete sufficiently old
-consistent snapshots. Specifically, in order to preserve the latest consistent
-snapshot, PyPI would walk objects -- beginning from the root (*timestamp*) --
-of the latest consistent snapshot, mark all visited objects, and delete all
-unmarked objects.  The last few consistent snapshots may be preserved in a
-similar fashion.  Deleting a consistent snapshot will cause clients to see
-nothing except HTTP 404 responses to any request for a target of the deleted
-consistent snapshot.  Clients SHOULD then retry (as before) their requests with
-the latest consistent snapshot.
+If PyPI eventually runs out of disk space to produce a new consistent snapshot,
+then PyPI MAY then use something like a "mark-and-sweep" algorithm to delete
+sufficiently outdated consistent snapshots.  That is, only outdated metadata
+like *timestamp* and *snapshot* that are no longer used are deleted.
+Specifically, in order to preserve the latest consistent snapshot, PyPI would
+walk objects -- beginning from the root (*timestamp*) -- of the latest
+consistent snapshot, mark all visited objects, and delete all unmarked objects.
+The last few consistent snapshots may be preserved in a similar fashion.
+Deleting a consistent snapshot will cause clients to see nothing except HTTP
+404 responses to any request for a target of the deleted consistent snapshot.
+Clients SHOULD then retry (as before) their requests with the latest consistent
+snapshot.
 
 All package managers that support TUF metadata MUST be modified to download
 every metadata and target file (except for *timestamp* metadata) by including,
 in the request for the file, the cryptographic hash of the file in the
-filename.  Following the filename convention recommended earlier, a request for
-the file at filename.ext will be transformed to the equivalent request for the
-file at digest.filename.
+filename.  Following the filename convention RECOMMENDED in the next
+subsection, a request for the file at filename.ext will be transformed to the
+equivalent request for the file at digest.filename.
 
 Finally, PyPI SHOULD use a `transaction log`__ to record project transaction
 processes and queues so that it will be easier to recover from errors after a
@@ -526,6 +487,134 @@ server failure.
 __ https://en.wikipedia.org/wiki/Transaction_log
 
 
+Producing Consistent Snapshots
+------------------------------
+
+PyPI is responsible for updating, depending on the project, either the
+*claimed*, *recently-claimed*, or *unclaimed* metadata and associated delegated
+metadata. Every project MUST upload its set of metadata and targets in a single
+transaction.  The uploaded set of files is called the "project transaction."
+How PyPI MAY validate files in a project transaction is discussed in a later
+section.  The focus of this section is on how PyPI will respond to a project
+transaction.
+
+Every metadata and target file MUST include in its filename the `hex digest`__
+of its `SHA-256`__ hash, which PyPI may prepend to filenames after the files
+have been uploaded.  For this PEP, it is RECOMMENDED that PyPI adopt a simple
+convention of the form: *digest.filename*, where filename is the original
+filename without a copy of the hash, and digest is the hex digest of the hash.
+
+__ http://docs.python.org/2/library/hashlib.html#hashlib.hash.hexdigest
+__ https://en.wikipedia.org/wiki/SHA-2
+
+When an unclaimed project uploads a new transaction, a project transaction
+process MUST add all new targets and relevant delegated unclaimed metadata.
+The project transaction process MUST inform the snapshot process about new
+delegated unclaimed metadata.
+
+When a *recently-claimed* project uploads a new transaction, a project
+transaction process MUST add all new targets and delegated targets metadata for
+the project. If the project is new, then the project transaction process MUST
+also add new *recently-claimed* metadata with the public keys (which MUST be
+part of the transaction) for the project. *recently-claimed* projects have a
+threshold value of "1" set by the transaction process.  Finally, the project
+transaction process MUST inform the snapshot process about new
+*recently-claimed* metadata, as well as the current set of delegated targets
+metadata for the project.
+
+The transaction process for a claimed project is slightly different in that
+PyPI administrators periodically move (a manual process that MAY occur every
+two weeks to a month) projects from the *recently-claimed* role to the
+*claimed* role. (Moving a project from *recently-claimed* to *claimed* is a
+manual process because PyPI administrators have to use an offline key to sign
+the claimed project's distribution.)  A project transaction process MUST then
+add new *recently-claimed* and *claimed* metadata to reflect this migration. As
+is the case for a *recently-claimed* project, the project transaction process
+MUST always add all new targets and delegated targets metadata for the claimed
+project.  Finally, the project transaction process MUST inform the consistent
+snapshot process about new *recently-claimed* or *claimed* metadata, as well as
+the current set of delegated targets metadata for the project.
+
+Project transaction processes SHOULD be automated, except when PyPI
+administrators move a project from the *recently-claimed* role to the *claimed*
+role. Project transaction processes MUST also be applied atomically: either all
+metadata and targets -- or none of them -- are added. The project transaction
+processes and snapshot process SHOULD work concurrently. Finally, project
+transaction processes SHOULD keep in memory the latest *claimed*,
+*recently-claimed*, and *unclaimed* metadata so that they will be correctly
+updated in new consistent snapshots.
+
+The queue MAY be processed concurrently in order of appearance, provided that
+the following rules are observed:
+
+1.  No pair of project transaction processes may concurrently work on the same
+    project.
+
+2.  No pair of project transaction processes may concurrently work on
+    *unclaimed* projects that belong to the same delegated *unclaimed* role.
+
+3.  No pair of project transaction processes may concurrently work on new
+    recently-claimed projects.
+
+4.  No pair of project transaction processes may concurrently work on new
+    claimed projects.
+
+5.  No project transaction process may work on a new claimed project while
+    another project transaction process is working on a new recently-claimed
+    project and vice versa.
+
+These rules MUST be observed to ensure that metadata is not read from or
+written to inconsistently.
+
+
+Auditing Snapshots
+------------------
+
+If a malicious party compromises PyPI, they can sign arbitrary files with any
+of the online keys.  The roles with offline keys (i.e., *root* and *targets*)
+are still protected. To safely recover from a repository compromise, snapshots
+should be audited to ensure that files are only restored to trusted versions.
+
+When a repository compromise has been detected, the integrity of three types of
+information must be validated:
+
+1. If the online keys of the repository have been compromised, they can be
+   revoked by having the *targets* role sign new metadata, delegated to a new
+   key.
+
+2. If the role metadata on the repository has been changed, this will impact
+   the metadata that is signed by online keys.  Any role information created
+   since the compromise should be discarded. As a result, developers of new
+   projects will need to re-register their projects.
+
+3. If the packages themselves may have been tampered with, they can be
+   validated using the stored hash information for packages that existed in
+   trusted metadata before the compromise.  Also, new distributions that are
+   signed by developers in the *claimed* role may be safely retained.  However,
+   any distributions signed by developers in the *recently-claimed* or
+   *unclaimed* roles should be discarded.
+
+In order to safely restore snapshots in the event of a compromise, PyPI SHOULD
+maintain a small number of its own mirrors to copy PyPI snapshots according to
+some schedule.  The mirroring protocol can be used immediately for this
+purpose.  The mirrors must be secured and isolated such that they are
+responsible only for mirroring PyPI.  The mirrors can be checked against one
+another to detect accidental or malicious failures.
+
+Another approach is to periodically generate the cryptographic hash of
+*snapshot* and tweet it.  For example, upon receiving the tweet, a user comes
+forward with the actual metadata and the repository maintainers are then able
+to verify metadata's cryptographic hash.  Alternatively, PyPI may periodically
+archive its own versions of *snapshot* rather than rely on externally provided
+metadata.  In this case, PyPI SHOULD take the cryptographic hash of every
+package on the repository and store this data on an offline device. If any
+package hash has changed, this indicates an attack has occurred.
+
+Attacks that serve different versions of metadata or that freeze a version of a
+package at a specific version can be handled by TUF with techniques such as
+implicit key revocation and metadata mismatch detection [2]_.
+n
+
 Key Compromise Analysis
 =======================
 
@@ -533,7 +622,7 @@ This PEP has covered the maximum security model, the TUF roles that should be
 added to support continuous delivery of distributions, how to generate and sign
 the metadata of each role, and how to support distributions that have been
 signed by developers.  The remaining sections discuss how PyPI SHOULD audit
-repository metadata and the methods PyPI can use to detect and recover from a
+repository metadata, and the methods PyPI can use to detect and recover from a
 PyPI compromise.
 
 Table 1 summarizes a few of the attacks possible when a threshold number of
@@ -562,52 +651,52 @@ attacks, or metadata inconsistency attacks.
 |                   | cooperate         |                       |                       |
 +-------------------+-------------------+-----------------------+-----------------------+
 |    timestamp      |       NO          |         YES           |       YES             |
-|    **AND**        | targets or any    | limited by earliest   | limited by earliest   |
+|    *AND*          | targets or any    | limited by earliest   | limited by earliest   |
 |    snapshot       | of the delegated  | root, targets, or bin | root, targets, or bin |
 |                   | roles need to     | metadata expiry time  | metadata expiry time  |
 |                   | cooperate         |                       |                       |
 |                   |                   |                       |                       |
 +-------------------+-------------------+-----------------------+-----------------------+
 |    targets        |       NO          |     NOT APPLICABLE    |    NOT APPLICABLE     |
-|    **OR**         | timestamp and     | need timestamp and    | need timestamp        |
-|    claimed        | snapshot need to  | snapshot              | and snapshot          |
-|    **OR**         | cooperate         |                       |                       |
+|    *OR*           | timestamp and     | need timestamp and    | need timestamp        |
+|    **claimed**    | snapshot need to  | snapshot              | and snapshot          |
+|    *OR*           | cooperate         |                       |                       |
 | recently-claimed  |                   |                       |                       |
-|    **OR**         |                   |                       |                       |
+|    *OR*           |                   |                       |                       |
 |    unclaimed      |                   |                       |                       |
-|    **OR**         |                   |                       |                       |
-|    project        |                   |                       |                       |
+|    *OR*           |                   |                       |                       |
+|    **project**    |                   |                       |                       |
 +-------------------+-------------------+-----------------------+-----------------------+
 |   (timestamp      |       YES         |       YES             |       YES             |
-|   **AND**         |                   | limited by earliest   | limited by earliest   |
+|   *AND*           |                   | limited by earliest   | limited by earliest   |
 |   snapshot)       |                   | root, targets, or bin | root, targets, or bin |
-|   **AND**         |                   | metadata expiry time  | metadata expiry time  |
-|   project         |                   |                       |                       |
+|   *AND*           |                   | metadata expiry time  | metadata expiry time  |
+|   **project**     |                   |                       |                       |
 |                   |                   |                       |                       |
 +-------------------+-------------------+-----------------------+-----------------------+
 |  (timestamp       |     YES           |        YES            |           YES         |
-|  **AND**          | but only of       | limited by earliest   | limited by earliest   |
+|  *AND*            | but only of       | limited by earliest   | limited by earliest   |
 |  snapshot)        | projects not      | root, targets,        | root, targets,        |
-|  **AND**          | delegated by      | claimed,              | claimed,              |
+|  *AND*            | delegated by      | claimed,              | claimed,              |
 | (recently-claimed | claimed           | recently-claimed,     | recently-claimed,     |
-| **OR**            |                   | project, or unclaimed | project, or unclaimed |
+| *OR*              |                   | project, or unclaimed | project, or unclaimed |
 | unclaimed)        |                   | metadata expiry time  | metadata expiry time  |
 +-------------------+-------------------+-----------------------+-----------------------+
 | (timestamp        |                   |         YES           |           YES         | 
-| **AND**           |                   | limited by earliest   | limited by earliest   |   
+| *AND*             |                   | limited by earliest   | limited by earliest   |   
 | snapshot)         |                   | root, targets,        | root, targets,        |
-| **AND**           |       YES         | claimed,              | claimed,              |
-| (targets **OR**   |                   | recently-claimed,     | recently-claimed,     |
-| claimed)          |                   | project, or unclaimed | project, or unclaimed |
+| *AND*             |       YES         | claimed,              | claimed,              |
+| (targets *OR*     |                   | recently-claimed,     | recently-claimed,     |
+| **claimed**)      |                   | project, or unclaimed | project, or unclaimed |
 |                   |                   | metadata expiry time  | metadata expiry time  |
 +-------------------+-------------------+-----------------------+-----------------------+
 |     root          |       YES         |         YES           |           YES         |
 +-------------------+-------------------+-----------------------+-----------------------+
 
-Table 1: Attacks that are possible by compromising certain combinations of role keys.
-In `September 2013`__, it was shown how the latest version (at the time) of pip
-was susceptible to these attacks and how TUF could protect users against them
-[8]_.
+Table 1: Attacks that are possible by compromising certain combinations of role
+keys.  In `September 2013`__, it was shown how the latest version (at the time)
+of pip was susceptible to these attacks and how TUF could protect users against
+them [8]_.  Roles signed by offline keys are in **bold**.
 
 __ https://mail.python.org/pipermail/distutils-sig/2013-September/022755.html
 
@@ -615,24 +704,19 @@ Note that compromising *targets* or any delegated role (except for project
 targets metadata) does not immediately allow an attacker to serve malicious
 updates.  The attacker must also compromise the *timestamp* and *snapshot*
 roles (which are both online and therefore more likely to be compromised).
-This means that in order to launch any attack, one must not only be able to
-act as a man-in-the-middle but also compromise the *timestamp* key (or
-compromise the *root* keys and sign a new *timestamp* key).  To launch any
-attack other than a freeze attack, one must also compromise the *snapshot* key.
-
-Finally, a compromise of the PyPI infrastructure MAY introduce malicious
-updates to *bins* projects because the keys for these roles are online.  The
-maximum security model discussed in the appendix addresses this issue.  PEP XXX
-[VD: Link to PEP once it is completed] also covers the maximum security model
-and goes into more detail on generating developer keys and signing uploaded
-distributions.
+This means that in order to launch any attack, one must not only be able to act
+as a man-in-the-middle, but also compromise the *timestamp* key (or compromise
+the *root* keys and sign a new *timestamp* key).  To launch any attack other
+than a freeze attack, one must also compromise the *snapshot* key.  Finally, a
+compromise of the PyPI infrastructure MAY introduce malicious updates to
+*recently-claimed* projects because the keys for these roles are online.
 
 
 In the Event of a Key Compromise
 --------------------------------
 
-A key compromise means that a threshold of keys (belonging to the metadata
-roles on PyPI), as well as the PyPI infrastructure, have been compromised and
+A key compromise means that a threshold of keys belonging to developers or the
+roles on PyPI, as well as the PyPI infrastructure, have been compromised and
 used to sign new metadata on PyPI.
 
 If a threshold number of developer keys of a project have been compromised,
@@ -654,63 +738,64 @@ Whereas PyPI MUST take the following steps:
 
 2.  A new timestamped consistent snapshot MUST be issued.
 
-If a threshold number of timestamp, snapshot, recently-claimed, or
-unclaimed keys have been compromised, then PyPI MUST take the following steps:
+If a threshold number of *timestamp*, *snapshot*, *recently-claimed*, or
+*unclaimed* keys have been compromised, then PyPI MUST take the following
+steps:
 
-1.  Revoke the timestamp, snapshot, and targets role keys from the
-    root role. This is done by replacing the compromised timestamp,
-    snapshot, and targets keys with newly issued keys.
+1.  Revoke the *timestamp*, *snapshot*, and *targets* role keys from the
+    root role. This is done by replacing the compromised *timestamp*,
+    *snapshot*, and *targets* keys with newly issued keys.
 
-2.  Revoke the recently-claimed and unclaimed keys from the targets role by
-    replacing their keys with newly issued keys. Sign the new targets role
+2.  Revoke the *recently-claimed* and *unclaimed* keys from the *targets* role
+    by replacing their keys with newly issued keys. Sign the new targets role
     metadata and discard the new keys (because, as we explained earlier, this
     increases the security of targets metadata).
 
-3.  Clear all targets or delegations in the recently-claimed role and delete
+3.  Clear all targets or delegations in the *recently-claimed* role and delete
     all associated delegated targets metadata. Recently registered projects
     SHOULD register their developer keys again with PyPI.
 
-4.  All targets of the recently-claimed and unclaimed roles SHOULD be compared
-    with the last known good consistent snapshot where none of the timestamp,
-    snapshot, recently-claimed, or unclaimed keys were known to have been
-    compromised. Added, updated, or deleted targets in the compromised
+4.  All targets of the *recently-claimed* and *unclaimed* roles SHOULD be
+    compared with the last known good consistent snapshot where none of the
+    timestamp, snapshot, recently-claimed, or unclaimed keys were known to have
+    been compromised. Added, updated, or deleted targets in the compromised
     consistent snapshot that do not match the last known good consistent
-    snapshot MAY be restored to their previous versions. After ensuring the
+    snapshot SHOULD be restored to their previous versions. After ensuring the
     integrity of all unclaimed targets, the unclaimed metadata MUST be
     regenerated.
 
-5.  The recently-claimed and unclaimed metadata MUST have their version numbers
-    incremented, expiry times suitably extended, and signatures renewed.
+5.  The *recently-claimed* and *unclaimed* metadata MUST have their version
+    numbers incremented, expiry times suitably extended, and signatures
+    renewed.
 
 6.  A new timestamped consistent snapshot MUST be issued.
 
 This would preemptively protect all of these roles even though only one of them
 may have been compromised.
 
-If a threshold number of the targets or claimed keys have been compromised,
-then there is little that an attacker would be able do without the timestamp and
-snapshot keys. In this case, PyPI MUST simply revoke the compromised targets or
-claimed keys by replacing them with new keys in the root and targets roles,
-respectively.
+If a threshold number of the *targets* or *claimed* keys have been compromised,
+then there is little that an attacker would be able do without the *timestamp*
+and *snapshot* keys. In this case, PyPI MUST simply revoke the compromised
+*targets* or *claimed* keys by replacing them with new keys in the *root* and
+*targets* roles, respectively.
 
-If a threshold number of the timestamp, snapshot, and claimed keys have been
-compromised, then PyPI MUST take the following steps in addition to the steps
-taken when either the timestamp or snapshot keys are compromised:
+If a threshold number of the *timestamp*, *snapshot*, and *claimed* keys have
+been compromised, then PyPI MUST take the following steps in addition to the
+steps taken when either the *timestamp* or *snapshot* keys are compromised:
 
-1.  Revoke the claimed role keys from the targets role and replace them with
+1.  Revoke the *claimed* role keys from the targets role and replace them with
     newly issued keys.
     
 2.  All project targets of the claimed roles SHOULD be compared with the last
-    known good consistent snapshot where none of the timestamp, snapshot, or
-    claimed keys were known to have been compromised.  Added, updated, or
+    known good consistent snapshot where none of the *timestamp*, *snapshot*,
+    or *claimed* keys were known to have been compromised.  Added, updated, or
     deleted targets in the compromised consistent snapshot that do not match
     the last known good consistent snapshot MAY be restored to their previous
     versions.  After ensuring the integrity of all claimed project targets, the
-    claimed metadata MUST be regenerated.
+    *claimed* metadata MUST be regenerated.
 
 3.  The claimed metadata MUST have their version numbers incremented, expiry
     times suitably extended, and signatures renewed.
-
 
 Following these steps would preemptively protect all of these roles even though
 only one of them may have been compromised.
@@ -722,68 +807,43 @@ the steps taken when the *targets* role has been compromised.  All of the
 It is also RECOMMENDED that PyPI sufficiently document compromises with
 security bulletins.  These security bulletins will be most informative when
 users of pip-with-TUF are unable to install or update a project because the
-keys for the *timestamp*, *snapshot*, or *root* roles are no longer valid.  Users
-could then visit the PyPI web site to consult security bulletins that would
-help to explain why users are no longer able to install or update, and then take
-action accordingly.  When a threshold number of *root* keys have not been
-revoked due to a compromise, then new *root* metadata may be safely updated
-because a threshold number of existing *root* keys will be used to sign for the
-integrity of the new *root* metadata.  TUF clients will be able to verify the
-integrity of the new *root* metadata with a threshold number of previously
-known *root* keys.  This will be the common case.  In the worst
+keys for the *timestamp*, *snapshot*, or *root* roles are no longer valid.
+Users could then visit the PyPI web site to consult security bulletins that
+would help to explain why users are no longer able to install or update, and
+then take action accordingly.  When a threshold number of *root* keys have not
+been revoked due to a compromise, then new *root* metadata may be safely
+updated because a threshold number of existing *root* keys will be used to sign
+for the integrity of the new *root* metadata.  TUF clients will be able to
+verify the integrity of the new *root* metadata with a threshold number of
+previously known *root* keys.  This will be the common case.  In the worst
 case, where a threshold number of *root* keys have been revoked due to a
 compromise, an end-user may choose to update new *root* metadata with
-`out-of-band`__ mechanisms.
+`out-of-band`__ mechanisms.p
 
 __ https://en.wikipedia.org/wiki/Out-of-band#Authentication
 
 
-Auditing Snapshots
-------------------
+Appendix A: PyPI Build Farm and End-to-End Signing
+==================================================
 
-If a malicious party compromises PyPI, they can sign arbitrary files with any
-of the online keys.  The roles with offline keys (i.e., *root* and *targets*)
-are still protected. To safely recover from a repository compromise, snapshots
-should be audited to ensure that files are only restored to trusted versions.
+PyPI administrators intend to support a central build farm.  The PyPI build
+farm will auto-generate a `Wheel`__, for each distribution that is uploaded by
+developers, on PyPI infrastructure and on supported platforms.  Package
+managers will likely install projects by downloading these PyPI Wheels (which
+can be installed much faster than source distributions) rather than the source
+distributions signed by developers.  The implications of having a central build
+farm with end-to-end signing SHOULD be investigated before the maximum security
+model is implemented.
 
-When a repository compromise has been detected, the integrity of three types of
-information must be validated:
+__ http://wheel.readthedocs.org/en/latest/
 
-1. If the online keys of the repository have been compromised, they can be
-   revoked by having the *targets* role sign new metadata, delegated to a new
-   key.
-
-2. If the role metadata on the repository has been changed, this will impact
-   the metadata that is signed by online keys.  Any role information created
-   since the compromise should be discarded. As a result, developers of new
-   projects will need to re-register their projects.
-
-3. If the packages themselves may have been tampered with, they can be
-   validated using the stored hash information for packages that existed in
-   trusted metadata before the compromise.  Also, new distributions that are
-   signed by developers in the claimed role may be safely retained.  However,
-   any distributions signed by developers in the *recently-claimed* or
-   *unclaimed* roles should be discarded.
-
-In order to safely restore snapshots in the event of a compromise, PyPI SHOULD
-maintain a small number of its own mirrors to copy PyPI snapshots according to
-some schedule.  The mirroring protocol can be used immediately for this
-purpose.  The mirrors must be secured and isolated such that they are
-responsible only for mirroring PyPI.  The mirrors can be checked against one
-another to detect accidental or malicious failures.
-
-Another approach is to generate the cryptographic hash of *snapshot*
-periodically and tweet it.  For example, upon receiving the tweet, a user comes
-forward with the actual metadata and the repository maintainers are then able
-to verify the metadata's cryptographic hash.  Alternatively, PyPI may
-periodically archive its own versions of *snapshot* rather than rely on
-externally provided metadata.  In this case, PyPI SHOULD take the cryptographic
-hash of every package on the repository and store this data on an offline
-device. If any package hash has changed, this indicates an attack has occurred.
-
-Attacks that serve different versions of metadata or that freeze a version
-of a package at a specific version can be handled by TUF with techniques
-such as implicit key revocation and metadata mismatch detection [1].
+An issue with a central build farm and end-to-end signing is that developers
+are unlikely to sign Wheel distributions once they have been generated on PyPI
+infrastructure.  However, generating wheels from source distributions that are
+signed by developers can still be beneficial, provided that building Wheels is
+a deterministic process.  If deterministic builds are infeasible, developers
+may delegate trust of these wheels to a PyPI role that signs for wheels with
+an online key.
 
 
 References
@@ -800,29 +860,27 @@ References
 .. [9] https://pypi.python.org/security
 .. [10] https://mail.python.org/pipermail/distutils-sig/2013-August/022154.html
 .. [11] https://en.wikipedia.org/wiki/RSA_%28algorithm%29
-.. [12] https://pypi.python.org/pypi/pycrypto
-.. [13] http://ed25519.cr.yp.to/
+.. [12] http://ed25519.cr.yp.to/
 
 
 Acknowledgements
 ================
 
 This material is based upon work supported by the National Science Foundation
-under Grant No. CNS-1345049 and CNS-0959138. Any opinions, findings, and
+under Grants No. CNS-1345049 and CNS-0959138. Any opinions, findings, and
 conclusions or recommendations expressed in this material are those of the
 author(s) and do not necessarily reflect the views of the National Science
 Foundation.
 
-Nick Coghlan, Daniel Holth and the distutils-sig community in general for
-helping us to think about how to usably and efficiently integrate TUF with
+We thank Nick Coghlan, Daniel Holth and the distutils-sig community in general
+for helping us to think about how to usably and efficiently integrate TUF with
 PyPI.
 
 Roger Dingledine, Sebastian Hahn, Nick Mathewson,  Martin Peck and Justin
-Samuel for helping us to design TUF from its predecessor Thandy of the Tor
-project.
+Samuel helped us to design TUF from its predecessor Thandy of the Tor project.
 
-Konstantin Andrianov, Geremy Condra, Vladimir Diaz, Zane Fisher, Justin Samuel,
-Tian Tian, Santiago Torres, John Ward, and Yuyu Zheng for helping us to develop
+We appreciate the efforts of Konstantin Andrianov, Geremy Condra, Zane Fisher,
+Justin Samuel, Tian Tian, Santiago Torres, John Ward, and Yuyu Zheng to develop
 TUF.
 
 
