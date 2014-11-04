@@ -636,61 +636,61 @@ attacks, or metadata inconsistency attacks.
 | Role Compromise   | Malicious Updates | Freeze Attack         | Metadata Inconsistency|
 |                   |                   |                       | Attacks               |
 +===================+===================+=======================+=======================+
-|    timetamp       |       NO          |       YES             |       NO              |
+| timetamp          | NO                | YES                   | NO                    |
 |                   | snapshot and      | limited by earliest   | snapshot needs to     |
 |                   | targets or any    | root, targets, or bin | cooperate             |
 |                   | of the delegated  | metadata expiry time  |                       |
 |                   | roles need to     |                       |                       |
 |                   | cooperate         |                       |                       |
 +-------------------+-------------------+-----------------------+-----------------------+
-|    snapshot       |       NO          |         NO            |       NO              |
+| snapshot          | NO                | NO                    | NO                    |
 |                   | timestamp and     | timestamp needs to    | timestamp needs to    |
 |                   | targets or any of | coorperate            | cooperate             |
 |                   | the delegated     |                       |                       |
 |                   | roles need to     |                       |                       |
 |                   | cooperate         |                       |                       |
 +-------------------+-------------------+-----------------------+-----------------------+
-|    timestamp      |       NO          |         YES           |       YES             |
-|    *AND*          | targets or any    | limited by earliest   | limited by earliest   |
-|    snapshot       | of the delegated  | root, targets, or bin | root, targets, or bin |
+| timestamp         | NO                | YES                   | YES                   |
+| *AND*             | targets or any    | limited by earliest   | limited by earliest   |
+| snapshot          | of the delegated  | root, targets, or bin | root, targets, or bin |
 |                   | roles need to     | metadata expiry time  | metadata expiry time  |
 |                   | cooperate         |                       |                       |
 |                   |                   |                       |                       |
 +-------------------+-------------------+-----------------------+-----------------------+
-|    targets        |       NO          |     NOT APPLICABLE    |    NOT APPLICABLE     |
-|    *OR*           | timestamp and     | need timestamp and    | need timestamp        |
-|    **claimed**    | snapshot need to  | snapshot              | and snapshot          |
-|    *OR*           | cooperate         |                       |                       |
+| targets           | NO                | NOT APPLICABLE        | NOT APPLICABLE        |
+| *OR*              | timestamp and     | need timestamp and    | need timestamp        |
+| **claimed**       | snapshot need to  | snapshot              | and snapshot          |
+| *OR*              | cooperate         |                       |                       |
 | recently-claimed  |                   |                       |                       |
-|    *OR*           |                   |                       |                       |
-|    unclaimed      |                   |                       |                       |
-|    *OR*           |                   |                       |                       |
-|    **project**    |                   |                       |                       |
+| *OR*              |                   |                       |                       |
+| unclaimed         |                   |                       |                       |
+| *OR*              |                   |                       |                       |
+| **project**       |                   |                       |                       |
 +-------------------+-------------------+-----------------------+-----------------------+
-|   (timestamp      |       YES         |       YES             |       YES             |
-|   *AND*           |                   | limited by earliest   | limited by earliest   |
-|   snapshot)       |                   | root, targets, or bin | root, targets, or bin |
-|   *AND*           |                   | metadata expiry time  | metadata expiry time  |
-|   **project**     |                   |                       |                       |
+| (timestamp        | YES               | YES                   | YES                   |
+| *AND*             |                   | limited by earliest   | limited by earliest   |
+| snapshot)         |                   | root, targets, or bin | root, targets, or bin |
+| *AND*             |                   | metadata expiry time  | metadata expiry time  |
+| **project**       |                   |                       |                       |
 |                   |                   |                       |                       |
 +-------------------+-------------------+-----------------------+-----------------------+
-|  (timestamp       |     YES           |        YES            |           YES         |
-|  *AND*            | but only of       | limited by earliest   | limited by earliest   |
-|  snapshot)        | projects not      | root, targets,        | root, targets,        |
-|  *AND*            | delegated by      | claimed,              | claimed,              |
+| (timestamp        | YES               | YES                   | YES                   |
+| *AND*             | but only of       | limited by earliest   | limited by earliest   |
+| snapshot)         | projects not      | root, targets,        | root, targets,        |
+| *AND*             | delegated by      | claimed,              | claimed,              |
 | (recently-claimed | claimed           | recently-claimed,     | recently-claimed,     |
 | *OR*              |                   | project, or unclaimed | project, or unclaimed |
 | unclaimed)        |                   | metadata expiry time  | metadata expiry time  |
 +-------------------+-------------------+-----------------------+-----------------------+
-| (timestamp        |                   |         YES           |           YES         | 
+| (timestamp        |                   | YES                   | YES                   | 
 | *AND*             |                   | limited by earliest   | limited by earliest   |   
 | snapshot)         |                   | root, targets,        | root, targets,        |
-| *AND*             |       YES         | claimed,              | claimed,              |
+| *AND*             | YES               | claimed,              | claimed,              |
 | (targets *OR*     |                   | recently-claimed,     | recently-claimed,     |
 | **claimed**)      |                   | project, or unclaimed | project, or unclaimed |
 |                   |                   | metadata expiry time  | metadata expiry time  |
 +-------------------+-------------------+-----------------------+-----------------------+
-|     root          |       YES         |         YES           |           YES         |
+| root              | YES               | YES                   | YES                   |
 +-------------------+-------------------+-----------------------+-----------------------+
 
 Table 1: Attacks that are possible by compromising certain combinations of role
@@ -818,7 +818,7 @@ verify the integrity of the new *root* metadata with a threshold number of
 previously known *root* keys.  This will be the common case.  In the worst
 case, where a threshold number of *root* keys have been revoked due to a
 compromise, an end-user may choose to update new *root* metadata with
-`out-of-band`__ mechanisms.p
+`out-of-band`__ mechanisms.
 
 __ https://en.wikipedia.org/wiki/Out-of-band#Authentication
 
