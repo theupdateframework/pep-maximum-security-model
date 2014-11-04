@@ -326,11 +326,11 @@ __ https://github.com/pypa/twine
 Distutils
 ---------
 
-__ https://docs.python.org/2/distutils/index.html#distutils-index
-
-Distutils MAY be modified to sign metadata and to upload signed distributions
+`Distutils`__ MAY be modified to sign metadata and to upload signed distributions
 to PyPI.  Distutils comes packaged with CPython and is the most widely-used
 tool for uploading distributions to PyPI.
+
+__ https://docs.python.org/2/distutils/index.html#distutils-index
 
 
 Automated Signing Solution
