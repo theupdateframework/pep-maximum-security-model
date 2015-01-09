@@ -1,0 +1,72 @@
+{
+ "signatures": [
+  {
+   "keyid": "92e2800e2b81f2837f55dad5bd2b2a112cfe2dd96cc88b7a982543b1680e2c72",
+   "method": "ed25519",
+   "sig": "3e69a620aa56cbd3236043bce3eea3417c60a22e84bb68d5dd2254d94242117aea739280b47241c2779e628e2d4303ebc841af71109dc3e0b3d7502848581e0f"
+  }
+ ],
+ "signed": {
+  "_type": "Targets",
+  "delegations": {
+   "keys": {
+    "50907401bbac04856fe6b31eb92ee01ccf8cd8315d374304ea9960e60de81c97": {
+     "keytype": "ed25519",
+     "keyval": {
+      "public": "7cc4ccf0197975a92aa55cde9a16cf42c8bbfe203e7f6127cabfa7c975b6b327"
+     }
+    },
+    "bb78c8e8d7e48f204d750146eb0be3da8513f15ff2c2cb79034fce520cfd40a9": {
+     "keytype": "ed25519",
+     "keyval": {
+      "public": "8534b47eabecad8e6a198b72448963bfd3aea79f9b4555109e3d27ca703cc344"
+     }
+    },
+    "eabf04dee8613e781a230612235349fe032d481abb8bc810a89f4a6ad1d4af9e": {
+     "keytype": "ed25519",
+     "keyval": {
+      "public": "01e53074ee9148099a993073e143b66a5c6cbfbde936bce71d74d97363c604bd"
+     }
+    }
+   },
+   "roles": [
+    {
+     "backtrack": true,
+     "keyids": [
+      "eabf04dee8613e781a230612235349fe032d481abb8bc810a89f4a6ad1d4af9e"
+     ],
+     "name": "targets/developer-signed",
+     "paths": [
+      "/packages/"
+     ],
+     "threshold": 1
+    },
+    {
+     "backtrack": true,
+     "keyids": [
+      "bb78c8e8d7e48f204d750146eb0be3da8513f15ff2c2cb79034fce520cfd40a9"
+     ],
+     "name": "targets/recently-developer-signed",
+     "paths": [
+      "/packages/"
+     ],
+     "threshold": 1
+    },
+    {
+     "backtrack": true,
+     "keyids": [
+      "50907401bbac04856fe6b31eb92ee01ccf8cd8315d374304ea9960e60de81c97"
+     ],
+     "name": "targets/pypi-signed",
+     "paths": [
+      "/packages/"
+     ],
+     "threshold": 1
+    }
+   ]
+  },
+  "expires": "2015-04-11T03:32:39Z",
+  "targets": {},
+  "version": 1
+ }
+}

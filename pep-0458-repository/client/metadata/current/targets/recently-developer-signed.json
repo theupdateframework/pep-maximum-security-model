@@ -1,0 +1,38 @@
+{
+ "signatures": [
+  {
+   "keyid": "bb78c8e8d7e48f204d750146eb0be3da8513f15ff2c2cb79034fce520cfd40a9",
+   "method": "ed25519",
+   "sig": "e3859cb73af55be9360cf25dff3aa4ad2643081c32f52a49b8303d507ff39f8a0723a5f3e19a9513e6f532e85ea45bdcf61950ed10684216ca6522ed991c480b"
+  }
+ ],
+ "signed": {
+  "_type": "Targets",
+  "delegations": {
+   "keys": {
+    "48f6f5140bfed7ad27742646a5a396abd08c5238624d98d96ba1587de68b7418": {
+     "keytype": "ed25519",
+     "keyval": {
+      "public": "f898f74daedc2c8cc50300c5a5367c8fa5f9e4d717160c49bba2c2f3e54737df"
+     }
+    }
+   },
+   "roles": [
+    {
+     "backtrack": true,
+     "keyids": [
+      "48f6f5140bfed7ad27742646a5a396abd08c5238624d98d96ba1587de68b7418"
+     ],
+     "name": "targets/recently-developer-signed/numpy",
+     "paths": [
+      "/packages/numpy/"
+     ],
+     "threshold": 1
+    }
+   ]
+  },
+  "expires": "2015-04-11T03:32:46Z",
+  "targets": {},
+  "version": 2
+ }
+}

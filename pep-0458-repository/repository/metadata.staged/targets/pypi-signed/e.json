@@ -1,0 +1,26 @@
+{
+ "signatures": [
+  {
+   "keyid": "50907401bbac04856fe6b31eb92ee01ccf8cd8315d374304ea9960e60de81c97",
+   "method": "ed25519",
+   "sig": "86731ee4ae8df5ac1c340762c1b168d92b5570a2ef8f934027199590ef6cac09d41b7df7fa11caefae1a7be86202c06e3c1f81cb8e778504b6edcfa38a594700"
+  }
+ ],
+ "signed": {
+  "_type": "Targets",
+  "delegations": {
+   "keys": {},
+   "roles": []
+  },
+  "expires": "2015-04-11T03:32:48Z",
+  "targets": {
+   "/packages/warehouse/warehouse-14.2.1.tar.gz": {
+    "hashes": {
+     "sha256": "e8a86f34f6b762c860b080ceffba688ac25ab65ce83697639b1edb5cec1f7892"
+    },
+    "length": 733711
+   }
+  },
+  "version": 1
+ }
+}

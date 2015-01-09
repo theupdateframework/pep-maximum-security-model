@@ -1,0 +1,66 @@
+[2015-01-09 20:26:45,656 UTC] [tuf.download] [INFO] [_download_file:193@download.py]
+Downloading: http://localhost:8001/metadata/timestamp.json
+
+[2015-01-09 20:26:48,665 UTC] [tuf.download] [INFO] [_check_downloaded_length:595@download.py]
+Downloaded 537 bytes out of an upper limit of 16384 bytes.
+
+[2015-01-09 20:26:48,666 UTC] [tuf.client.updater] [INFO] [_get_file:1208@updater.py]
+Not decompressing http://localhost:8001/metadata/timestamp.json
+
+[2015-01-09 20:26:48,668 UTC] [tuf.client.updater] [INFO] [_update_metadata_if_changed:1526@updater.py]
+u'snapshot.json' up-to-date.
+
+[2015-01-09 20:26:48,668 UTC] [tuf.client.updater] [INFO] [_update_metadata_if_changed:1526@updater.py]
+u'root.json' up-to-date.
+
+[2015-01-09 20:26:48,669 UTC] [tuf.client.updater] [INFO] [_update_metadata_if_changed:1526@updater.py]
+u'targets.json' up-to-date.
+
+[2015-01-09 20:26:48,669 UTC] [tuf.client.updater] [INFO] [_update_metadata_if_changed:1526@updater.py]
+u'targets.json' up-to-date.
+
+[2015-01-09 20:26:48,669 UTC] [tuf.client.updater] [INFO] [_update_metadata_if_changed:1526@updater.py]
+u'targets/developer-signed.json' up-to-date.
+
+[2015-01-09 20:26:48,670 UTC] [tuf.client.updater] [INFO] [_update_metadata_if_changed:1526@updater.py]
+u'targets/recently-developer-signed.json' up-to-date.
+
+[2015-01-09 20:26:48,671 UTC] [tuf.client.updater] [INFO] [_update_metadata_if_changed:1526@updater.py]
+u'targets/pypi-signed.json' up-to-date.
+
+[2015-01-09 20:26:48,672 UTC] [tuf.client.updater] [INFO] [_update_metadata_if_changed:1526@updater.py]
+u'targets/pypi-signed/e.json' up-to-date.
+
+[2015-01-09 20:26:48,672 UTC] [tuf.client.updater] [INFO] [_update_metadata_if_changed:1526@updater.py]
+u'targets.json' up-to-date.
+
+[2015-01-09 20:26:48,672 UTC] [tuf.client.updater] [INFO] [_update_metadata_if_changed:1526@updater.py]
+u'targets/developer-signed.json' up-to-date.
+
+[2015-01-09 20:26:48,673 UTC] [tuf.client.updater] [INFO] [_update_metadata_if_changed:1526@updater.py]
+u'targets/developer-signed/requests.json' up-to-date.
+
+[2015-01-09 20:26:48,673 UTC] [tuf.download] [INFO] [_download_file:193@download.py]
+Downloading: http://localhost:8001/targets/packages/warehouse/warehouse-14.2.1.tar.gz
+
+[2015-01-09 20:26:48,675 UTC] [tuf.download] [INFO] [_check_downloaded_length:573@download.py]
+Downloaded 733711 bytes out of the expected 733711 bytes.
+
+[2015-01-09 20:26:48,676 UTC] [tuf.client.updater] [INFO] [_get_file:1208@updater.py]
+Not decompressing http://localhost:8001/targets/packages/warehouse/warehouse-14.2.1.tar.gz
+
+[2015-01-09 20:26:48,680 UTC] [tuf.client.updater] [INFO] [_check_hashes:715@updater.py]
+The file's sha256 hash is correct: e8a86f34f6b762c860b080ceffba688ac25ab65ce83697639b1edb5cec1f7892
+
+[2015-01-09 20:26:48,683 UTC] [tuf.download] [INFO] [_download_file:193@download.py]
+Downloading: http://localhost:8001/targets/packages/requests/requests-2.5.1-py2.py3-none-any.whl
+
+[2015-01-09 20:26:48,686 UTC] [tuf.download] [INFO] [_check_downloaded_length:573@download.py]
+Downloaded 464421 bytes out of the expected 464421 bytes.
+
+[2015-01-09 20:26:48,686 UTC] [tuf.client.updater] [INFO] [_get_file:1208@updater.py]
+Not decompressing http://localhost:8001/targets/packages/requests/requests-2.5.1-py2.py3-none-any.whl
+
+[2015-01-09 20:26:48,689 UTC] [tuf.client.updater] [INFO] [_check_hashes:715@updater.py]
+The file's sha256 hash is correct: 1f046dcf5ec712ed3be8684b9f33c95b76e28cd1c825db0f5e1557bfd87b3745
+

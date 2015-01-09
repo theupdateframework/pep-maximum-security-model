@@ -1,0 +1,26 @@
+{
+ "signatures": [
+  {
+   "keyid": "50907401bbac04856fe6b31eb92ee01ccf8cd8315d374304ea9960e60de81c97",
+   "method": "ed25519",
+   "sig": "b8ecb8683108f454d137a121bef2ba5cae2a64d2ab7e5dd6eeffca7020d388ec60333f4ffdadba19737354247cda4da80f0a414e7ce51cc426c96cc6c3adc104"
+  }
+ ],
+ "signed": {
+  "_type": "Targets",
+  "delegations": {
+   "keys": {},
+   "roles": []
+  },
+  "expires": "2015-04-11T03:32:48Z",
+  "targets": {
+   "/packages/django/Django-1.7.2.tar.gz": {
+    "hashes": {
+     "sha256": "31c6c3c229f8c04b3be87e6afc3492903b57ec8f1188a47b6ae160d90cf653c8"
+    },
+    "length": 7577911
+   }
+  },
+  "version": 1
+ }
+}
