@@ -1,0 +1,154 @@
+{
+ "signatures": [
+  {
+   "keyid": "c7e9d3e365f2a4597832fb1306c2b8bbec7eb87dd3c831ab0891a173b91b1e40",
+   "method": "ed25519",
+   "sig": "c3c713f64aa54720381b8d41aa5f63e992d6aadda35b9ec50df5ca21008562e337d900fb3773e145f568e1f447604969ba6fd4b13001f7472afd0d9f4a7b6d0e"
+  }
+ ],
+ "signed": {
+  "_type": "Snapshot",
+  "expires": "2015-01-16T20:05:29Z",
+  "meta": {
+   "root.json": {
+    "hashes": {
+     "sha256": "62d2561390e6b754209751c413ebba266c63588dcd8ddf19ec9b5e7d9c6da561"
+    },
+    "length": 2909
+   },
+   "targets.json": {
+    "hashes": {
+     "sha256": "383d91884257f7a96144b39fd98caf78c84ea746a59764f213825db508d007a8"
+    },
+    "length": 1810
+   },
+   "targets/developer-signed.json": {
+    "hashes": {
+     "sha256": "6567a9bf06c443c3e00a0664722bcacf6df087828bbb8ca1f501034281478a43"
+    },
+    "length": 916
+   },
+   "targets/developer-signed/requests.json": {
+    "hashes": {
+     "sha256": "67d1a5b99dc28df7c48a1f484ad18ad151221ba06b80e1d70335b45dd5ff213e"
+    },
+    "length": 816
+   },
+   "targets/pypi-signed.json": {
+    "hashes": {
+     "sha256": "187ce477da7be0c369e5440661b3f7c596ddc7de9062896f07869bcf1eabc375"
+    },
+    "length": 4499
+   },
+   "targets/pypi-signed/0.json": {
+    "hashes": {
+     "sha256": "0898b38bcc91a2f510c42b4988456b7e93f2e06da8d59039eb92056177d05e67"
+    },
+    "length": 438
+   },
+   "targets/pypi-signed/1.json": {
+    "hashes": {
+     "sha256": "ba94d6c22917cb22707d36040059309616f8de8de5303ad55a70544cc5ba0876"
+    },
+    "length": 618
+   },
+   "targets/pypi-signed/2.json": {
+    "hashes": {
+     "sha256": "0898b38bcc91a2f510c42b4988456b7e93f2e06da8d59039eb92056177d05e67"
+    },
+    "length": 438
+   },
+   "targets/pypi-signed/3.json": {
+    "hashes": {
+     "sha256": "0898b38bcc91a2f510c42b4988456b7e93f2e06da8d59039eb92056177d05e67"
+    },
+    "length": 438
+   },
+   "targets/pypi-signed/4.json": {
+    "hashes": {
+     "sha256": "706cd2fc7c0bfd7c0060bb3447e8d846e67bdf57f3c6fdcb0a21203898b35ee7"
+    },
+    "length": 638
+   },
+   "targets/pypi-signed/5.json": {
+    "hashes": {
+     "sha256": "c5ad39ddf505e32ab12faca4cf1faf490476c23378c4bb058c26ff072ae030ef"
+    },
+    "length": 718
+   },
+   "targets/pypi-signed/6.json": {
+    "hashes": {
+     "sha256": "0898b38bcc91a2f510c42b4988456b7e93f2e06da8d59039eb92056177d05e67"
+    },
+    "length": 438
+   },
+   "targets/pypi-signed/7.json": {
+    "hashes": {
+     "sha256": "0898b38bcc91a2f510c42b4988456b7e93f2e06da8d59039eb92056177d05e67"
+    },
+    "length": 438
+   },
+   "targets/pypi-signed/8.json": {
+    "hashes": {
+     "sha256": "662beec5bdd3704c380ba44cb3cd296f9833096bea0b6d5e594e1cff1ba66a37"
+    },
+    "length": 632
+   },
+   "targets/pypi-signed/9.json": {
+    "hashes": {
+     "sha256": "0898b38bcc91a2f510c42b4988456b7e93f2e06da8d59039eb92056177d05e67"
+    },
+    "length": 438
+   },
+   "targets/pypi-signed/a.json": {
+    "hashes": {
+     "sha256": "0898b38bcc91a2f510c42b4988456b7e93f2e06da8d59039eb92056177d05e67"
+    },
+    "length": 438
+   },
+   "targets/pypi-signed/b.json": {
+    "hashes": {
+     "sha256": "0898b38bcc91a2f510c42b4988456b7e93f2e06da8d59039eb92056177d05e67"
+    },
+    "length": 438
+   },
+   "targets/pypi-signed/c.json": {
+    "hashes": {
+     "sha256": "88d85c4136495e2fb74b30611a3b5dc6a9406facd77fdbc55c01b7bc37e2db8b"
+    },
+    "length": 635
+   },
+   "targets/pypi-signed/d.json": {
+    "hashes": {
+     "sha256": "0898b38bcc91a2f510c42b4988456b7e93f2e06da8d59039eb92056177d05e67"
+    },
+    "length": 438
+   },
+   "targets/pypi-signed/e.json": {
+    "hashes": {
+     "sha256": "29193afebad4c6a39150cfdc1125ae7579ec48544a19a2b0490b5723e4e91141"
+    },
+    "length": 624
+   },
+   "targets/pypi-signed/f.json": {
+    "hashes": {
+     "sha256": "fa4d731e0d1907b2da7f84a4bc927d60bd4b1968d9237a4670fbaa75158a8641"
+    },
+    "length": 797
+   },
+   "targets/recently-developer-signed.json": {
+    "hashes": {
+     "sha256": "129c83918f4d4c2d1e1b4f40e5d41832a6fa5d19d8e5788bbe474d0960bd949f"
+    },
+    "length": 919
+   },
+   "targets/recently-developer-signed/numpy.json": {
+    "hashes": {
+     "sha256": "172e0f2674f74736647acce7c65338a6a2e7bf8cfc10480819c68337d91e83bc"
+    },
+    "length": 894
+   }
+  },
+  "version": 2
+ }
+}

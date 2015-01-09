@@ -1,0 +1,26 @@
+{
+ "signatures": [
+  {
+   "keyid": "50907401bbac04856fe6b31eb92ee01ccf8cd8315d374304ea9960e60de81c97",
+   "method": "ed25519",
+   "sig": "a3b63c20bd28ab98235319a3f046ba041420d253d6087e7f318d40415527b7eb89f8044c7e2db09cd05ed8b38593a1f816b1bea03afea2bd4ca1fba17fe3e20d"
+  }
+ ],
+ "signed": {
+  "_type": "Targets",
+  "delegations": {
+   "keys": {},
+   "roles": []
+  },
+  "expires": "2015-04-11T03:32:48Z",
+  "targets": {
+   "/packages/warehouse/warehouse-14.2.1-py2.py3-none-any.whl": {
+    "hashes": {
+     "sha256": "53626a7e6e15ff1deb23c98ee4e6059c9bc50f9866577641e973886ec1d17fa2"
+    },
+    "length": 806225
+   }
+  },
+  "version": 1
+ }
+}

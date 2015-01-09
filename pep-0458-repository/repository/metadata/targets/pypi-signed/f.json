@@ -1,0 +1,32 @@
+{
+ "signatures": [
+  {
+   "keyid": "50907401bbac04856fe6b31eb92ee01ccf8cd8315d374304ea9960e60de81c97",
+   "method": "ed25519",
+   "sig": "ae16f9275665b773165490de32f740216d84ee34c72db84aaf28d7e64c2fbee4aebff219ef74c91101b9e18a1c8b8ddf9dccf812bea3732a0dd138daa6c23600"
+  }
+ ],
+ "signed": {
+  "_type": "Targets",
+  "delegations": {
+   "keys": {},
+   "roles": []
+  },
+  "expires": "2015-04-11T03:32:48Z",
+  "targets": {
+   "/packages/numpy/numpy-1.9.1.tar.gz": {
+    "hashes": {
+     "sha256": "0075bbe07e30b659ae4415446f45812dc1b96121a493a4a1f8b1ba77b75b1e1c"
+    },
+    "length": 3978007
+   },
+   "/packages/requests/requests-2.5.1.tar.gz": {
+    "hashes": {
+     "sha256": "7b7735efd3b1e2323dc9fcef060b380d05f5f18bd0f247f5e9e74a628279de66"
+    },
+    "length": 443633
+   }
+  },
+  "version": 1
+ }
+}

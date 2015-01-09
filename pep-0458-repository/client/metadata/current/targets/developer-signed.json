@@ -1,0 +1,38 @@
+{
+ "signatures": [
+  {
+   "keyid": "eabf04dee8613e781a230612235349fe032d481abb8bc810a89f4a6ad1d4af9e",
+   "method": "ed25519",
+   "sig": "e29a5b7919db52cb5f2cfe3c189d81daa956e3f72caf604e9804dc8f623917baffcab48e2c9f103992f52538afd418db5a4619c2631a494ee99c59d4a4562b0c"
+  }
+ ],
+ "signed": {
+  "_type": "Targets",
+  "delegations": {
+   "keys": {
+    "6c8ef26140d82528f8fee7f066f1211e7f026d573a02e8c4abbc27cecbcd5ea2": {
+     "keytype": "ed25519",
+     "keyval": {
+      "public": "6b9b11ef9daa98f2984c704c067ff3ac6099163310dae4dbca6e6ec2837467f9"
+     }
+    }
+   },
+   "roles": [
+    {
+     "backtrack": true,
+     "keyids": [
+      "6c8ef26140d82528f8fee7f066f1211e7f026d573a02e8c4abbc27cecbcd5ea2"
+     ],
+     "name": "targets/developer-signed/requests",
+     "paths": [
+      "/packages/requests/"
+     ],
+     "threshold": 1
+    }
+   ]
+  },
+  "expires": "2015-04-11T03:32:45Z",
+  "targets": {},
+  "version": 2
+ }
+}
